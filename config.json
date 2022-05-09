@@ -1,0 +1,47 @@
+{
+  "login_token": "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
+  "root": "C:\\Users\\Romeo\\Desktop\\courses",
+  "course_data": {
+    "Math Majors": {
+      "id": 1865191,
+      "group_data": {
+        "Assignments": {
+          "group_weight": 0.0,
+          "default_points": 10,
+          "rules": "",
+          "id": 3119489
+        },
+        "first exam": {
+          "group_weight": 0.0,
+          "default_points": 10,
+          "rules": "",
+          "id": 3156155
+        },
+        "hmks": {
+          "group_weight": 0.0,
+          "default_points": 10,
+          "rules": "drop_lowest:1\ndrop_highest:2\n",
+          "id": 3156338
+        },
+        "Homework": {
+          "group_weight": 0.0,
+          "default_points": 10,
+          "rules": "drop_lowest:1\n",
+          "id": 3178937
+        },
+        "Homeworks": {
+          "group_weight": 25,
+          "default_points": 10,
+          "rules": "drop_lowest:3",
+          "id": 3204028
+        },
+        "Quizes": {
+          "group_weight": 30,
+          "default_points": 10,
+          "rules": "drop_lowest:1",
+          "id": 3204029
+        }
+      }
+    }
+  }
+}

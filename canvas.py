@@ -9,7 +9,7 @@ Assignment Data:
 {
     "assignment[name]" : "Assignment 1", # str
     "assignment[points_possible]" : 10, # int
-    "assignment[due_at]" : "", # str
+    "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str
     "assignment[description]" : "description", #str
     "assignment[assignment_group_id]" : 12345, # int
     "assignment[published]" : True # boolean
@@ -155,13 +155,21 @@ def main():
     #     updateCanvasGroups(course_id,group_data)
     
     data = {
-    "name" : "group 1 edited", # str
-    "group_weight" : 35, # int %
-    "rules" : "drop_lowest:2\ndrop_highest:2\n" # str rule1:value\nrule2:value\n...
+        "assignment[name]" : "Assignment 1", # str
+        "assignment[points_possible]" : 15, # int
+        "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str
+        "assignment[description]" : "", #str
+        "assignment[assignment_group_id]" : 3206373, # int
+        "assignment[published]" : False # boolean
+    }
+    file_data = {
+        "name" : "Homework 1", # str
+        "parent_folder_path" : "Homeworks", # str
     }
     
-    canvasAPI.updateGroup(math_majors_course_id,3206373,data)
-    updateLocalGroups(math_majors_course_id)
+    path = f'hmk-4.pdf'
+    
+    canvasAPI.createAssignmentWithFile(math_majors_course_id,data,path,file_data)
 
 
 if __name__ == "__main__":

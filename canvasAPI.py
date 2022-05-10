@@ -18,7 +18,7 @@ class CanvasAPI:
     def createAssignmentWithFile(self, course_id, assignment_data, file_path, file_data):
         response = self.uploadFile(course_id,file_path,file_data).json()
         file_id = response['id']
-        file_name = response['name']
+        file_name = response['filename']
         file_preview = f'<p><a class="instructure_file_link instructure_scribd_file auto_open" title="{file_name}" href="https://bridgeport.instructure.com/courses/{course_id}/files/{file_id}?wrap=1" target="_blank" rel="noopener" data-api-endpoint="https://bridgeport.instructure.com/api/v1/courses/{course_id}/files/{file_id}" data-api-returntype="File">{file_name}</a></p>'
         assignment_data['assignment[description]'] = file_preview
         return self.createAssignment(course_id,assignment_data)

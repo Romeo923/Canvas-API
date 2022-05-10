@@ -27,6 +27,11 @@ File Data UPLOADING:
     "name" : "file 1", # str
     "parent_folder_path" : "folder name", # str
 }
+
+Tab:
+{
+    
+}
 """
 
 with open("config.json") as f:
@@ -154,23 +159,27 @@ def main():
     #     # updateLocalGroups(course_id)
     #     updateCanvasGroups(course_id,group_data)
     
-    data = {
-        "assignment[name]" : "Assignment 1", # str
-        "assignment[points_possible]" : 15, # int
-        "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str
-        "assignment[description]" : "", #str
-        "assignment[assignment_group_id]" : 3206373, # int
-        "assignment[published]" : False # boolean
-    }
-    file_data = {
-        "name" : "Homework 1", # str
-        "parent_folder_path" : "Homeworks", # str
-    }
+    # data = {
+    #     "assignment[name]" : "Assignment 1", # str
+    #     "assignment[points_possible]" : 15, # int
+    #     "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str
+    #     "assignment[description]" : "", #str
+    #     "assignment[assignment_group_id]" : 3206373, # int
+    #     "assignment[published]" : False # boolean
+    # }
+    # file_data = {
+    #     "name" : "Homework 1", # str
+    #     "parent_folder_path" : "Homeworks", # str
+    # }
     
-    path = f'hmk-4.pdf'
+    # path = f'hmk-4.pdf'
     
-    canvasAPI.createAssignmentWithFile(math_majors_course_id,data,path,file_data)
-
+    # canvasAPI.createAssignmentWithFile(math_majors_course_id,data,path,file_data)
+    
+    tabs = canvasAPI.getTabs(math_majors_course_id)
+    config['tabs'] = tabs
+    with open("config.json","w") as f:
+        json.dump(config,f,indent=2)
 
 if __name__ == "__main__":
     main()

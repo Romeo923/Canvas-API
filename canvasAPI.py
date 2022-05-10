@@ -21,8 +21,7 @@ class CanvasAPI:
         file_name = response['filename']
         file_preview = f'<p><a class="instructure_file_link instructure_scribd_file auto_open" title="{file_name}" href="https://bridgeport.instructure.com/courses/{course_id}/files/{file_id}?wrap=1" target="_blank" rel="noopener" data-api-endpoint="https://bridgeport.instructure.com/api/v1/courses/{course_id}/files/{file_id}" data-api-returntype="File">{file_name}</a></p>'
         assignment_data['assignment[description]'] = file_preview
-        return self.createAssignment(course_id,assignment_data)
-        
+        return self.createAssignment(course_id,assignment_data)   
     
     def updateAssignment(self, course_id, assignment_id, assignment_data):
         full_path = f"{self.ub_url}courses/{course_id}/assignments/{assignment_id}"
@@ -87,5 +86,10 @@ class CanvasAPI:
     
     # Tabs
     
-    def updateTab(self, course_id, tab_data):
-        full_path = f"{self.ub_url}courses/{course_id}/update_nav"
+    def getTabs(self, course_id):
+        full_path = f"{self.ub_url}courses/{course_id}/tabs"
+        return requests.get(url=full_path,headers=self.headers).json()
+    
+    def updateTab(self, course_id, tab_id, tab_data):
+        full_path = f"{self.ub_url}courses/{course_id}/tabs/{tab_id}"
+        return requests.put(url=full_path,headers=self.headers,params=tab_data)

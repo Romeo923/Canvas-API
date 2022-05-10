@@ -37,5 +37,317 @@
         }
       }
     }
-  }
+  },
+  "tabs": [
+    {
+      "id": "home",
+      "html_url": "/courses/1865191",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191",
+      "position": 1,
+      "visibility": "public",
+      "label": "Home",
+      "type": "internal"
+    },
+    {
+      "id": "announcements",
+      "html_url": "/courses/1865191/announcements",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/announcements",
+      "position": 2,
+      "unused": true,
+      "visibility": "admins",
+      "label": "Announcements",
+      "type": "internal"
+    },
+    {
+      "id": "assignments",
+      "html_url": "/courses/1865191/assignments",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/assignments",
+      "position": 3,
+      "visibility": "public",
+      "label": "Assignments",
+      "type": "internal"
+    },
+    {
+      "id": "discussions",
+      "html_url": "/courses/1865191/discussion_topics",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/discussion_topics",
+      "position": 4,
+      "visibility": "public",
+      "label": "Discussions",
+      "type": "internal"
+    },
+    {
+      "id": "grades",
+      "html_url": "/courses/1865191/grades",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/grades",
+      "position": 5,
+      "visibility": "public",
+      "label": "Grades",
+      "type": "internal"
+    },
+    {
+      "id": "people",
+      "html_url": "/courses/1865191/users",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/users",
+      "position": 6,
+      "visibility": "public",
+      "label": "People",
+      "type": "internal"
+    },
+    {
+      "id": "pages",
+      "html_url": "/courses/1865191/wiki",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/wiki",
+      "position": 7,
+      "unused": true,
+      "visibility": "admins",
+      "label": "Pages",
+      "type": "internal"
+    },
+    {
+      "id": "files",
+      "html_url": "/courses/1865191/files",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/files",
+      "position": 8,
+      "visibility": "public",
+      "label": "Files",
+      "type": "internal"
+    },
+    {
+      "id": "syllabus",
+      "html_url": "/courses/1865191/assignments/syllabus",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/assignments/syllabus",
+      "position": 9,
+      "visibility": "public",
+      "label": "Syllabus",
+      "type": "internal"
+    },
+    {
+      "id": "outcomes",
+      "html_url": "/courses/1865191/outcomes",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/outcomes",
+      "position": 10,
+      "unused": true,
+      "visibility": "admins",
+      "label": "Outcomes",
+      "type": "internal"
+    },
+    {
+      "id": "rubrics",
+      "html_url": "/courses/1865191/rubrics",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/rubrics",
+      "position": 11,
+      "visibility": "admins",
+      "label": "Rubrics",
+      "type": "internal"
+    },
+    {
+      "id": "quizzes",
+      "html_url": "/courses/1865191/quizzes",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/quizzes",
+      "position": 12,
+      "unused": true,
+      "visibility": "admins",
+      "label": "Quizzes",
+      "type": "internal"
+    },
+    {
+      "id": "modules",
+      "html_url": "/courses/1865191/modules",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/modules",
+      "position": 13,
+      "unused": true,
+      "visibility": "admins",
+      "label": "Modules",
+      "type": "internal"
+    },
+    {
+      "id": "collaborations",
+      "html_url": "/courses/1865191/collaborations",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/collaborations",
+      "position": 14,
+      "visibility": "public",
+      "label": "Collaborations",
+      "type": "internal"
+    },
+    {
+      "id": "context_external_tool_19541",
+      "html_url": "/courses/1865191/external_tools/19541",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/19541",
+      "position": 15,
+      "visibility": "members",
+      "label": "Chat",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=19541&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_25374",
+      "html_url": "/courses/1865191/external_tools/25374",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/25374",
+      "position": 16,
+      "visibility": "admins",
+      "label": "Attendance",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=25374&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_48482",
+      "html_url": "/courses/1865191/external_tools/48482",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/48482",
+      "position": 17,
+      "visibility": "admins",
+      "label": "LockDown Browser",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=48482&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_83969",
+      "html_url": "/courses/1865191/external_tools/83969",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/83969",
+      "position": 18,
+      "visibility": "members",
+      "label": "New Analytics",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=83969&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_109607",
+      "html_url": "/courses/1865191/external_tools/109607",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/109607",
+      "position": 19,
+      "visibility": "admins",
+      "label": "Submit Grades to Colleague Pilot Only",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=109607&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_125541",
+      "html_url": "/courses/1865191/external_tools/125541?display=borderless",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/125541?display=borderless",
+      "position": 20,
+      "visibility": "public",
+      "label": "Smarthinking Online Tutoring",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=125541&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_167025",
+      "html_url": "/courses/1865191/external_tools/167025",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/167025",
+      "position": 21,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "Item Banks",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=167025&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_153670",
+      "html_url": "/courses/1865191/external_tools/153670",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/153670",
+      "position": 22,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "Studio",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=153670&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_178471",
+      "html_url": "/courses/1865191/external_tools/178471",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/178471",
+      "position": 23,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "Badges",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=178471&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_40906",
+      "html_url": "/courses/1865191/external_tools/40906",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/40906",
+      "position": 24,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "MyLab and Mastering",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=40906&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_59879",
+      "html_url": "/courses/1865191/external_tools/59879",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/59879",
+      "position": 25,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "Macmillan Higher Education",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=59879&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_62134",
+      "html_url": "/courses/1865191/external_tools/62134",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/62134",
+      "position": 26,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "Cengage",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=62134&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_94546",
+      "html_url": "/courses/1865191/external_tools/94546",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/94546",
+      "position": 27,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "SCORM",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=94546&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_121539",
+      "html_url": "/courses/1865191/external_tools/121539",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/121539",
+      "position": 28,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "Zoom",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=121539&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_157817",
+      "html_url": "/courses/1865191/external_tools/157817?display=borderless",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/157817?display=borderless",
+      "position": 29,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "myBusinessCourse",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=157817&launch_type=course_navigation"
+    },
+    {
+      "id": "context_external_tool_166736",
+      "html_url": "/courses/1865191/external_tools/166736",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/166736",
+      "position": 30,
+      "hidden": true,
+      "visibility": "admins",
+      "label": "McGraw-Hill Connect",
+      "type": "external",
+      "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=166736&launch_type=course_navigation"
+    },
+    {
+      "id": "settings",
+      "html_url": "/courses/1865191/settings",
+      "full_url": "https://bridgeport.instructure.com/courses/1865191/settings",
+      "position": 31,
+      "visibility": "admins",
+      "label": "Settings",
+      "type": "internal"
+    }
+  ]
 }

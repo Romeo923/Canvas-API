@@ -45,7 +45,7 @@ def updateCanvasGroups(course_id, group_data):
             "group_weight":group_data[group]['group_weight'],
             "rules":group_data[group]['rules']
         }
-        canvasAPI.updateGroup(course_id,data)
+        canvasAPI.updateGroup(course_id,group_data[group]['id'],data)
 
 def updateLocalGroups(course_id):
 
@@ -133,24 +133,35 @@ def cloneDir():
                 canvasAPI.createAssignment(course_id,data)
 
 def main():
-
+    
+    math_majors_course_id = 1865191
+    
     # & C:/Users/Romeo/anaconda3/python.exe "c:/Users/Romeo/Desktop/Canvas API/canvas.py"  cmd shit
     
-    try:
-        arg = sys.argv[1]
-        print(arg)
-    except IndexError:
-        pass
+    # try:
+    #     arg = sys.argv[1]
+    #     print(arg)
+    # except IndexError:
+    #     pass
 
-    # cloneDir()
+    # # cloneDir()
 
-    for course in course_data:
-        course_id = course_data[course]['id']
-        groups = os.listdir(f'{root}\\{course}')
-        group_data = course_data[course]["group_data"]
+    # for course in course_data:
+    #     course_id = course_data[course]['id']
+    #     groups = os.listdir(f'{root}\\{course}')
+    #     group_data = course_data[course]["group_data"]
         
-        # updateLocalGroups(course_id)
-        updateCanvasGroups(course_id,group_data)
+    #     # updateLocalGroups(course_id)
+    #     updateCanvasGroups(course_id,group_data)
+    
+    data = {
+    "name" : "group 1 edited", # str
+    "group_weight" : 35, # int %
+    "rules" : "drop_lowest:2\ndrop_highest:2\n" # str rule1:value\nrule2:value\n...
+    }
+    
+    canvasAPI.updateGroup(math_majors_course_id,3206373,data)
+    updateLocalGroups(math_majors_course_id)
 
 
 if __name__ == "__main__":

@@ -29,17 +29,11 @@
           "rules": "drop_lowest:1\n",
           "id": 3178937
         },
-        "Homeworks": {
-          "group_weight": 25,
+        "group 1 edited": {
+          "group_weight": 35.0,
           "default_points": 10,
-          "rules": "drop_lowest:3",
-          "id": 3204028
-        },
-        "Quizes": {
-          "group_weight": 30,
-          "default_points": 10,
-          "rules": "drop_lowest:1",
-          "id": 3204029
+          "rules": "drop_lowest:2\ndrop_highest:2\n",
+          "id": 3206373
         }
       }
     }

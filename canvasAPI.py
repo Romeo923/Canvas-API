@@ -31,6 +31,10 @@ class CanvasAPI:
         full_path = f"{self.ub_url}courses/{course_id}/assignments/{assignment_id}"
         return requests.delete(url=full_path,headers=self.headers)
 
+    def gradeAssignment(self, course_id, assignment_id, student_id, grade_data):
+        full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}'
+        return requests.put(url=full_path,headers=self.headers,params=grade_data)
+
     # Files
     
     def uploadFile(self, course_id, path, file_data):

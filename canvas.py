@@ -30,17 +30,24 @@ File Data FOR UPLOADING:
     "parent_folder_path" : "folder name", # str
 }
 
-Tab:
+Tab Data:
 {
     "id": "context_external_tool_153670",
     "html_url": "/courses/1865191/external_tools/153670",
     "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/153670",
     "position": 22, # int
-    "hidden": true, # boolean
+    "hidden": True, # boolean
     "visibility": "admins", # str : public, members, admins, none
     "label": "Studio", # str
     "type": "external",
     "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=153670&launch_type=course_navigation"
+}
+
+Grade Data:
+{
+    "comment[text_comment]" : "Submission comment", # str
+    "submission[posted_grade]" : "95", # str : can take formats such as "92.5", "84%", "-A", "pass", "fail", "complete", "incomplete"
+    "submission[excuse]" : True, # boolean
 }
 """
 

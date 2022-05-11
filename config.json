@@ -28,12 +28,6 @@
           "default_points": 10,
           "rules": "drop_lowest:1\n",
           "id": 3178937
-        },
-        "group 1 edited": {
-          "group_weight": 35.0,
-          "default_points": 10,
-          "rules": "drop_lowest:2\ndrop_highest:2\n",
-          "id": 3206373
         }
       }
     }

@@ -18,11 +18,11 @@ Assignment Data:
 Group Data:
 {
     "name" : "group 1", # str
-    "group_weight" : 25, # int %
-    "rules" : "drop_lowest:1\ndrop_highest:2\n" # str rule1:value\nrule2:value\n...
+    "group_weight" : 25, # int : %
+    "rules" : "drop_lowest:1\ndrop_highest:2\n" # str : rule1:value\nrule2:value\n...
 }
 
-File Data UPLOADING:
+File Data FOR UPLOADING:
 {
     "name" : "file 1", # str
     "parent_folder_path" : "folder name", # str
@@ -30,7 +30,15 @@ File Data UPLOADING:
 
 Tab:
 {
-    
+    "id": "context_external_tool_153670",
+    "html_url": "/courses/1865191/external_tools/153670",
+    "full_url": "https://bridgeport.instructure.com/courses/1865191/external_tools/153670",
+    "position": 22, # int
+    "hidden": true, # boolean
+    "visibility": "admins", # str : public, members, admins, none
+    "label": "Studio", # str
+    "type": "external",
+    "url": "https://bridgeport.instructure.com/api/v1/courses/1865191/external_tools/sessionless_launch?id=153670&launch_type=course_navigation"
 }
 """
 

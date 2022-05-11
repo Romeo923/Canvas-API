@@ -45,7 +45,7 @@ Tab Data:
 
 Grade Data:
 {
-    "comment[text_comment]" : "Submission comment", # str
+    "comment[text_comment]" : "∀ ε > 0 in limit definition, NOT Let ε > 0 be given!\n-5 points", # str
     "submission[posted_grade]" : "95", # str : can take formats such as "92.5", "84%", "-A", "pass", "fail", "complete", "incomplete"
     "submission[excuse]" : True, # boolean
 }
@@ -155,9 +155,10 @@ def cloneDir():
 
 def main():
     
-    math_majors_course_id = 1865191
+    course_id = 1865191
+    ali_student_id = 5499008
     
-    # & C:/Users/Romeo/anaconda3/python.exe "c:/Users/Romeo/Desktop/Canvas API/canvas.py"  cmd shit
+    # & C:/Users/Romeo/anaconda3/python.exe "c:/Users/Romeo/Desktop/Canvas API/canvas.py"  cmd
     
     # try:
     #     arg = sys.argv[1]
@@ -165,7 +166,15 @@ def main():
     # except IndexError:
     #     pass
 
-    canvasAPI.deleteGroup(math_majors_course_id,3206373)
+    data = {
+        "assignment[name]" : "Test Assignment", # str
+        "assignment[points_possible]" : 100, # int
+        "assignment[assignment_group_id]" : 3119489, # int
+        "assignment[published]" : True # boolean
+    }
+    response = canvasAPI.createAssignment(course_id,data).json()
+    assignment_id = response['id']
+    canvasAPI.gradeAssignment(course_id, assignment_id, ali_student_id, {"submission[posted_grade]" : "86"})
 
 if __name__ == "__main__":
     main()

@@ -9,7 +9,9 @@ Assignment Data:
 {
     "assignment[name]" : "Assignment 1", # str
     "assignment[points_possible]" : 10, # int
-    "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str
+    "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str : ISO 8601 formatted date and time
+    "assignment[lock_at]" : "2022-07-01T23:59:00-06:00", # str : ISO 8601 formatted date and time
+    "assignment[unlock_at]" : "2022-07-01T23:59:00-06:00", # str : ISO 8601 formatted date and time
     "assignment[description]" : "description", #str
     "assignment[assignment_group_id]" : 12345, # int
     "assignment[published]" : True # boolean

@@ -158,7 +158,7 @@ def main():
     # except IndexError:
     #     pass
 
-    canvasAPI.updateTab(math_majors_course_id,"context_external_tool_48482",{"hidden":False})
+    canvasAPI.deleteGroup(math_majors_course_id,3206373)
 
 if __name__ == "__main__":
     main()

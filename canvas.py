@@ -94,7 +94,6 @@ def updateLocalGroups(course_id):
     
     return new_group_data
 
-
 def cloneDir():
     
     courses = os.listdir(root)
@@ -157,37 +156,7 @@ def main():
     # except IndexError:
     #     pass
 
-    # # cloneDir()
-
-    # for course in course_data:
-    #     course_id = course_data[course]['id']
-    #     groups = os.listdir(f'{root}\\{course}')
-    #     group_data = course_data[course]["group_data"]
-        
-    #     # updateLocalGroups(course_id)
-    #     updateCanvasGroups(course_id,group_data)
-    
-    # data = {
-    #     "assignment[name]" : "Assignment 1", # str
-    #     "assignment[points_possible]" : 15, # int
-    #     "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str
-    #     "assignment[description]" : "", #str
-    #     "assignment[assignment_group_id]" : 3206373, # int
-    #     "assignment[published]" : False # boolean
-    # }
-    # file_data = {
-    #     "name" : "Homework 1", # str
-    #     "parent_folder_path" : "Homeworks", # str
-    # }
-    
-    # path = f'hmk-4.pdf'
-    
-    # canvasAPI.createAssignmentWithFile(math_majors_course_id,data,path,file_data)
-    
-    tabs = canvasAPI.getTabs(math_majors_course_id)
-    config['tabs'] = tabs
-    with open("config.json","w") as f:
-        json.dump(config,f,indent=2)
+    canvasAPI.updateTab(math_majors_course_id,"context_external_tool_48482",{"hidden":False})
 
 if __name__ == "__main__":
     main()

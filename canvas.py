@@ -1,5 +1,3 @@
-import sys
-import pandas as pd
 import json
 import os
 from canvasAPI import CanvasAPI
@@ -80,6 +78,7 @@ def init_course():
     for i, tab in enumerate(current_tabs):
         if tab['label'] not in tabs:
             tab['hidden'] = True
+            tab['position'] = i
             canvasAPI.updateTab(course_id, tab['id'], tab)
             
         progress = (i+1)/total_tabs
@@ -114,10 +113,9 @@ def init_course():
                     assignment_data = {
                         "assignment[name]" : file[:-4],
                         "assignment[points_possible]" : dir_settings['max_points'],
-                        # "assignment[due_at]" : "2022-07-01T23:59:00-06:00",
-                        # "assignment[lock_at]" : "2022-07-01T23:59:00-06:00",
-                        # "assignment[unlock_at]" : "2022-07-01T23:59:00-06:00",
-                        # "assignment[description]" : "description",
+                        # "assignment[due_at]" : "",
+                        # "assignment[lock_at]" : "",
+                        # "assignment[unlock_at]" : "",
                         "assignment[assignment_group_id]" : id,
                         "assignment[published]" : True # boolean
                     }
@@ -141,10 +139,9 @@ def init_course():
                     assignment_data = {
                         "assignment[name]" : f'{dir} {j+1}',
                         "assignment[points_possible]" : dir_settings['max_points'],
-                        # "assignment[due_at]" : "2022-07-01T23:59:00-06:00",
-                        # "assignment[lock_at]" : "2022-07-01T23:59:00-06:00",
-                        # "assignment[unlock_at]" : "2022-07-01T23:59:00-06:00",
-                        # "assignment[description]" : "description",
+                        # "assignment[due_at]" : "",
+                        # "assignment[lock_at]" : "",
+                        # "assignment[unlock_at]" : "",
                         "assignment[assignment_group_id]" : id,
                         "assignment[published]" : True # boolean
                     }

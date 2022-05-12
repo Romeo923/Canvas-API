@@ -62,13 +62,6 @@ class CanvasAPI:
 
         return response
 
-    def attach2Assignment(self, course_id, file_path, file_data, assignment_id):
-        response = self.uploadFile(course_id,file_path,file_data).json()
-        file_id = response['id']
-        file_name = response['filename']
-        file_preview = f'<p><a class="instructure_file_link instructure_scribd_file auto_open" title="{file_name}" href="https://bridgeport.instructure.com/courses/{course_id}/files/{file_id}?wrap=1" target="_blank" rel="noopener" data-api-endpoint="https://bridgeport.instructure.com/api/v1/courses/{course_id}/files/{file_id}" data-api-returntype="File">{file_name}</a></p>'
-        return self.updateAssignment(course_id,assignment_id,{'assignment[description]':file_preview})
-    
     # Groups
     
     def getCourseGroups(self, course_id):

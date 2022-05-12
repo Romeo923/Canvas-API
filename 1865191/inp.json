@@ -2,9 +2,10 @@
   "login_token": "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
   "Hmk": {
     "assignment_group": true,
-    "id": 3209354,
+    "id": 3209462,
     "rules": "drop_lowest:2\n",
     "file_upload": true,
+    "parent_folder": "Hmk",
     "group_weight": 40,
     "max_points": 15,
     "publish_date": "5/12/2022",
@@ -12,7 +13,7 @@
   },
   "Quiz": {
     "assignment_group": true,
-    "id": 3209355,
+    "id": 3209463,
     "rules": "drop_lowest:1\n",
     "file_upload": false,
     "amount": 10,
@@ -23,7 +24,7 @@
   },
   "Exam": {
     "assignment_group": true,
-    "id": 3209353,
+    "id": 3209461,
     "rules": null,
     "file_upload": false,
     "amount": 2,

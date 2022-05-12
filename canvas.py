@@ -62,8 +62,8 @@ def save(data):
         json.dump(data, f, indent= 2)
 
 def progressBar(progress, task):
-    bar = '█' * int(progress) + '-' * (100 - int(progress))
-    print(f'\r{task}   |{bar}| {progress:.2f}%                              ', end = '\r')
+    bar = '█' * int(progress/2) + '-' * (50 - int(progress/2))
+    print(f'\r|{bar}| {progress:.2f}% {task}                              ', end = '\r')
     
 def init_course():
     dirs = [dir for dir in os.listdir() if dir != 'inp.json']
@@ -117,13 +117,13 @@ def init_course():
                         # "assignment[lock_at]" : "",
                         # "assignment[unlock_at]" : "",
                         "assignment[assignment_group_id]" : id,
-                        "assignment[published]" : True # boolean
+                        "assignment[published]" : False
                     }
                     
                     file_path = f'{os.getcwd()}\{dir}\{file}'
                     file_data = {
-                        "name" : file[:-3], # str
-                        "parent_folder_path" : dir, # str
+                        "name" : file[:-3], 
+                        "parent_folder_path" : dir_settings['parent_folder'], 
                     }
                     
                     canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path, file_data)
@@ -143,7 +143,7 @@ def init_course():
                         # "assignment[lock_at]" : "",
                         # "assignment[unlock_at]" : "",
                         "assignment[assignment_group_id]" : id,
-                        "assignment[published]" : True # boolean
+                        "assignment[published]" : False
                     }
                     canvasAPI.createAssignment(course_id, assignment_data)
                     
@@ -159,8 +159,8 @@ def init_course():
                 for j, file in enumerate(files):
                     file_path = f'{os.getcwd()}\{dir}\{file}'
                     file_data = {
-                        "name" : file[:-4], # str
-                        "parent_folder_path" : dir_settings['parent_folder'], # str
+                        "name" : file[:-4],
+                        "parent_folder_path" : dir_settings['parent_folder'],
                     }
                     canvasAPI.uploadFile(course_id,file_path,file_data)
                     
@@ -169,6 +169,7 @@ def init_course():
                     progress += (i+1)/total_tasks
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
+    progressBar(100,"Done...")
     print('\n')
            
 

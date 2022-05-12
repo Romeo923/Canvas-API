@@ -2,6 +2,7 @@
     "login_token" : "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
     "Hmk" : {
         "assignment_group" : true,
+        "id" : null,
         "file_upload" : true,
         "group_weight" : 40,
         "max_points" : 15,
@@ -10,6 +11,7 @@
     },
     "Quiz" : {
         "assignment_group" : true,
+        "id" : null,
         "file_upload" : false,
         "amount" : 10,
         "group_weight" : 35,
@@ -19,6 +21,7 @@
     },
     "Exam" : {
         "assignment_group" : true,
+        "id" : null,
         "file_upload" : false,
         "amount" : 2,
         "group_weight" : 25,

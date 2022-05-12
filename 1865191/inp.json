@@ -1,0 +1,48 @@
+{
+    "login_token" : "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
+    "Hmk" : {
+        "assignment_group" : true,
+        "file_upload" : true,
+        "group_weight" : 40,
+        "max_points" : 15,
+        "publish_date" : "5/12/2022",
+        "interval" : 7
+    },
+    "Quiz" : {
+        "assignment_group" : true,
+        "file_upload" : false,
+        "amount" : 10,
+        "group_weight" : 35,
+        "max_points" : 15,
+        "publish_date" : "5/12/2022",
+        "interval" : 7
+    },
+    "Exam" : {
+        "assignment_group" : true,
+        "file_upload" : false,
+        "amount" : 2,
+        "group_weight" : 25,
+        "max_points" : 15,
+        "publish_date" : "5/12/2022",
+        "interval" : 21
+    },
+    "Slide" : {
+        "assignment_group" : false,
+        "file_upload" : true,
+        "group_weight" : null,
+        "max_points" : null,
+        "publish_date" : "5/12/2022",
+        "interval" : 2
+    },
+    "Sylbs" : {
+        "assignment_group" : false,
+        "file_upload" : true,
+        "group_weight" : null,
+        "max_points" : null,
+        "publish_date" : "5/12/2022",
+        "interval" : 7
+    },
+    "Tabs" : [
+        "Home", "Assignments", "Grades", "People", "Files", "Quizzes", "Settings"
+    ]
+}

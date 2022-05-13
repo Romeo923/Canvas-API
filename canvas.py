@@ -106,24 +106,33 @@ def init_course():
     total_tasks = total_dirs + 1
     
     for i, tab in enumerate(current_tabs):
+        # update each tab
+        
         if tab['label'] not in tabs:
             tab['hidden'] = True
             tab['position'] = i
             canvasAPI.updateTab(course_id, tab['id'], tab)
-            
+        
+        # update progress bar --------------------------------    
         progress = (i+1)/total_tabs
         progress /= total_tasks
         progress *= 100
         progressBar(progress,"Adjusting Tabs")
+        # -------------------------------------
     
-    for i, dir in enumerate(dirs):       
+    for i, dir in enumerate(dirs):    
+        # loops through each directory
+           
         dir_settings = settings[dir]
         
         if dir_settings['assignment_group']:
+            # Assignment, Quiz, Exam, ect.
+            
             id = dir_settings['id']
             canvasAPI.enableGroupWeights(course_id)
             
             if id == None:
+                # creates group
                 
                 group_data = {
                     "name" : dir,
@@ -136,9 +145,12 @@ def init_course():
                 save(settings)
             
             if dir_settings['file_upload']:
+                # Assignment w/ file
+                
                 files = os.listdir(f'{os.getcwd()}\{dir}')
                 total_files = len(files)
                 for j, file in enumerate(files):
+                    # create each assignment, upload file, attach file to assignment
                     
                     date = formatDate(dir_settings['publish_date'], j * dir_settings['interval'])
                     assignment_data = {
@@ -159,14 +171,19 @@ def init_course():
                     
                     canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path, file_data)
                     
+                    # update progress bar -------------------------------- 
                     progress = (j+1)/total_files
                     progress /= total_tasks
                     progress += (i+1)/total_tasks
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
+                    # -----------------------------------------------------
                     
             else:
+                # Assignment w/o file
+                
                 for j in range(dir_settings['amount']):
+                    # Creates the specified number of Assignments
                     
                     date = formatDate(dir_settings['publish_date'], j * dir_settings['interval'])
                     assignment_data = {
@@ -180,16 +197,22 @@ def init_course():
                     }
                     canvasAPI.createAssignment(course_id, assignment_data)
                     
+                    # update progress bar --------------------------------
                     progress = (j+1)/dir_settings['amount']
                     progress /= total_tasks
                     progress += (i+1)/total_tasks
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {dir} {j+1}')
+                    # ----------------------------------------------------
         else:
+            # Not an Assignemnt i.e. Slides and other files
+            
             if dir_settings['file_upload']:
                 files = os.listdir(f'{os.getcwd()}\{dir}')
                 total_files = len(files)
                 for j, file in enumerate(files):
+                    # uploads each file
+                    
                     file_path = f'{os.getcwd()}\{dir}\{file}'
                     file_data = {
                         "name" : file[:-4],
@@ -197,11 +220,14 @@ def init_course():
                     }
                     canvasAPI.uploadFile(course_id,file_path,file_data)
                     
+                    # update progress bar --------------------------------
                     progress = (j+1)/total_files
                     progress /= total_tasks
                     progress += (i+1)/total_tasks
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
+                    # ----------------------------------------------------
+    
     progressBar(100,"Done...")
     print('\n')
            

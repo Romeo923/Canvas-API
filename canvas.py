@@ -1,5 +1,7 @@
+from cgitb import reset
 import json
 import os
+import datetime
 from canvasAPI import CanvasAPI
 
 """
@@ -64,6 +66,35 @@ def save(data):
 def progressBar(progress, task):
     bar = '█' * int(progress/2) + '-' * (50 - int(progress/2))
     print(f'\r|{bar}| {progress:.2f}% {task}                              ', end = '\r')
+
+def formatDate(date,interval):
+    if date == None or interval == None: 
+        return date
+    timedelta = datetime.timedelta(interval)
+    month, day, year = date.split('/')
+    date = datetime.datetime(int(year),int(month),int(day))
+    date += timedelta
+    return f'{date.date()}T{date.time()}'
+    
+def resetCanvas():
+    dirs = (dir for dir in os.listdir() if dir != 'inp.json')
+    for dir in dirs:
+        dir_settings = settings[dir]
+        if dir_settings['assignment_group']:
+            canvasAPI.deleteGroup(course_id,dir_settings['id'])
+            settings[dir]['id'] = None
+    save(settings)
+    canvasAPI.disableGroupWeights(course_id)
+    
+    files = canvasAPI.getFiles(course_id)
+    for file in files:
+        canvasAPI.deleteFile(course_id, file['id'])
+        
+    folders = canvasAPI.getFolders(course_id)
+    for folder in folders:
+        canvasAPI.deleteFolder(course_id, folder['id'])
+        
+    print('\nCanvas Reset...\n')
     
 def init_course():
     dirs = [dir for dir in os.listdir() if dir != 'inp.json']
@@ -84,7 +115,7 @@ def init_course():
         progress = (i+1)/total_tabs
         progress /= total_tasks
         progress *= 100
-        progressBar(progress,"Adjussting Tabs")
+        progressBar(progress,"Adjusting Tabs")
     
     for i, dir in enumerate(dirs):       
         dir_settings = settings[dir]
@@ -110,12 +141,13 @@ def init_course():
                 total_files = len(files)
                 for j, file in enumerate(files):
                     
+                    date = formatDate(dir_settings['publish_date'], j * dir_settings['interval'])
                     assignment_data = {
                         "assignment[name]" : file[:-4],
                         "assignment[points_possible]" : dir_settings['max_points'],
                         # "assignment[due_at]" : "",
                         # "assignment[lock_at]" : "",
-                        # "assignment[unlock_at]" : "",
+                        "assignment[unlock_at]" : date,
                         "assignment[assignment_group_id]" : id,
                         "assignment[published]" : False
                     }
@@ -136,12 +168,14 @@ def init_course():
                     
             else:
                 for j in range(dir_settings['amount']):
+                    
+                    date = formatDate(dir_settings['publish_date'], j * dir_settings['interval'])
                     assignment_data = {
                         "assignment[name]" : f'{dir} {j+1}',
                         "assignment[points_possible]" : dir_settings['max_points'],
                         # "assignment[due_at]" : "",
                         # "assignment[lock_at]" : "",
-                        # "assignment[unlock_at]" : "",
+                        "assignment[unlock_at]" : date,
                         "assignment[assignment_group_id]" : id,
                         "assignment[published]" : False
                     }
@@ -174,7 +208,8 @@ def init_course():
            
 
 def main():
-    init_course()
+    # init_course()
+    resetCanvas()
 
 
 

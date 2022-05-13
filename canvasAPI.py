@@ -37,6 +37,14 @@ class CanvasAPI:
 
     # Files
     
+    def getFiles(self, course_id):
+        full_path = f'{self.ub_url}courses/{course_id}/files/'
+        return requests.get(url=full_path,headers=self.headers).json()
+    
+    def getFolders(self, course_id):
+        full_path = f'{self.ub_url}courses/{course_id}/folders/'
+        return requests.get(url=full_path,headers=self.headers).json()
+    
     def uploadFile(self, course_id, path, file_data):
         full_path = f'{self.ub_url}courses/{course_id}/files'
         
@@ -62,6 +70,14 @@ class CanvasAPI:
 
         return response
 
+    def deleteFile(self, course_id, file_id):
+        full_path = f'{self.ub_url}files/{file_id}'
+        return requests.delete(url=full_path,headers=self.headers)
+    
+    def deleteFolder(self, course_id, folder_id):
+        full_path = f'{self.ub_url}folders/{folder_id}'
+        return requests.delete(url=full_path,headers=self.headers)
+    
     # Groups
     
     def getCourseGroups(self, course_id):

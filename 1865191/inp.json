@@ -2,7 +2,7 @@
   "login_token": "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
   "Hmk": {
     "assignment_group": true,
-    "id": 3209462,
+    "id": null,
     "rules": "drop_lowest:2\n",
     "file_upload": true,
     "parent_folder": "Hmk",
@@ -13,7 +13,7 @@
   },
   "Quiz": {
     "assignment_group": true,
-    "id": 3209463,
+    "id": null,
     "rules": "drop_lowest:1\n",
     "file_upload": false,
     "amount": 10,
@@ -24,7 +24,7 @@
   },
   "Exam": {
     "assignment_group": true,
-    "id": 3209461,
+    "id": null,
     "rules": null,
     "file_upload": false,
     "amount": 2,

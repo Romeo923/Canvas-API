@@ -208,8 +208,8 @@ def init_course():
            
 
 def main():
-    # init_course()
-    resetCanvas()
+    init_course()
+    # resetCanvas()
 
 
 

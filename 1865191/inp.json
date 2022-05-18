@@ -8,8 +8,17 @@
     "parent_folder": "Hmk",
     "group_weight": 40,
     "max_points": 15,
-    "publish_date": "5/12/2022",
-    "interval": 7
+    "start_date": "5/11/2022",
+    "interval": "weekly",
+    "schedule": [
+      "Mon",
+      "Wed",
+      "Fri"
+    ],
+    "holy_days": [
+      "6/2/2022",
+      "6/16/2022"
+    ]
   },
   "Quiz": {
     "assignment_group": true,
@@ -19,8 +28,17 @@
     "amount": 10,
     "group_weight": 35,
     "max_points": 30,
-    "publish_date": "5/12/2022",
-    "interval": 7
+    "start_date": "5/11/2022",
+    "interval": "daily",
+    "schedule": [
+      "Mon",
+      "Wed",
+      "Fri"
+    ],
+    "holy_days": [
+      "6/2/2022",
+      "6/16/2022"
+    ]
   },
   "Exam": {
     "assignment_group": true,
@@ -30,8 +48,17 @@
     "amount": 2,
     "group_weight": 25,
     "max_points": 50,
-    "publish_date": "5/12/2022",
-    "interval": 21
+    "start_date": "5/30/2022",
+    "interval": 21,
+    "schedule": [
+      "Mon",
+      "Wed",
+      "Fri"
+    ],
+    "holy_days": [
+      "6/2/2022",
+      "6/16/2022"
+    ]
   },
   "Slide": {
     "assignment_group": false,
@@ -39,8 +66,8 @@
     "parent_folder": "Slides",
     "group_weight": null,
     "max_points": null,
-    "publish_date": "5/12/2022",
-    "interval": 2
+    "publish_date": null,
+    "interval": null
   },
   "Sylbs": {
     "assignment_group": false,
@@ -48,8 +75,8 @@
     "parent_folder": "",
     "group_weight": null,
     "max_points": null,
-    "publish_date": "5/12/2022",
-    "interval": 7
+    "publish_date": null,
+    "interval": null
   },
   "Tabs": [
     "Home",

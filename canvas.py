@@ -1,4 +1,5 @@
 import json
+import sys
 import os
 import datetime
 from canvasAPI import CanvasAPI
@@ -66,18 +67,39 @@ def progressBar(progress, task):
     bar = '█' * int(progress/2) + '-' * (50 - int(progress/2))
     print(f'\r|{bar}| {progress:.2f}% {task}                              ', end = '\r')
 
-def formatDate(date,interval):
+def formatDate(date, interval, schedule, holy_days, amount):
     if date == None or interval == None: 
         return date
-    timedelta = datetime.timedelta(interval)
+    
+    week = {'Mon':0,'Tue':1,'Wed':2,'Thu':3,'Fri':4,'Sat':5,'Sun':6}
+    sched = [week[day] for day in schedule]
+    
+    timedelta = datetime.timedelta(1) if interval == 'daily' else datetime.timedelta(7) if interval == 'weekly' else datetime.timedelta(interval)
     month, day, year = date.split('/')
+    exceptions = [holy_day.split('/') for holy_day in holy_days]
     date = datetime.datetime(int(year),int(month),int(day))
-    date += timedelta
-    return f'{date.date()}T{date.time()}'
+    exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions]
+    
+    dates = []
+    i, j = (0, 0)
+    if date.weekday() not in sched: 
+        print("Start date not valid for given class schedule")
+        sys.exit(0)
+    while i < amount:
+        date += j*timedelta
+        weekday = date.weekday()
+        if date not in exception_dates and weekday in sched:
+            dates.append(f'{date.date()}T{date.time()}')
+            i += 1
+        j += 1
+    return dates
     
 def resetCanvas():
     dirs = (dir for dir in os.listdir() if dir != 'inp.json')
     for dir in dirs:
+        
+        if dir not in settings: continue
+        
         dir_settings = settings[dir]
         if dir_settings['assignment_group']:
             canvasAPI.deleteGroup(course_id,dir_settings['id'])
@@ -123,6 +145,8 @@ def init_course():
     for i, dir in enumerate(dirs):    
         # loops through each directory
            
+        if dir not in settings: continue
+           
         dir_settings = settings[dir]
         
         if dir_settings['assignment_group']:
@@ -147,23 +171,23 @@ def init_course():
             if dir_settings['file_upload']:
                 # Assignment w/ file
                 
-                files = os.listdir(f'{os.getcwd()}\{dir}')
+                path = os.path.join(os.getcwd(), dir)
+                files = os.listdir(path)
                 total_files = len(files)
+                dates = formatDate(dir_settings['start_date'], dir_settings['interval'], dir_settings['schedule'], dir_settings['holy_days'], total_files)
+                
                 for j, file in enumerate(files):
                     # create each assignment, upload file, attach file to assignment
                     
-                    date = formatDate(dir_settings['publish_date'], j * dir_settings['interval'])
                     assignment_data = {
                         "assignment[name]" : file[:-4],
                         "assignment[points_possible]" : dir_settings['max_points'],
-                        # "assignment[due_at]" : "",
-                        # "assignment[lock_at]" : "",
-                        "assignment[unlock_at]" : date,
+                        "assignment[due_at]" : dates[j],
                         "assignment[assignment_group_id]" : id,
                         "assignment[published]" : False
                     }
-                    
-                    file_path = f'{os.getcwd()}\{dir}\{file}'
+
+                    file_path = os.path.join(os.getcwd(), dir, file)
                     file_data = {
                         "name" : file[:-3], 
                         "parent_folder_path" : dir_settings['parent_folder'], 
@@ -182,16 +206,15 @@ def init_course():
             else:
                 # Assignment w/o file
                 
+                dates = formatDate(dir_settings['start_date'], dir_settings['interval'], dir_settings['schedule'], dir_settings['holy_days'], dir_settings['amount'])
+                
                 for j in range(dir_settings['amount']):
                     # Creates the specified number of Assignments
                     
-                    date = formatDate(dir_settings['publish_date'], j * dir_settings['interval'])
                     assignment_data = {
                         "assignment[name]" : f'{dir} {j+1}',
                         "assignment[points_possible]" : dir_settings['max_points'],
-                        # "assignment[due_at]" : "",
-                        # "assignment[lock_at]" : "",
-                        "assignment[unlock_at]" : date,
+                        "assignment[due_at]" : dates[j],
                         "assignment[assignment_group_id]" : id,
                         "assignment[published]" : False
                     }
@@ -204,16 +227,19 @@ def init_course():
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {dir} {j+1}')
                     # ----------------------------------------------------
+                    
         else:
             # Not an Assignemnt i.e. Slides and other files
             
             if dir_settings['file_upload']:
-                files = os.listdir(f'{os.getcwd()}\{dir}')
+                
+                path = os.path.join(os.getcwd(), dir)
+                files = os.listdir(path)
                 total_files = len(files)
                 for j, file in enumerate(files):
                     # uploads each file
                     
-                    file_path = f'{os.getcwd()}\{dir}\{file}'
+                    file_path = os.path.join(os.getcwd(), dir, file)
                     file_data = {
                         "name" : file[:-4],
                         "parent_folder_path" : dir_settings['parent_folder'],

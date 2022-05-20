@@ -96,6 +96,14 @@ def formatDate(date, interval, schedule, holy_days, amount):
     
 def resetCanvas():
     dirs = (dir for dir in os.listdir() if dir != 'inp.json')
+    
+    assignments = canvasAPI.getAssignments(course_id)
+    while len(assignments) > 0:
+        for assignment in assignments:
+            canvasAPI.deleteAssignment(course_id,assignment['id'])
+        assignments = canvasAPI.getAssignments(course_id)
+        print("deleting assignments")
+    
     for dir in dirs:
         
         if dir not in settings: continue
@@ -104,23 +112,25 @@ def resetCanvas():
         if dir_settings['assignment_group']:
             canvasAPI.deleteGroup(course_id,dir_settings['id'])
             settings[dir]['id'] = None
+    
+    settings['IDs'] = {
+        "Assignments":{},
+        "Files":{}
+    }
+    
     save(settings)
     canvasAPI.disableGroupWeights(course_id)
     
     files = canvasAPI.getFiles(course_id)
-    for file in files:
-        canvasAPI.deleteFile(course_id, file['id'])
+    while len(files) > 0:
+        for file in files:
+            canvasAPI.deleteFile(course_id, file['id'])
+        files = canvasAPI.getFiles(course_id)
+        print("deleting files")
         
     folders = canvasAPI.getFolders(course_id)
     for folder in folders:
         canvasAPI.deleteFolder(course_id, folder['id'])
-        
-    assignments = canvasAPI.getAssignments(course_id)
-    while len(assignments) > 0:
-        for assignment in assignments:
-            canvasAPI.deleteAssignment(course_id,assignment['id'])
-        assignments = canvasAPI.getAssignments(course_id)
-        print("deleting assignments")
         
     print('\nCanvas Reset...\n')
     
@@ -160,21 +170,19 @@ def init_course():
         if dir_settings['assignment_group']:
             # Assignment, Quiz, Exam, ect.
             
-            id = dir_settings['id']
             canvasAPI.enableGroupWeights(course_id)
+
+            # creates group
             
-            if id == None:
-                # creates group
-                
-                group_data = {
-                    "name" : dir,
-                    "group_weight" : dir_settings['group_weight'],
-                    "rules" : dir_settings['rules']
+            group_data = {
+                "name" : dir,
+                "group_weight" : dir_settings['group_weight'],
+                "rules" : dir_settings['rules']
                 }
                 
-                id = canvasAPI.createGroup(course_id, group_data).json()['id']
-                settings[dir]['id'] = id
-                save(settings)
+            id = canvasAPI.createGroup(course_id, group_data).json()['id']
+            settings[dir]['id'] = id
+            save(settings)
             
             if dir_settings['file_upload']:
                 # Assignment w/ file
@@ -182,6 +190,7 @@ def init_course():
                 path = os.path.join(os.getcwd(), dir)
                 files = sorted(os.listdir(path))
                 total_files = len(files)
+                
                 dates = formatDate(dir_settings['start_date'], dir_settings['interval'], dir_settings['schedule'], dir_settings['holy_days'], total_files)
                 
                 for j, file in enumerate(files):
@@ -201,7 +210,9 @@ def init_course():
                         "parent_folder_path" : dir_settings['parent_folder'], 
                     }
                     
-                    canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path, file_data)
+                    assignment_id = canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path, file_data).json()['id']
+                    settings['IDs']['Assignments'][file[:-4]] = assignment_id
+                    
                     
                     # update progress bar -------------------------------- 
                     progress = (j+1)/total_files
@@ -209,7 +220,8 @@ def init_course():
                     progress += (i+1)/total_tasks
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
-                    # -----------------------------------------------------
+                    # -----------------------------------------------------    
+                save(settings)
                     
             else:
                 # Assignment w/o file
@@ -226,7 +238,8 @@ def init_course():
                         "assignment[assignment_group_id]" : id,
                         "assignment[published]" : False
                     }
-                    canvasAPI.createAssignment(course_id, assignment_data)
+                    assignment_id = canvasAPI.createAssignment(course_id, assignment_data).json()['id']
+                    settings['IDs']['Assignments'][f'{dir} {j+1}'] = assignment_id
                     
                     # update progress bar --------------------------------
                     progress = (j+1)/dir_settings['amount']
@@ -235,6 +248,7 @@ def init_course():
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {dir} {j+1}')
                     # ----------------------------------------------------
+                save(settings)
                     
         else:
             # Not an Assignemnt i.e. Slides and other files
@@ -252,7 +266,8 @@ def init_course():
                         "name" : file[:-4],
                         "parent_folder_path" : dir_settings['parent_folder'],
                     }
-                    canvasAPI.uploadFile(course_id,file_path,file_data)
+                    file_id = canvasAPI.uploadFile(course_id,file_path,file_data).json()['id']
+                    settings['IDs']['Files'][file[:-4]] = file_id
                     
                     # update progress bar --------------------------------
                     progress = (j+1)/total_files
@@ -261,15 +276,15 @@ def init_course():
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
                     # ----------------------------------------------------
+                save(settings)
     
     progressBar(100,"Done...")
     print('\n')
            
 
 def main():
+    resetCanvas()
     init_course()
-    # resetCanvas()
-
 
 
 if __name__ == "__main__":

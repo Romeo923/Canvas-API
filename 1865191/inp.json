@@ -2,7 +2,7 @@
   "login_token": "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
   "Hmk": {
     "assignment_group": true,
-    "id": 3214269,
+    "id": 3214428,
     "rules": "drop_lowest:2\n",
     "file_upload": true,
     "parent_folder": "Hmk",
@@ -22,7 +22,7 @@
   },
   "Quiz": {
     "assignment_group": true,
-    "id": 3214270,
+    "id": 3214429,
     "rules": "drop_lowest:1\n",
     "file_upload": false,
     "amount": 10,
@@ -42,7 +42,7 @@
   },
   "Exam": {
     "assignment_group": true,
-    "id": 3214268,
+    "id": 3214427,
     "rules": null,
     "file_upload": false,
     "amount": 2,
@@ -86,5 +86,44 @@
     "Files",
     "Quizzes",
     "Settings"
-  ]
+  ],
+  "IDs": {
+    "Assignments": {
+      "Exam 1": 15313073,
+      "Exam 2": 15313074,
+      "hmk-1": 15313075,
+      "hmk-2": 15313076,
+      "hmk-3": 15313077,
+      "hmk-4": 15313078,
+      "hmk-5": 15313079,
+      "hmk-6": 15313080,
+      "hmk-7": 15313081,
+      "hmk-8": 15313082,
+      "Quiz 1": 15313083,
+      "Quiz 2": 15313084,
+      "Quiz 3": 15313085,
+      "Quiz 4": 15313086,
+      "Quiz 5": 15313087,
+      "Quiz 6": 15313088,
+      "Quiz 7": 15313089,
+      "Quiz 8": 15313090,
+      "Quiz 9": 15313091,
+      "Quiz 10": 15313092
+    },
+    "Files": {
+      "Slide 1": 135738872,
+      "Slide 10": 135738873,
+      "Slide 11": 135738874,
+      "Slide 12": 135738876,
+      "Slide 2": 135738877,
+      "Slide 3": 135738879,
+      "Slide 4": 135738880,
+      "Slide 5": 135738881,
+      "Slide 6": 135738882,
+      "Slide 7": 135738883,
+      "Slide 8": 135738884,
+      "Slide 9": 135738885,
+      "Syllabus": 135738886
+    }
+  }
 }

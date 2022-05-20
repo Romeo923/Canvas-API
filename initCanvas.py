@@ -115,9 +115,17 @@ def resetCanvas():
     for folder in folders:
         canvasAPI.deleteFolder(course_id, folder['id'])
         
+    assignments = canvasAPI.getAssignments(course_id)
+    while len(assignments) > 0:
+        for assignment in assignments:
+            canvasAPI.deleteAssignment(course_id,assignment['id'])
+        assignments = canvasAPI.getAssignments(course_id)
+        print("deleting assignments")
+        
     print('\nCanvas Reset...\n')
     
 def init_course():
+    
     dirs = [dir for dir in os.listdir() if dir != 'inp.json']
     total_dirs = len(dirs)
     
@@ -172,7 +180,7 @@ def init_course():
                 # Assignment w/ file
                 
                 path = os.path.join(os.getcwd(), dir)
-                files = os.listdir(path)
+                files = sorted(os.listdir(path))
                 total_files = len(files)
                 dates = formatDate(dir_settings['start_date'], dir_settings['interval'], dir_settings['schedule'], dir_settings['holy_days'], total_files)
                 
@@ -234,7 +242,7 @@ def init_course():
             if dir_settings['file_upload']:
                 
                 path = os.path.join(os.getcwd(), dir)
-                files = os.listdir(path)
+                files = sorted(os.listdir(path))
                 total_files = len(files)
                 for j, file in enumerate(files):
                     # uploads each file

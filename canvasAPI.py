@@ -11,6 +11,10 @@ class CanvasAPI:
     
     # Assignments
     
+    def getAssignments(self, course_id):
+        full_path = f'{self.ub_url}courses/{course_id}/assignments'
+        return requests.get(url=full_path,headers=self.headers).json()
+    
     def createAssignment(self, course_id, assignment_data):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/'
         return requests.post(url=full_path,headers=self.headers,params=assignment_data)
@@ -38,7 +42,7 @@ class CanvasAPI:
     # Files
     
     def getFiles(self, course_id):
-        full_path = f'{self.ub_url}courses/{course_id}/files/'
+        full_path = f'{self.ub_url}courses/{course_id}/files'
         return requests.get(url=full_path,headers=self.headers).json()
     
     def getFolders(self, course_id):

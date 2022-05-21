@@ -93,62 +93,74 @@ def formatDate(date, interval, schedule, holy_days, amount):
             i += 1
         j += 1
     return dates
+
+def resetInp():
+    _, *dirs, tabs, IDs = settings
     
+    for dir in dirs:
+        
+        dir_settings = settings[dir]
+        if dir_settings['assignment_group']:
+            settings[dir]['id'] = None
+    
+    settings[IDs] = {
+        "Assignments":{},
+        "Files":{},
+        "Folders":{}
+    }
+    
+    save(settings)
+    print('\ninp.json reset...\n')
+  
 def resetCanvas():
-    dirs = (dir for dir in os.listdir() if dir != 'inp.json')
+    
+    canvasAPI.disableGroupWeights(course_id)
     
     assignments = canvasAPI.getAssignments(course_id)
     while len(assignments) > 0:
         for assignment in assignments:
-            canvasAPI.deleteAssignment(course_id,assignment['id'])
+            canvasAPI.deleteAssignment(course_id, assignment['id'])
         assignments = canvasAPI.getAssignments(course_id)
         print("deleting assignments")
     
-    for dir in dirs:
-        
-        if dir not in settings: continue
-        
-        dir_settings = settings[dir]
-        if dir_settings['assignment_group']:
-            canvasAPI.deleteGroup(course_id,dir_settings['id'])
-            settings[dir]['id'] = None
-    
-    settings['IDs'] = {
-        "Assignments":{},
-        "Files":{}
-    }
-    
-    save(settings)
-    canvasAPI.disableGroupWeights(course_id)
-    
+    groups = canvasAPI.getCourseGroups(course_id)
+    while len(groups) > 0:
+        for group in groups:
+            canvasAPI.deleteGroup(course_id, group['id'])
+        groups = canvasAPI.getCourseGroups(course_id)
+        print('deleting groups')
+
     files = canvasAPI.getFiles(course_id)
     while len(files) > 0:
         for file in files:
-            canvasAPI.deleteFile(course_id, file['id'])
+            canvasAPI.deleteFile(file['id'])
         files = canvasAPI.getFiles(course_id)
         print("deleting files")
         
     folders = canvasAPI.getFolders(course_id)
-    for folder in folders:
-        canvasAPI.deleteFolder(course_id, folder['id'])
-        
+    while len(folders) > 1:
+        for folder in folders:
+            canvasAPI.deleteFolder(folder['id'])
+        folders = canvasAPI.getFolders(course_id)
+        print("deleting folders")
+
     print('\nCanvas Reset...\n')
+   
+def initCourse():
     
-def init_course():
-    
-    dirs = [dir for dir in os.listdir() if dir != 'inp.json']
+    _, *dirs, tabs, IDs = settings
     total_dirs = len(dirs)
     
-    tabs = settings['Tabs']
-    current_tabs = canvasAPI.getTabs(course_id)
-    total_tabs = len(current_tabs)
+    my_tabs = settings[tabs]
+    canvas_tabs = canvasAPI.getTabs(course_id)
+    total_tabs = len(canvas_tabs)
     
     total_tasks = total_dirs + 1
     
-    for i, tab in enumerate(current_tabs):
+    for i, tab in enumerate(canvas_tabs):
         # update each tab
         
-        if tab['label'] not in tabs:
+        if tab['label'] not in my_tabs:
             tab['hidden'] = True
             tab['position'] = i
             canvasAPI.updateTab(course_id, tab['id'], tab)
@@ -191,6 +203,13 @@ def init_course():
                 files = sorted(os.listdir(path))
                 total_files = len(files)
                 
+                folder_data = {
+                    "name" : dir_settings['parent_folder'],
+                    "parent_folder_path" : ""
+                }
+                parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']
+                settings[IDs]['Folders'][dir] = parent_folder_id
+                
                 dates = formatDate(dir_settings['start_date'], dir_settings['interval'], dir_settings['schedule'], dir_settings['holy_days'], total_files)
                 
                 for j, file in enumerate(files):
@@ -205,13 +224,12 @@ def init_course():
                     }
 
                     file_path = os.path.join(os.getcwd(), dir, file)
-                    file_data = {
-                        "name" : file[:-3], 
-                        "parent_folder_path" : dir_settings['parent_folder'], 
-                    }
-                    
-                    assignment_id = canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path, file_data).json()['id']
-                    settings['IDs']['Assignments'][file[:-4]] = assignment_id
+
+                    assignment_response, file_id = canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path)
+                    canvasAPI.updateFile(file_id,{"name":file[:-4], "parent_folder_id": parent_folder_id})
+                    assignment_id = assignment_response.json()['id']
+                    settings[IDs]['Assignments'][file[:-4]] = assignment_id
+                    settings[IDs]['Files'][file[:-4]] = file_id
                     
                     
                     # update progress bar -------------------------------- 
@@ -239,7 +257,7 @@ def init_course():
                         "assignment[published]" : False
                     }
                     assignment_id = canvasAPI.createAssignment(course_id, assignment_data).json()['id']
-                    settings['IDs']['Assignments'][f'{dir} {j+1}'] = assignment_id
+                    settings[IDs]['Assignments'][f'{dir} {j+1}'] = assignment_id
                     
                     # update progress bar --------------------------------
                     progress = (j+1)/dir_settings['amount']
@@ -258,16 +276,31 @@ def init_course():
                 path = os.path.join(os.getcwd(), dir)
                 files = sorted(os.listdir(path))
                 total_files = len(files)
+                
+                if dir_settings['parent_folder'] is not None:
+                    folder_data = {
+                        "name" : dir_settings['parent_folder'],
+                        "parent_folder_path" : ""
+                    }
+                    parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']
+                else:
+                    parent_folder_id = None
+                    
+                settings[IDs]['Folders'][dir] = parent_folder_id
+                
                 for j, file in enumerate(files):
                     # uploads each file
                     
                     file_path = os.path.join(os.getcwd(), dir, file)
+                    file_id = canvasAPI.uploadFile(course_id,file_path).json()['id']
+                    
                     file_data = {
-                        "name" : file[:-4],
-                        "parent_folder_path" : dir_settings['parent_folder'],
+                        "name":file[:-4],
+                        "parent_folder_id" : parent_folder_id
                     }
-                    file_id = canvasAPI.uploadFile(course_id,file_path,file_data).json()['id']
-                    settings['IDs']['Files'][file[:-4]] = file_id
+                    
+                    canvasAPI.updateFile(file_id,file_data)
+                    settings[IDs]['Files'][file[:-4]] = file_id
                     
                     # update progress bar --------------------------------
                     progress = (j+1)/total_files
@@ -283,8 +316,9 @@ def init_course():
            
 
 def main():
+    resetInp()
     resetCanvas()
-    init_course()
+    initCourse()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 import json
 import sys
 import os
-import datetime
 import pandas as pd
 from canvasAPI import CanvasAPI
 
@@ -23,12 +22,14 @@ def main(flags):
     students = [int(grades[id][i]) for i in range(1,len(grades[id]))]
     max_points = (int(grades[assignment][0]) for assignment in assignments)
 
-    submission_data = []
+    submission_data = [] # data to be submitted after confirming no issues with grade changes
+    
     for assignment in assignments:
         assignment_id = assignment_ids[assignment]
         
         canvasAPI.updateAssignment(course_id, assignment_id, {"assignment[published]" : True})
         
+        # format grade data and check for grading issues
         for i, student in enumerate(students):
             new_grade = int(grades[assignment][i+1])
             grade_data = {
@@ -49,6 +50,7 @@ def main(flags):
                     print(f'\nError: Grade for student {student} will be lowered from {current_grade} to {new_grade} for Assignment "{assignment}".\nEnter grades manually\nAborting...\n')
                     sys.exit(0)
     
+    # post grades
     for assignment_id, student, grade_data in submission_data:
         canvasAPI.gradeAssignment(course_id, assignment_id, student, grade_data)
 

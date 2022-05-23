@@ -2,81 +2,43 @@
   "login_token": "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
   "Hmk": {
     "assignment_group": true,
-    "id": 3214510,
     "rules": "drop_lowest:2\n",
     "file_upload": true,
     "parent_folder": "Hmk",
     "group_weight": 40,
     "max_points": 15,
     "start_date": "5/11/2022",
-    "interval": "weekly",
-    "schedule": [
-      "Mon",
-      "Wed",
-      "Fri"
-    ],
-    "holy_days": [
-      "6/2/2022",
-      "6/16/2022"
-    ]
+    "interval": "weekly"
   },
   "Quiz": {
     "assignment_group": true,
-    "id": 3214511,
     "rules": "drop_lowest:1\n",
     "file_upload": false,
     "amount": 10,
     "group_weight": 35,
     "max_points": 30,
     "start_date": "5/11/2022",
-    "interval": "daily",
-    "schedule": [
-      "Mon",
-      "Wed",
-      "Fri"
-    ],
-    "holy_days": [
-      "6/2/2022",
-      "6/16/2022"
-    ]
+    "interval": "daily"
   },
   "Exam": {
     "assignment_group": true,
-    "id": 3214512,
     "rules": null,
     "file_upload": false,
     "amount": 2,
     "group_weight": 25,
     "max_points": 50,
     "start_date": "5/30/2022",
-    "interval": 21,
-    "schedule": [
-      "Mon",
-      "Wed",
-      "Fri"
-    ],
-    "holy_days": [
-      "6/2/2022",
-      "6/16/2022"
-    ]
+    "interval": 21
   },
   "Slide": {
     "assignment_group": false,
     "file_upload": true,
-    "parent_folder": "Slides",
-    "group_weight": null,
-    "max_points": null,
-    "publish_date": null,
-    "interval": null
+    "parent_folder": "Slides"
   },
   "Sylbs": {
     "assignment_group": false,
     "file_upload": true,
-    "parent_folder": null,
-    "group_weight": null,
-    "max_points": null,
-    "publish_date": null,
-    "interval": null
+    "parent_folder": null
   },
   "Tabs": [
     "Home",
@@ -87,57 +49,71 @@
     "Quizzes",
     "Settings"
   ],
+  "Class Schedule": {
+    "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+    ],
+    "holy_days": [
+      "6/2/2022",
+      "6/16/2022"
+    ]
+  },
   "IDs": {
+    "Groups": {
+      "Hmk": 3215074,
+      "Quiz": 3215075,
+      "Exam": 3215077
+    },
     "Assignments": {
-      "hmk-1": 15313487,
-      "hmk-2": 15313488,
-      "hmk-3": 15313489,
-      "hmk-4": 15313490,
-      "hmk-5": 15313491,
-      "hmk-6": 15313492,
-      "hmk-7": 15313493,
-      "hmk-8": 15313494,
-      "Quiz 1": 15313495,
-      "Quiz 2": 15313496,
-      "Quiz 3": 15313497,
-      "Quiz 4": 15313498,
-      "Quiz 5": 15313499,
-      "Quiz 6": 15313500,
-      "Quiz 7": 15313501,
-      "Quiz 8": 15313502,
-      "Quiz 9": 15313503,
-      "Quiz 10": 15313504,
-      "Exam 1": 15313505,
-      "Exam 2": 15313506
+      "hmk-1": 15317466,
+      "hmk-2": 15317467,
+      "hmk-3": 15317468,
+      "hmk-4": 15317469,
+      "hmk-5": 15317470,
+      "hmk-6": 15317471,
+      "hmk-7": 15317472,
+      "hmk-8": 15317473,
+      "Quiz 1": 15317474,
+      "Quiz 2": 15317475,
+      "Quiz 3": 15317476,
+      "Quiz 4": 15317477,
+      "Quiz 5": 15317478,
+      "Quiz 6": 15317479,
+      "Quiz 7": 15317480,
+      "Quiz 8": 15317481,
+      "Quiz 9": 15317482,
+      "Quiz 10": 15317483,
+      "Exam 1": 15317484,
+      "Exam 2": 15317485
     },
     "Files": {
-      "hmk-1": 135741995,
-      "hmk-2": 135741969,
-      "hmk-3": 135741970,
-      "hmk-4": 135741971,
-      "hmk-5": 135741972,
-      "hmk-6": 135741973,
-      "hmk-7": 135741974,
-      "hmk-8": 135741975,
-      "Slide 1": 135741977,
-      "Slide 10": 135741978,
-      "Slide 11": 135741979,
-      "Slide 12": 135741980,
-      "Slide 2": 135741981,
-      "Slide 3": 135741982,
-      "Slide 4": 135741983,
-      "Slide 5": 135741984,
-      "Slide 6": 135741985,
-      "Slide 7": 135741986,
-      "Slide 8": 135741987,
-      "Slide 9": 135741988,
-      "Syllabus": 135741989,
-      "hmk-1-1": 135741992,
-      "hmk-1-2": 135741993
+      "hmk-1": 135766627,
+      "hmk-2": 135766628,
+      "hmk-3": 135766629,
+      "hmk-4": 135766630,
+      "hmk-5": 135766631,
+      "hmk-6": 135766632,
+      "hmk-7": 135766633,
+      "hmk-8": 135766634,
+      "Slide 1": 135766636,
+      "Slide 10": 135766637,
+      "Slide 11": 135766638,
+      "Slide 12": 135766639,
+      "Slide 2": 135766640,
+      "Slide 3": 135766641,
+      "Slide 4": 135766642,
+      "Slide 5": 135766643,
+      "Slide 6": 135766644,
+      "Slide 7": 135766645,
+      "Slide 8": 135766646,
+      "Slide 9": 135766647,
+      "Syllabus": 135766649
     },
     "Folders": {
-      "Hmk": 15068041,
-      "Slide": 15068042,
+      "Hmk": 15071265,
+      "Slide": 15071266,
       "Sylbs": null
     }
   }

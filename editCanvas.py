@@ -17,7 +17,7 @@ def save(data):
         json.dump(data, f, indent= 2)
 
 def main(dir, name, flags):
-    file_id = settings['IDs']['Files'][name[:-4]]
+    # file_id = settings['IDs']['Files'][name[:-4]]
 
     if '-r' in flags:
         action = "overwrite"

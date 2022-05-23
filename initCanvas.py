@@ -68,8 +68,7 @@ def progressBar(progress, task):
     print(f'\r|{bar}| {progress:.2f}% {task}                              ', end = '\r')
 
 def formatDate(date, interval, schedule, holy_days, amount):
-    if date == None or interval == None: 
-        return date
+    if date == None or interval == None: return date
     
     week = {'Mon':0,'Tue':1,'Wed':2,'Thu':3,'Fri':4,'Sat':5,'Sun':6}
     sched = [week[day] for day in schedule]
@@ -85,6 +84,7 @@ def formatDate(date, interval, schedule, holy_days, amount):
     if date.weekday() not in sched: 
         print("Start date not valid for given class schedule")
         sys.exit(0)
+    
     while i < amount:
         date += j*timedelta
         weekday = date.weekday()
@@ -95,15 +95,9 @@ def formatDate(date, interval, schedule, holy_days, amount):
     return dates
 
 def resetInp():
-    _, *dirs, tabs, IDs = settings
-    
-    for dir in dirs:
-        
-        dir_settings = settings[dir]
-        if dir_settings['assignment_group']:
-            settings[dir]['id'] = None
-    
-    settings[IDs] = {
+   
+    settings['IDs'] = {
+        "Groups":{},
         "Assignments":{},
         "Files":{},
         "Folders":{}
@@ -148,17 +142,20 @@ def resetCanvas():
    
 def initCourse():
     
-    _, *dirs, tabs, IDs = settings
+    _, *dirs, tabs, class_schedule, IDs = settings
+    
     total_dirs = len(dirs)
     
     my_tabs = settings[tabs]
+    schedule = settings[class_schedule]
+    
     canvas_tabs = canvasAPI.getTabs(course_id)
     total_tabs = len(canvas_tabs)
     
     total_tasks = total_dirs + 1
     
+    # update each tab's visibility and position
     for i, tab in enumerate(canvas_tabs):
-        # update each tab
         
         if tab['label'] not in my_tabs:
             tab['hidden'] = True
@@ -172,20 +169,17 @@ def initCourse():
         progressBar(progress,"Adjusting Tabs")
         # -------------------------------------
     
+    # loops through each directory defined in inp.json
     for i, dir in enumerate(dirs):    
-        # loops through each directory
-           
-        if dir not in settings: continue
-           
+         
         dir_settings = settings[dir]
         
+        # Assignment, Quiz, Exam, ect.
         if dir_settings['assignment_group']:
-            # Assignment, Quiz, Exam, ect.
             
             canvasAPI.enableGroupWeights(course_id)
 
-            # creates group
-            
+            # creates group     
             group_data = {
                 "name" : dir,
                 "group_weight" : dir_settings['group_weight'],
@@ -193,12 +187,12 @@ def initCourse():
                 }
                 
             id = canvasAPI.createGroup(course_id, group_data).json()['id']
-            settings[dir]['id'] = id
+            settings[IDs]['Groups'][dir] = id
             save(settings)
             
+            # Assignment w/ file [uploads assignments based on file names and number of files]
             if dir_settings['file_upload']:
-                # Assignment w/ file
-                
+                     
                 path = os.path.join(os.getcwd(), dir)
                 files = sorted(os.listdir(path))
                 total_files = len(files)
@@ -210,10 +204,16 @@ def initCourse():
                 parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']
                 settings[IDs]['Folders'][dir] = parent_folder_id
                 
-                dates = formatDate(dir_settings['start_date'], dir_settings['interval'], dir_settings['schedule'], dir_settings['holy_days'], total_files)
+                dates = formatDate(
+                    dir_settings['start_date'], 
+                    dir_settings['interval'], 
+                    schedule['days'], 
+                    schedule['holy_days'], 
+                    total_files
+                )
                 
+                # create each assignment, upload file, attach file to assignment
                 for j, file in enumerate(files):
-                    # create each assignment, upload file, attach file to assignment
                     
                     assignment_data = {
                         "assignment[name]" : file[:-4],
@@ -226,7 +226,14 @@ def initCourse():
                     file_path = os.path.join(os.getcwd(), dir, file)
 
                     assignment_response, file_id = canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path)
-                    canvasAPI.updateFile(file_id,{"name":file[:-4], "parent_folder_id": parent_folder_id})
+                    canvasAPI.updateFile(
+                        file_id,
+                        {
+                            "name":file[:-4], 
+                            "parent_folder_id": parent_folder_id
+                        }
+                    )
+                    
                     assignment_id = assignment_response.json()['id']
                     settings[IDs]['Assignments'][file[:-4]] = assignment_id
                     settings[IDs]['Files'][file[:-4]] = file_id
@@ -240,14 +247,20 @@ def initCourse():
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
                     # -----------------------------------------------------    
                 save(settings)
-                    
+            
+            # Assignment w/o file [Uploads Assignments based on given "amount" parameter in inp.json with name Group X]   
             else:
-                # Assignment w/o file
                 
-                dates = formatDate(dir_settings['start_date'], dir_settings['interval'], dir_settings['schedule'], dir_settings['holy_days'], dir_settings['amount'])
+                dates = formatDate(
+                    dir_settings['start_date'], 
+                    dir_settings['interval'], 
+                    schedule['days'], 
+                    schedule['holy_days'], 
+                    dir_settings['amount']
+                )
                 
+                # Creates the specified number of Assignments
                 for j in range(dir_settings['amount']):
-                    # Creates the specified number of Assignments
                     
                     assignment_data = {
                         "assignment[name]" : f'{dir} {j+1}',
@@ -267,9 +280,9 @@ def initCourse():
                     progressBar(progress, f'{dir}: Uploading {dir} {j+1}')
                     # ----------------------------------------------------
                 save(settings)
-                    
+        
+        # Not an Assignemnt i.e. Slides and other files            
         else:
-            # Not an Assignemnt i.e. Slides and other files
             
             if dir_settings['file_upload']:
                 

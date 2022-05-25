@@ -1,20 +1,14 @@
-import json
 import sys
-import os
 import pandas as pd
+from Utils import *
 from canvasAPI import CanvasAPI
 
-os.chdir('1865191/')
-with open("inp.json") as f:
-    settings = json.load(f)
-
-token = settings["login_token"]
-canvasAPI = CanvasAPI(token)
-course_id = 1865191
+canvasAPI, course_id, all_settings, inp = loadSettings()
+course_settings = all_settings[course_id]
 
 def main(flags):
     print(flags)
-    assignment_ids = settings['IDs']['Assignments']
+    assignment_ids = course_settings['IDs']['Assignments']
     
     grades = pd.read_csv('grades.csv',index_col=False)
     id, *assignments = grades

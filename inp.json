@@ -1,0 +1,71 @@
+{
+  "login_token": "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
+  "1865191": {
+    "Hmk": {
+      "assignment_group": true,
+      "rules": "drop_lowest:2\n",
+      "file_upload": true,
+      "parent_folder": "Hmk",
+      "group_weight": 40,
+      "max_points": 15,
+      "start_date": "5/11/2022",
+      "interval": "weekly"
+    },
+    "Quiz": {
+      "assignment_group": true,
+      "rules": "drop_lowest:1\n",
+      "file_upload": false,
+      "amount": 10,
+      "group_weight": 35,
+      "max_points": 30,
+      "start_date": "5/11/2022",
+      "interval": "daily"
+    },
+    "Exam": {
+      "assignment_group": true,
+      "rules": null,
+      "file_upload": false,
+      "amount": 2,
+      "group_weight": 25,
+      "max_points": 50,
+      "start_date": "5/30/2022",
+      "interval": 21
+    },
+    "Slide": {
+      "assignment_group": false,
+      "file_upload": true,
+      "parent_folder": "Slides"
+    },
+    "Sylbs": {
+      "assignment_group": false,
+      "file_upload": true,
+      "parent_folder": null
+    },
+    "Tabs": [
+      "Home",
+      "Assignments",
+      "Grades",
+      "People",
+      "Files",
+      "Quizzes",
+      "Settings"
+    ],
+    "Class Schedule": {
+      "days": [
+        "Mon",
+        "Wed",
+        "Fri"
+      ],
+      "holy_days": [
+        "6/2/2022",
+        "6/16/2022"
+      ]
+    },
+    "IDs": {
+      "Groups": {},
+      "Assignments": {},
+      "Files": {},
+      "Folders": {}
+    }
+  }
+}

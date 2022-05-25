@@ -74,7 +74,7 @@ class CanvasAPI:
         # sends file to given upload path with given parameters
         response = requests.post(url=upload_url, params=upload_params, files=file)
         
-        if response.status_code >= 300 and response.status_code <= 399: 
+        if 300 <= response.status_code <= 399: 
             # if response code is 3XX, another api request must be made
 
             location = response.json()['Location']

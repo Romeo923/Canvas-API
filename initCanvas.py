@@ -1,8 +1,6 @@
-import json
-import sys
 import os
-import datetime
 from canvasAPI import CanvasAPI
+from Utils import *
 
 """
 Assignment Data:
@@ -51,61 +49,23 @@ Grade Data:
 }
 """
 
-os.chdir('1865191/')
-with open("inp.json") as f:
-    settings = json.load(f)
+os.chdir('1865191/Hmk')
 
-token = settings["login_token"]
-canvasAPI = CanvasAPI(token)
-course_id = 1865191
-
-def save(data):
-    with open("inp.json", 'w') as f:
-        json.dump(data, f, indent= 2)
-
-def progressBar(progress, task):
-    bar = '█' * int(progress/2) + '-' * (50 - int(progress/2))
-    print(f'\r|{bar}| {progress:.2f}% {task}                              ', end = '\r')
-
-def formatDate(date, interval, schedule, holy_days, amount):
-    if date == None or interval == None: return date
-    
-    week = {'Mon':0,'Tue':1,'Wed':2,'Thu':3,'Fri':4,'Sat':5,'Sun':6}
-    sched = [week[day] for day in schedule]
-    
-    timedelta = datetime.timedelta(1) if interval == 'daily' else datetime.timedelta(7) if interval == 'weekly' else datetime.timedelta(interval)
-    month, day, year = date.split('/')
-    exceptions = [holy_day.split('/') for holy_day in holy_days]
-    date = datetime.datetime(int(year),int(month),int(day))
-    exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions]
-    
-    dates = []
-    i, j = (0, 0)
-    if date.weekday() not in sched: 
-        print("Start date not valid for given class schedule")
-        sys.exit(0)
-    
-    while i < amount:
-        date += j*timedelta
-        weekday = date.weekday()
-        if date not in exception_dates and weekday in sched:
-            dates.append(f'{date.date()}T{date.time()}')
-            i += 1
-        j += 1
-    return dates
+canvasAPI, course_id, all_settings, inp = loadSettings()
+course_settings = all_settings[course_id]
 
 def resetInp():
    
-    settings['IDs'] = {
+    all_settings[course_id]['IDs'] = {
         "Groups":{},
         "Assignments":{},
         "Files":{},
         "Folders":{}
     }
     
-    save(settings)
+    save(all_settings, inp)
     print('\ninp.json reset...\n')
-  
+        
 def resetCanvas():
     
     canvasAPI.disableGroupWeights(course_id)
@@ -140,14 +100,26 @@ def resetCanvas():
 
     print('\nCanvas Reset...\n')
    
+def initGroup(dir, dir_settings):
+    group_data = {
+        "name" : dir,
+        "group_weight" : dir_settings['group_weight'],
+        "rules" : dir_settings['rules']
+    }
+                    
+    id = canvasAPI.createGroup(course_id, group_data).json()['id']
+    course_settings['IDs']['Groups'][dir] = id
+    return id
+
 def initCourse():
-    
-    _, *dirs, tabs, class_schedule, IDs = settings
+    *dirs, tabs, class_schedule, IDs = course_settings
     
     total_dirs = len(dirs)
     
-    my_tabs = settings[tabs]
-    schedule = settings[class_schedule]
+    canvasAPI.enableGroupWeights(course_id)
+    
+    my_tabs = course_settings[tabs]
+    schedule = course_settings[class_schedule]
     
     canvas_tabs = canvasAPI.getTabs(course_id)
     total_tabs = len(canvas_tabs)
@@ -172,27 +144,15 @@ def initCourse():
     # loops through each directory defined in inp.json
     for i, dir in enumerate(dirs):    
          
-        dir_settings = settings[dir]
+        dir_settings = course_settings[dir]
         
-        # Assignment, Quiz, Exam, ect.
-        if dir_settings['assignment_group']:
+        match dir_settings:
             
-            canvasAPI.enableGroupWeights(course_id)
-
-            # creates group     
-            group_data = {
-                "name" : dir,
-                "group_weight" : dir_settings['group_weight'],
-                "rules" : dir_settings['rules']
-                }
+            # uploads assignments based on file names and number of files
+            case {'assignment_group': True, 'file_upload': True}:
+               
+                id = initGroup(dir, dir_settings)
                 
-            id = canvasAPI.createGroup(course_id, group_data).json()['id']
-            settings[IDs]['Groups'][dir] = id
-            save(settings)
-            
-            # Assignment w/ file [uploads assignments based on file names and number of files]
-            if dir_settings['file_upload']:
-                     
                 path = os.path.join(os.getcwd(), dir)
                 files = sorted(os.listdir(path))
                 total_files = len(files)
@@ -201,8 +161,9 @@ def initCourse():
                     "name" : dir_settings['parent_folder'],
                     "parent_folder_path" : ""
                 }
+                
                 parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']
-                settings[IDs]['Folders'][dir] = parent_folder_id
+                course_settings[IDs]['Folders'][dir] = parent_folder_id
                 
                 dates = formatDate(
                     dir_settings['start_date'], 
@@ -235,8 +196,8 @@ def initCourse():
                     )
                     
                     assignment_id = assignment_response.json()['id']
-                    settings[IDs]['Assignments'][file[:-4]] = assignment_id
-                    settings[IDs]['Files'][file[:-4]] = file_id
+                    course_settings[IDs]['Assignments'][file[:-4]] = assignment_id
+                    course_settings[IDs]['Files'][file[:-4]] = file_id
                     
                     
                     # update progress bar -------------------------------- 
@@ -245,12 +206,13 @@ def initCourse():
                     progress += (i+1)/total_tasks
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
-                    # -----------------------------------------------------    
-                save(settings)
-            
-            # Assignment w/o file [Uploads Assignments based on given "amount" parameter in inp.json with name Group X]   
-            else:
+                    # -----------------------------------------------------
+
+            # uploads assignments based on given 'amount' parameter in inp.json with name [Group name]-[index]
+            case {'assignment_group': True}:
                 
+                id = initGroup(dir, dir_settings)
+
                 dates = formatDate(
                     dir_settings['start_date'], 
                     dir_settings['interval'], 
@@ -270,7 +232,7 @@ def initCourse():
                         "assignment[published]" : False
                     }
                     assignment_id = canvasAPI.createAssignment(course_id, assignment_data).json()['id']
-                    settings[IDs]['Assignments'][f'{dir} {j+1}'] = assignment_id
+                    course_settings[IDs]['Assignments'][f'{dir} {j+1}'] = assignment_id
                     
                     # update progress bar --------------------------------
                     progress = (j+1)/dir_settings['amount']
@@ -279,30 +241,26 @@ def initCourse():
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {dir} {j+1}')
                     # ----------------------------------------------------
-                save(settings)
-        
-        # Not an Assignemnt i.e. Slides and other files            
-        else:
             
-            if dir_settings['file_upload']:
+            # uploads files
+            case {'file_upload': True}:
                 
                 path = os.path.join(os.getcwd(), dir)
                 files = sorted(os.listdir(path))
                 total_files = len(files)
                 
+                parent_folder_id = None
                 if dir_settings['parent_folder'] is not None:
                     folder_data = {
                         "name" : dir_settings['parent_folder'],
                         "parent_folder_path" : ""
                     }
-                    parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']
-                else:
-                    parent_folder_id = None
+                    parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']                   
                     
-                settings[IDs]['Folders'][dir] = parent_folder_id
+                course_settings[IDs]['Folders'][dir] = parent_folder_id
                 
-                for j, file in enumerate(files):
-                    # uploads each file
+                # uploads each file
+                for j, file in enumerate(files):                    
                     
                     file_path = os.path.join(os.getcwd(), dir, file)
                     file_id = canvasAPI.uploadFile(course_id,file_path).json()['id']
@@ -312,8 +270,8 @@ def initCourse():
                         "parent_folder_id" : parent_folder_id
                     }
                     
-                    canvasAPI.updateFile(file_id,file_data)
-                    settings[IDs]['Files'][file[:-4]] = file_id
+                    canvasAPI.updateFile(file_id, file_data)
+                    course_settings[IDs]['Files'][file[:-4]] = file_id
                     
                     # update progress bar --------------------------------
                     progress = (j+1)/total_files
@@ -322,11 +280,15 @@ def initCourse():
                     progress *= 100
                     progressBar(progress, f'{dir}: Uploading {file[:-4]}')
                     # ----------------------------------------------------
-                save(settings)
-    
+            
+            case _:
+                pass
+        
+        all_settings[course_id] = course_settings
+        save(all_settings, inp)
+        
     progressBar(100,"Done...")
     print('\n')
-           
 
 def main():
     resetInp()

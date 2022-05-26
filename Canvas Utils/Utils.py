@@ -2,15 +2,16 @@ import datetime
 import json
 import os
 import sys
+import copy
 from canvasAPI import CanvasAPI
 
 
 def loadSettings():
     cwd = os.getcwd().split('\\')
     cwd[0] += '\\'
-    inp = findInp(cwd)
+    inp_dir = findInp(cwd)
 
-    with open(inp) as f:
+    with open(os.path.join(inp_dir,'inp.json')) as f:
         all_settings = json.load(f)
 
     login_token, *cids = all_settings
@@ -21,11 +22,26 @@ def loadSettings():
         sys.exit()
 
     course_id = course_id[0]
+    default_settings = all_settings['Default']
+    course_settings = all_settings[course_id]
+    
+    new_settings = copy.deepcopy(default_settings)
+    
+    for setting in course_settings:
+        
+        if setting in default_settings:
+            
+            match course_settings[setting]:
+                case dict() as var:
+                    for key in var:
+                        new_settings[setting][key] = var[key]
+                case list() as var:
+                    new_settings[setting] = var
 
     token = all_settings[login_token]
     canvasAPI = CanvasAPI(token)
 
-    return canvasAPI, course_id, all_settings, inp
+    return canvasAPI, course_id, all_settings, new_settings, course_settings, inp_dir
 
 def save(data, file):
     with open(file, 'w') as f:
@@ -37,7 +53,7 @@ def findInp(dirs):
     full_path = os.path.join(*dirs)
     curr_dirs = os.listdir(full_path)
 
-    if file in curr_dirs: return os.path.join(full_path,file)
+    if file in curr_dirs: return full_path
     
     return findInp(dirs[:-1])
     

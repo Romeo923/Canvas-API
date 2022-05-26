@@ -3,62 +3,157 @@ import os
 from Utils import *
 from canvasAPI import CanvasAPI
 
-os.chdir('1865191/')
+help = """
+FLAGS:
 
-canvasAPI, course_id, all_settings, inp = loadSettings()
-course_settings = all_settings[course_id]
+Flags   Info            Type         Inputs
+-----   ----            ----         ------
+-u      upload          command      None
+-r      repost/edit     command      None
+-i      index instead   modifier     None
+        of override
+-a      assignment      classifier   Assignment Name
+-f      file            classifier   File Name (include .pdf)
+-d      date            data         mm/dd/yyyy
+-p      points          data         int
+-help   list all flags  help         None
+"""
+
+
+os.chdir('1865191/Hmk')
+
+canvasAPI, course_id, all_settings, settings, course_settings, inp_dir = loadSettings()
+inp = os.path.join(inp_dir,'inp.json')
+root_dir = os.path.join(inp_dir,course_id)
+
+curr_dir = os.getcwd().split('\\')[-1]
+IDs = course_settings['IDs']
 
 def applyCommand(commands):
     match [list(command) if command[0] == '-' else command for command in commands]:
         
-        case [['-',*flags], [*args], ['-',*flags2], [*args2]]:
-            print(f'Matched multiple set of commands with primary Flags: {flags} and primary Arguments: {args}\nAnd Additional Flags: {flags2} and Aditional Arguments {args2}')
+        case [['-','h','e','l','p'], *_]:
+            print()
+            print(help)
+            print()
+            sys.exit()
+        
         case [['-', *flags], *args]:
-            print(f'Matched 1 set of commands with flags: {flags} and Arguments: {args}')
+            
+            data = {}
+            input_data = []
+            
+            if len(args) == 0:
+                print('No input arguments given.\nEnter -help to see flag data and reqired inputs')
+                sys.exit()
+            name, *rest = args
+            args = rest
+        
+            if 'u' in flags:
+                
+                if 'a' in flags and 'f' in flags:
+                    action = canvasAPI.createAssignmentWithFile
+                    input_data.append(course_id)
+                    input_data.append(data)
+                    input_data.append(os.path.join(os.getcwd(),name))
+                    data["assignment[name]"] = name
+                    data["assignment[assignment_group_id]"] = IDs['Groups'][curr_dir]
+                elif 'a' in flags:
+                    action = canvasAPI.createAssignment
+                    input_data.append(course_id)
+                    input_data.append(data)
+                    data["assignment[name]"] = name
+                    data["assignment[assignment_group_id]"] = IDs['Groups'][curr_dir]
+                elif 'f' in flags:
+                    action = canvasAPI.uploadFile
+                    input_data.append(course_id)
+                    input_data.append(os.path.join(os.getcwd(),name))
+                    data['name'] = name[:-4]
+                else:
+                    print('Impropper format, no upload classifier given')
+                          
+            elif 'r' in flags:
+                                
+                if 'a' in flags:
+                    action = canvasAPI.updateAssignment
+                    input_data.append(course_id)
+                    aid = IDs['Assignments'][name]
+                    input_data.append(aid)
+                    input_data.append(data)
+                elif 'f' in flags:
+                    # TODO upload file, rename file
+                    # requires upload and update methods
+                    data["on_duplicate"] = "rename" if 'i' in flags else "overwrite"
+                    action = canvasAPI.uploadFile
+                    fid = IDs["Files"][name[:-4]]
+                    data['name'] = name[:-4]
+                    input_data.append(course_id)
+                    input_data.append(os.path.join(os.getcwd(),name))
+                else:
+                    print('Impropper format, no upload classifier given')
+                    
+            else:
+                print("Impropper format. Flags -u or -r must be included and cannot be combined.")
+                sys.exit()
+                    
+            left_over = [flag for flag in flags if flag not in 'uriaf']
+            
+            for flag in left_over:
+                
+                match flag:
+                    
+                    case 'd':
+                        date, *rest = args
+                        args = rest
+                        days, hdays = settings['Class Schedule']
+                        data["assignment[due_at]"] = formatDate(date,0,settings['Class Schedule'][days],settings['Class Schedule'][hdays],1)[0]
+                    
+                    case 'p':
+                        points, *rest = args
+                        args = rest
+                        data["assignment[points_possible]"] = points
+            
+            response = action(*input_data)
+            if 'u' in flags:
+                if 'a' in flags and 'f' in flags:
+                    
+                    foid = IDs['Folders'][curr_dir]
+                    assignment_response, file_id = response
+                    canvasAPI.updateFile(
+                        file_id,
+                        {
+                            "name":name[:-4], 
+                            "parent_folder_id": foid
+                        }
+                    )
+                    assignment_id = assignment_response.json()['id']
+                    
+                    IDs['Assignments'][name[:-4]] = assignment_id
+                    IDs['Files'][name[:-4]] = file_id
+                
+                elif 'a' in flags:
+                    IDs['Assignments'][name] = response.json()['id']
+                elif 'f' in flags:
+                    IDs['Files'][name[:-4]] = response.json()['id']
+                    
+            save(all_settings,inp)
+                    
         case _:
-            print('did not match')
+            print('No flags given or Impropper format\nEnter -help for a list of flags')
+            
+            
 
-def main(dir, name, flags):
-
-    if '-r' in flags:
-        action = "overwrite"
-        
-    elif '-ra':
-        action = "rename"
-        
-    else:
-        print('\nError: No flag given.\nEnter flag "-r" to replace or "-ra" to rename and upload.\n')
-        sys.exit(0)
-    
-    file_path = os.path.join(os.getcwd(), dir, name)
-    
-    parent_folder_id = course_settings['IDs']['Folders'][dir]
-    
-    id = canvasAPI.uploadFile(course_id,file_path).json()['id']
-    file_data = {
-        "name":name[:-4],
-        "parent_folder_id":parent_folder_id,
-        "on_duplicate" : action
-    }
-    response = canvasAPI.updateFile(id, file_data)
-    print(response)
-    print(response.json())
-    file_name = response.json()['display_name']
-    
-    course_settings['IDs']['Files'][file_name] = id
-    all_settings[course_id] = course_settings
-    save(all_settings, inp)
-    
-    
-if __name__ == "__main__":
+def main():
     
     # _, *commands = sys.argv
     
-    commands = ['-r', 'Hmk-1', '10', '5/13/22']
-    print([list(command) if command[0] == '-' else command for command in commands])
+    commands = ['-rfi', 'hmk-1.pdf']
+    # commands = ['-help']
     applyCommand(commands)
-    print('\n')
+    print('done...')
     
-    commands = ['-r', 'Hmk-1', '10', '5/13/22','-raf','Hmk-2', '15', '6/05/22', '-poi', 'Hmk-3', '9', '4/25/22', '-gfd','Hmk-4', '54', '8/30/22']
-    print([list(command) if command[0] == '-' else command for command in commands])
-    applyCommand(commands)
+    
+    
+if __name__ == "__main__":
+    main()
+    

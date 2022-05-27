@@ -6,16 +6,18 @@ from canvasAPI import CanvasAPI
 help = """
 FLAGS:
 
-Flags   Info            Type         Inputs
------   ----            ----         ------
--u      upload          command      None
--r      repost/edit     command      None
--i      index instead   modifier     None
-        of override
--a      assignment      classifier   Assignment Name
--f      file            classifier   File Name (include .pdf)
--d      date            data         mm/dd/yyyy
--p      points          data         int
+Flags   | Info            | Type         | Inputs                     | Status
+-----   | ----            | ----         | ------                     | ------
+-u      | upload          | command      | None                       | Done
+-r      | replace/edit    | command      | None                       | Done
+-d      | delete          | command      | None                       | (In progress)
+-i      | index duplicate | modifier     | None                       | Done
+        | upload          |              |                            | 
+-a      | assignment      | classifier   | Assignment Name            | Done
+-f      | file            | classifier   | File Name (include .pdf)   | Done
+-d      | date            | data         | mm/dd/yyyy                 | Done
+-p      | points          | data         | int                        | Done
+
 -help   list all flags  help         None
 """
 
@@ -40,61 +42,15 @@ def applyCommand(commands):
         
         case [['-', *flags], *args]:
             
-            data = {}
-            input_data = []
-            
             if len(args) == 0:
                 print('No input arguments given.\nEnter -help to see flag data and reqired inputs')
                 sys.exit()
             name, *rest = args
             args = rest
-        
-            if 'u' in flags:
-                
-                if 'a' in flags and 'f' in flags:
-                    action = canvasAPI.createAssignmentWithFile
-                    input_data.append(course_id)
-                    input_data.append(data)
-                    input_data.append(os.path.join(os.getcwd(),name))
-                    data["assignment[name]"] = name
-                    data["assignment[assignment_group_id]"] = IDs['Groups'][curr_dir]
-                elif 'a' in flags:
-                    action = canvasAPI.createAssignment
-                    input_data.append(course_id)
-                    input_data.append(data)
-                    data["assignment[name]"] = name
-                    data["assignment[assignment_group_id]"] = IDs['Groups'][curr_dir]
-                elif 'f' in flags:
-                    action = canvasAPI.uploadFile
-                    input_data.append(course_id)
-                    input_data.append(os.path.join(os.getcwd(),name))
-                    data['name'] = name[:-4]
-                else:
-                    print('Impropper format, no upload classifier given')
-                          
-            elif 'r' in flags:
-                                
-                if 'a' in flags:
-                    action = canvasAPI.updateAssignment
-                    input_data.append(course_id)
-                    aid = IDs['Assignments'][name]
-                    input_data.append(aid)
-                    input_data.append(data)
-                elif 'f' in flags:
-                    # TODO upload file, rename file
-                    # requires upload and update methods
-                    data["on_duplicate"] = "rename" if 'i' in flags else "overwrite"
-                    action = canvasAPI.uploadFile
-                    fid = IDs["Files"][name[:-4]]
-                    data['name'] = name[:-4]
-                    input_data.append(course_id)
-                    input_data.append(os.path.join(os.getcwd(),name))
-                else:
-                    print('Impropper format, no upload classifier given')
-                    
-            else:
-                print("Impropper format. Flags -u or -r must be included and cannot be combined.")
-                sys.exit()
+
+            #* Handles Command Flags
+            #* Determines api task and generates input data
+            action, data, input_data = generateAction(flags, name)
                     
             left_over = [flag for flag in flags if flag not in 'uriaf']
             
@@ -117,15 +73,9 @@ def applyCommand(commands):
             if 'u' in flags:
                 if 'a' in flags and 'f' in flags:
                     
-                    foid = IDs['Folders'][curr_dir]
                     assignment_response, file_id = response
-                    canvasAPI.updateFile(
-                        file_id,
-                        {
-                            "name":name[:-4], 
-                            "parent_folder_id": foid
-                        }
-                    )
+                    
+                    canvasAPI.updateFile(file_id,data)
                     assignment_id = assignment_response.json()['id']
                     
                     IDs['Assignments'][name[:-4]] = assignment_id
@@ -134,20 +84,121 @@ def applyCommand(commands):
                 elif 'a' in flags:
                     IDs['Assignments'][name] = response.json()['id']
                 elif 'f' in flags:
+                    
+                    file_id = response.json()['id']
+                    
+                    canvasAPI.updateFile(file_id,data)
+                    
                     IDs['Files'][name[:-4]] = response.json()['id']
                     
             save(all_settings,inp)
                     
         case _:
             print('No flags given or Impropper format\nEnter -help for a list of flags')
+                        
+def generateAction(flags, name):
+    data = {}
+    input_data = []
+
+    cflags = {flag: True if flag in flags else False for flag in "urdiaf"}
             
+    match cflags:
+        
+        #* Uploads NEW Assignment w/ File
+        case {'u':True, 'a': True, 'f': True}:
+            action = canvasAPI.createAssignmentWithFile
+            input_data.append(course_id)
+            input_data.append(data)
+            input_data.append(os.path.join(os.getcwd(),name))
+            fid = IDs["Folders"][curr_dir]
+            data['name'] = name[:-4]
+            data["parent_folder_id"] = fid            
+            data["assignment[name]"] = name[:-4]
+            data["assignment[assignment_group_id]"] = IDs['Groups'][curr_dir]
+        
+        #* Uploads NEW Assignment
+        case {'u':True, 'a': True}:
+            action = canvasAPI.createAssignment
+            input_data.append(course_id)
+            input_data.append(data)
+            data["assignment[name]"] = name
+            data["assignment[assignment_group_id]"] = IDs['Groups'][curr_dir]
+        
+        #* Uploads File 
+        #! Indexes name if duplicate is found
+        case {'u':True, 'f': True, 'i': True}:           
+            action = canvasAPI.uploadFile
+            input_data.append(course_id)
+            input_data.append(os.path.join(os.getcwd(),name))
+            fid = IDs["Folders"][curr_dir]
+            data["on_duplicate"] = "rename"
+            data['name'] = name[:-4]
+            data["parent_folder_id"] = fid
+        
+        #* Uploads NEW File
+        case {'u':True, 'f': True}:
             
+            if name[:-4] in IDs['Files']:
+                print('\nFile already exists.\nEnter flag -i to upload with indexing or use flag -r to replace/edit instead of -u\n')
+                sys.exit()
+            
+            action = canvasAPI.uploadFile
+            input_data.append(course_id)
+            input_data.append(os.path.join(os.getcwd(),name))            
+            fid = IDs["Folders"][curr_dir]
+            data['name'] = name[:-4]
+            data["parent_folder_id"] = fid
+        
+        #* Edits Assignment
+        case {'r':True, 'a': True}:
+            action = canvasAPI.updateAssignment
+            aid = IDs['Assignments'][name]
+            input_data.append(course_id)
+            input_data.append(aid)
+            input_data.append(data)
+        
+        #* Edits File
+        #! WILL Replace File w/ Same Name
+        case {'r':True, 'f': True}:
+            action = canvasAPI.uploadFile
+            input_data.append(course_id)
+            input_data.append(os.path.join(os.getcwd(),name))
+            fid = IDs["Folders"][curr_dir]
+            data['name'] = name[:-4]
+            data["parent_folder_id"] = fid
+            data["on_duplicate"] = "overwrite"
+
+        #* Delete Assignment and File
+        # TODO Find Assignment ID and File ID
+        # TODO Delete From Canvas 
+        # TODO Delete From INP File
+        case {'d':True, 'a': True, 'f':True}:
+            pass
+        
+        #* Delete Assignment
+        # TODO Find Assignment ID
+        # TODO Delete From Canvas 
+        # TODO Delete From INP File
+        case {'d':True, 'a': True}:
+            pass
+        
+        #* Delete File
+        # TODO Find File ID
+        # TODO Delete From Canvas 
+        # TODO Delete From INP File
+        case {'d':True, 'f':True}:
+            pass                
+                        
+        case _:
+            print("\nImporper format or no flags given.\nEnter -help to beiw list of flags\n")
+            
+    return action, data, input_data
 
 def main():
     
     # _, *commands = sys.argv
     
-    commands = ['-rfi', 'hmk-1.pdf']
+    commands = ['-uf', 'hmk-1.pdf']
     # commands = ['-help']
     applyCommand(commands)
     print('done...')

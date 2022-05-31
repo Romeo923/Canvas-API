@@ -196,9 +196,9 @@ def generateAction(flags, name):
 
 def main():
     
-    # _, *commands = sys.argv
+    _, *commands = sys.argv
     
-    commands = ['-uf', 'hmk-1.pdf']
+    # commands = ['-uf', 'hmk-1.pdf','10']
     # commands = ['-help']
     applyCommand(commands)
     print('done...')

@@ -5,57 +5,70 @@ import sys
 import copy
 from canvasAPI import CanvasAPI
 
-
 def loadSettings():
-    cwd = os.getcwd().split('\\')
-    cwd[0] += '\\'
-    inp_dir = findInp(cwd)
+    
+    #! Black Magic, edit with caution
+    
+    # checks if computer is running macOS (darwin) or windows (win32)
+    # dirs are separated by / in macOS and \ in windows
+    separator = '//' if sys.platform == 'darwin' else '\\'
+    
+    cwd = os.getcwd().split(separator)
+    cwd[0] += separator 
+    root_dir = findRootDir(cwd)
 
-    with open(os.path.join(inp_dir,'inp.json')) as f:
+    with open(os.path.join(root_dir,'inp.json')) as f:
         all_settings = json.load(f)
 
     login_token, *cids = all_settings
 
     course_id = [cid for cid in cids if cid in cwd]
     if len(course_id) == 0: 
-        print('Could not find Course ID')
+        print('\nError: Could not find Course ID\nPlease run from a subdirectory of the course directory\n')
         sys.exit()
 
     course_id = course_id[0]
     default_settings = all_settings['Default']
     course_settings = all_settings[course_id]
+    _, *overrides = course_settings
     
     new_settings = copy.deepcopy(default_settings)
     
-    for setting in course_settings:
+    for section in overrides:
         
-        if setting in default_settings:
+        if section in default_settings:
             
-            match course_settings[setting]:
+            match course_settings[section]:
                 case dict() as var:
                     for key in var:
-                        new_settings[setting][key] = var[key]
+                        for setting in var[key]:
+                            new_settings[section][key][setting] = var[key][setting]
                 case list() as var:
-                    new_settings[setting] = var
+                    new_settings[section] = var
+        else : 
+            new_settings[section] = course_settings[section]
 
     token = all_settings[login_token]
     canvasAPI = CanvasAPI(token)
 
-    return canvasAPI, course_id, all_settings, new_settings, course_settings, inp_dir
+    return canvasAPI, course_id, new_settings, all_settings, root_dir
 
 def save(data, file):
     with open(file, 'w') as f:
         json.dump(data, f, indent= 2)
 
-def findInp(dirs):
+def findRootDir(dirs):
     
-    file = 'inp.json'
+    if len(dirs) == 0:
+        print('\n\nError, Could not fild root directory or inp.json\nPlease run file from root directory or any of its subdirectories\n\n')
+        sys.exit()
+    
     full_path = os.path.join(*dirs)
     curr_dirs = os.listdir(full_path)
 
-    if file in curr_dirs: return full_path
+    if 'inp.json' in curr_dirs: return full_path
     
-    return findInp(dirs[:-1])
+    return findRootDir(dirs[:-1])
     
 def formatDate(date, interval, schedule, holy_days, amount):
     if date == None or interval == None: return date
@@ -70,15 +83,12 @@ def formatDate(date, interval, schedule, holy_days, amount):
     exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions]
     
     dates = []
-    i, j = (0, 0)
-    if date.weekday() not in sched: 
-        print("Start date not valid for given class schedule")
-        sys.exit(0)
+    i, j = 0, 0
     
     while i < amount:
         date += j*timedelta
         weekday = date.weekday()
-        if date not in exception_dates and weekday in sched:
+        if date not in exception_dates:
             dates.append(f'{date.date()}T{date.time()}')
             i += 1
         j += 1

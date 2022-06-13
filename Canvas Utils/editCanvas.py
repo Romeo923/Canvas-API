@@ -18,18 +18,18 @@ Flags   | Info            | Type         | Inputs                     | Status
 -d      | date            | data         | mm/dd/yyyy                 | Done
 -p      | points          | data         | int                        | Done
 
--help   list all flags  help         None
+-help   | list all flags  | help         | None
 """
 
 
 os.chdir('1865191/Hmk')
 
-canvasAPI, course_id, all_settings, settings, course_settings, inp_dir = loadSettings()
-inp = os.path.join(inp_dir,'inp.json')
-root_dir = os.path.join(inp_dir,course_id)
+canvasAPI, course_id, settings, all_settings, root_dir = loadSettings()
+inp = os.path.join(root_dir,'inp.json')
+root_dir = os.path.join(root_dir,course_id)
 
 curr_dir = os.getcwd().split('\\')[-1]
-IDs = course_settings['IDs']
+IDs = all_settings[course_id]['IDs']
 
 def applyCommand(commands):
     match [list(command) if command[0] == '-' else command for command in commands]:
@@ -200,6 +200,7 @@ def main():
     
     # commands = ['-uf', 'hmk-1.pdf','10']
     # commands = ['-help']
+    
     applyCommand(commands)
     print('done...')
     

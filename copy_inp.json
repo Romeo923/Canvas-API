@@ -1,0 +1,157 @@
+{
+  "login_token": "19~oYg0RXgAQTv8YVsrSdUZfb0kmFVNsdu8z4CSoDLDvcsLhUoRnidKjR8SXDmDtIDu",
+  "Default": {},
+  "1865191": {
+    "IDs": {
+      "Groups": {
+        "Hmk": 3226703,
+        "Quiz": 3226704,
+        "Exam": 3226705
+      },
+      "Assignments": {
+        "hmk-1": 15413360,
+        "hmk-2": 15413361,
+        "hmk-3": 15413362,
+        "hmk-4": 15413363,
+        "hmk-5": 15413364,
+        "hmk-6": 15413365,
+        "hmk-7": 15413366,
+        "hmk-8": 15413367,
+        "Quiz 1": 15413368,
+        "Quiz 2": 15413369,
+        "Quiz 3": 15413370,
+        "Quiz 4": 15413371,
+        "Quiz 5": 15413372,
+        "Quiz 6": 15413373,
+        "Quiz 7": 15413374,
+        "Quiz 8": 15413375,
+        "Quiz 9": 15413376,
+        "Quiz 10": 15413377,
+        "Quiz 11": 15413378,
+        "Quiz 12": 15413379,
+        "Test Quiz": 15417145,
+        "Exam 1": 15413380,
+        "Exam 2": 15413381
+      },
+      "Files": {
+        "hmk-1": 136329247,
+        "hmk-2": 136329248,
+        "hmk-3": 136329249,
+        "hmk-4": 136329251,
+        "hmk-5": 136329253,
+        "hmk-6": 136329254,
+        "hmk-7": 136329255,
+        "hmk-8": 136329257,
+        "Slide 1": 136329259,
+        "Slide 2": 136329264,
+        "Slide 3": 136329266,
+        "Slide 4": 136329268,
+        "Slide 5": 136329271,
+        "Slide 6": 136329273,
+        "Slide 7": 136329277,
+        "Slide 8": 136329280,
+        "Slide 9": 136329282,
+        "Slide 10": 136329260,
+        "Slide 11": 136329261,
+        "Slide 12": 136329262,
+        "Syllabus": 136329284
+      },
+      "Folders": {
+        "root": 14528662,
+        "Hmk": 15136365,
+        "Slides": 15136368,
+        "Syllabus": null
+      }
+    },
+    "Assignments": {
+      "Hmk": {
+        "rules": "drop_lowest:2\n",
+        "file_upload": null,
+        "parent_folder": "Hmk",
+        "group_weight": 40.0,
+        "max_points": null,
+        "start_date": null,
+        "interval": null
+      },
+      "Quiz": {
+        "rules": "drop_lowest:1\n",
+        "file_upload": null,
+        "parent_folder": "Quiz",
+        "group_weight": 35.0,
+        "max_points": null,
+        "start_date": null,
+        "interval": null
+      },
+      "Exam": {
+        "rules": null,
+        "file_upload": null,
+        "parent_folder": "Exam",
+        "group_weight": 25.0,
+        "max_points": null,
+        "start_date": null,
+        "interval": null
+      }
+    },
+    "Files": {
+      "Syllabus": {
+        "parent_folder": null
+      }
+    },
+    "Tabs": [
+      "Home",
+      "Assignments",
+      "Grades",
+      "People",
+      "Files",
+      "Quizzes"
+    ],
+    "Class Schedule": {
+      "days": {},
+      "holy_days": {}
+    },
+    "Modules": [
+      {
+        "id": 4246008,
+        "name": "Module 1",
+        "position": 1,
+        "unlock_at": null,
+        "require_sequential_progress": false,
+        "publish_final_grade": false,
+        "prerequisite_module_ids": [],
+        "published": false,
+        "items_count": 3,
+        "items_url": "https://bridgeport.instructure.com/api/v1/courses/1865191/modules/4246008/items"
+      },
+      {
+        "id": 4246009,
+        "name": "Module 2",
+        "position": 2,
+        "unlock_at": null,
+        "require_sequential_progress": false,
+        "publish_final_grade": false,
+        "prerequisite_module_ids": [
+          4246008
+        ],
+        "published": false,
+        "items_count": 3,
+        "items_url": "https://bridgeport.instructure.com/api/v1/courses/1865191/modules/4246009/items"
+      },
+      {
+        "id": 4246010,
+        "name": "Module 3",
+        "position": 3,
+        "unlock_at": null,
+        "require_sequential_progress": false,
+        "publish_final_grade": false,
+        "prerequisite_module_ids": [
+          4246008,
+          4246009
+        ],
+        "published": false,
+        "items_count": 4,
+        "items_url": "https://bridgeport.instructure.com/api/v1/courses/1865191/modules/4246010/items"
+      }
+    ],
+    "Quizzes": []
+  }
+}

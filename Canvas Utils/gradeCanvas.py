@@ -3,16 +3,19 @@ import pandas as pd
 from Utils import *
 from canvasAPI import CanvasAPI
 
-os.chdir('1865191/')
-canvasAPI, course_id, all_settings, settings, course_settings, inp_dir = loadSettings()
-inp = os.path.join(inp_dir,'inp.json')
-root_dir = os.path.join(inp_dir,course_id)
+canvasAPI, course_id, settings, all_settings, root_dir = loadSettings()
+inp = os.path.join(root_dir,'inp.json')
+root_dir = os.path.join(root_dir,course_id)
 
 def main(flags):
 
-    assignment_ids = course_settings['IDs']['Assignments']
+    assignment_ids = all_settings[course_id]['IDs']['Assignments']
     
-    grades = pd.read_csv('grades.csv',index_col=False)
+    try:
+        grades = pd.read_csv('grades.csv',index_col=False)
+    except FileNotFoundError:
+        print('\n\nError: Could not fild grades.csv\nPlease run file in the directory containing grades.csv\n\n')
+        
     id, *assignments = grades
     
     students = [int(grades[id][i]) for i in range(1,len(grades[id]))]
@@ -50,10 +53,13 @@ def main(flags):
     for assignment_id, student, grade_data, points in submission_data:
         canvasAPI.updateAssignment(course_id, assignment_id, {"assignment[points_possible]" : points})
         canvasAPI.gradeAssignment(course_id, assignment_id, student, grade_data)
-        print(f'\rGrading Student: {student}                              ', end = '\r')
+        print(f'\rGrading Assignment [{assignment_id}] for Student [{student}]                              ', end = '\r')
     print('Grading: done...                \n')
 
 if __name__ == "__main__":
     
-    # main(sys.argv[1:])
-    main(['-r'])
+    _, *commands = sys.argv
+    
+    # main(['-r'])
+    
+    main(commands)

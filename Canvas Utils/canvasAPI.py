@@ -27,8 +27,8 @@ class CanvasAPI:
         "submission[excuse]" : True, # boolean
     }
     
-    def getAssignments(self, course_id):
-        full_path = f'{self.ub_url}courses/{course_id}/assignments'
+    def getAssignments(self, course_id,per_page=50):
+        full_path = f'{self.ub_url}courses/{course_id}/assignments?per_page={per_page}'
         return requests.get(url=full_path,headers=self.headers).json()
     
     def createAssignment(self, course_id, assignment_data):
@@ -244,8 +244,8 @@ class CanvasAPI:
         "parent_folder_path" : "folder name", # str
     }
        
-    def getFiles(self, course_id):
-        full_path = f'{self.ub_url}courses/{course_id}/files'
+    def getFiles(self, course_id,per_page=50):
+        full_path = f'{self.ub_url}courses/{course_id}/files?per_page={per_page}'
         return requests.get(url=full_path,headers=self.headers).json()
     
     def getFile(self, file_id):

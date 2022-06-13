@@ -241,7 +241,7 @@ class CanvasAPI:
     }
     File_Data_FOR_UPDATING = {
         "name" : "file 1", # str
-        "parent_folder_path" : "folder name", # str
+        "parent_folder_id" : 6156165, # str or int
     }
        
     def getFiles(self, course_id,per_page=50):

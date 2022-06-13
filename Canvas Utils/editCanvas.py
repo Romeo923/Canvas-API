@@ -21,9 +21,6 @@ Flags   | Info            | Type         | Inputs                     | Status
 -help   | list all flags  | help         | None
 """
 
-
-os.chdir('1865191/Hmk')
-
 canvasAPI, course_id, settings, all_settings, root_dir = loadSettings()
 inp = os.path.join(root_dir,'inp.json')
 root_dir = os.path.join(root_dir,course_id)

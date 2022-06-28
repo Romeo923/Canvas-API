@@ -1,3 +1,5 @@
+Requires Python >= 3.10
+
 All programs must be run from a subdirectory of the course directory
 Course directory must be a subdirectory of the root directory containing inp.json
 grades.csv must be in the appropriate course directory

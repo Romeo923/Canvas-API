@@ -5,13 +5,15 @@ import sys
 import copy
 from canvasAPI import CanvasAPI
 
+separator = '/' if sys.platform == 'darwin' else '\\'
+
+
 def loadSettings():
     
     #! Black Magic, edit with caution
     
     # checks if computer is running macOS (darwin) or windows (win32)
     # dirs are separated by / in macOS and \ in windows
-    separator = '//' if sys.platform == 'darwin' else '\\'
     
     cwd = os.getcwd().split(separator)
     cwd[0] += separator 

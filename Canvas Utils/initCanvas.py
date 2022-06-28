@@ -212,23 +212,24 @@ def initCourse():
         #* uploads each file
         for j, file in enumerate(files):                    
             
+            file_name, ext = file.split('.',1)
             file_path = os.path.join(root_dir, dir, file)
             file_id = canvasAPI.uploadFile(course_id,file_path).json()['id']
             
             file_data = {
-                "name":file[:-4],
+                "name":file_name,
                 "parent_folder_id" : parent_folder_id
             }
             
             canvasAPI.updateFile(file_id, file_data)
-            IDs['Files'][file[:-4]] = file_id
+            IDs['Files'][file_name] = file_id
             
             # update progress bar --------------------------------
             progress = (j+1)/total_files
             progress /= total_tasks
             progress += (i+len(settings[ASSIGNMENTS])+1)/total_tasks
             progress *= 100
-            progressBar(progress, f'{dir}: Uploading {file[:-4]}')
+            progressBar(progress, f'{dir}: Uploading {file_name}')
             # ----------------------------------------------------
     
     #* inits Modules and Quizzes

@@ -90,6 +90,7 @@ def formatDate(date, interval, schedule, holy_days, amount):
     while i < amount:
         date += timedelta
         weekday = date.weekday()
+        if interval == 'daily' and weekday not in sched: continue
         if date not in exception_dates:
             dates.append(f'{date.date()}T{date.time()}')
             i += 1

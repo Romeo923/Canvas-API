@@ -123,30 +123,30 @@ def initCourse():
             )
             
             # create each assignment, upload file, attach file to assignment
-            for j, file in enumerate(files):
+            for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in ['pdf', 'docx'] and dir in f[0].split('-')] ): 
                 
                 assignment_data = {
-                    "assignment[name]" : file[:-4],
+                    "assignment[name]" : file_name,
                     "assignment[points_possible]" : dir_settings['max_points'],
                     "assignment[due_at]" : dates[j],
                     "assignment[assignment_group_id]" : id,
                     "assignment[published]" : False
                 }
 
-                file_path = os.path.join(root_dir, dir, file)
+                file_path = os.path.join(root_dir, dir, f'{file_name}.{ext}')
 
                 assignment_response, file_id = canvasAPI.createAssignmentWithFile(course_id, assignment_data, file_path)
                 canvasAPI.updateFile(
                     file_id,
                     {
-                        "name":file[:-4], 
+                        "name":file_name, 
                         "parent_folder_id": parent_folder_id
                     }
                 )
                 
                 assignment_id = assignment_response.json()['id']
-                IDs['Assignments'][file[:-4]] = assignment_id
-                IDs['Files'][file[:-4]] = file_id
+                IDs['Assignments'][file_name] = assignment_id
+                IDs['Files'][file_name] = file_id
                 
                 
                 # update progress bar -------------------------------- 
@@ -154,7 +154,7 @@ def initCourse():
                 progress /= total_tasks
                 progress += (i+1)/total_tasks
                 progress *= 100
-                progressBar(progress, f'{dir}: Uploading {file[:-4]}')
+                progressBar(progress, f'{dir}: Uploading {file_name}')
                 # -----------------------------------------------------
         
         #* Assignment w/o File
@@ -209,10 +209,10 @@ def initCourse():
             
         IDs['Folders'][dir] = parent_folder_id
         
-        #* uploads each file
-        for j, file in enumerate(files):                    
-            
-            file_name, ext = file.split('.',1)
+        #* uploads each file 
+        
+        for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in ['pdf', 'docx'] and dir in f[0].split('-')] ): 
+
             file_path = os.path.join(root_dir, dir, file)
             file_id = canvasAPI.uploadFile(course_id,file_path).json()['id']
             

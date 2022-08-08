@@ -64,7 +64,7 @@ def initGroup(dir, dir_settings):
     return id
 
 def initCourse():
-    ASSIGNMENTS, FILES, TABS, CLASS_SCHEDULE, *other_settings = settings
+    ASSIGNMENTS, FILES, FILE_EXTS, TABS, CLASS_SCHEDULE, *other_settings = settings
     IDs = all_settings[course_id]['IDs']
     
     total_dirs = len(settings[ASSIGNMENTS]) + len(settings[FILES]) + len(other_settings)
@@ -123,7 +123,7 @@ def initCourse():
             )
             
             # create each assignment, upload file, attach file to assignment
-            for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in ['pdf', 'docx'] and dir in f[0]] ): 
+            for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in settings[FILE_EXTS] and dir in f[0]] ): 
                 
                 assignment_data = {
                     "assignment[name]" : file_name,
@@ -211,7 +211,7 @@ def initCourse():
         
         #* uploads each file 
         
-        for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in ['pdf', 'docx'] and dir in f[0]] ): 
+        for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in settings[FILE_EXTS] and dir in f[0]] ): 
 
             file_path = os.path.join(root_dir, dir, f'{file_name}.{ext}')
             file_id = canvasAPI.uploadFile(course_id,file_path).json()['id']

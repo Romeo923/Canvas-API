@@ -43,8 +43,14 @@ def loadSettings():
             match course_settings[section]:
                 case dict() as var:
                     for key in var:
-                        for setting in var[key]:
-                            new_settings[section][key][setting] = var[key][setting]
+                        
+                        match var[key]:
+                            case dict():
+                                for setting in var[key]:
+                                    new_settings[section][key][setting] = var[key][setting]
+                            case list():
+                                new_settings[section][key] = var[key]
+                                
                 case list() as var:
                     new_settings[section] = var
         else : 

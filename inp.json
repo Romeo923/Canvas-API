@@ -1,5 +1,5 @@
 {
-  "login_token": "ENTER_TOKEN_HERE",
+  "login_token": "ENTER TOKEN HERE",
   "Default": {
     "Assignments": {
       "Hmk": {
@@ -38,7 +38,10 @@
         "parent_folder": null
       }
     },
-    "File Extentions":["pdf","docx"],
+    "File Extentions": [
+      "pdf",
+      "docx"
+    ],
     "Tabs": [
       "Home",
       "Assignments",
@@ -62,64 +65,20 @@
   },
   "1865191": {
     "IDs": {
-      "Groups": {
-        "Hmk": 3231783,
-        "Quiz": 3231784,
-        "Exam": 3231785
-      },
-      "Assignments": {
-        "hmk-2": 15476128,
-        "hmk-3": 15476129,
-        "hmk-4": 15476130,
-        "hmk-5": 15476131,
-        "hmk-6": 15476132,
-        "hmk-7": 15476133,
-        "hmk-8": 15476134,
-        "Quiz 1": 15476135,
-        "Quiz 2": 15476136,
-        "Quiz 3": 15476137,
-        "Quiz 4": 15476138,
-        "Quiz 5": 15476139,
-        "Quiz 6": 15476140,
-        "Quiz 7": 15476141,
-        "Quiz 8": 15476142,
-        "Quiz 9": 15476143,
-        "Quiz 10": 15476144,
-        "Quiz 11": 15476145,
-        "Quiz 12": 15476146,
-        "Exam 1": 15476147,
-        "Exam 2": 15476148,
-        "test-hw": 15476460,
-        "hmk-1": 15476606
-      },
-      "Files": {
-        "hmk-2": 136647741,
-        "hmk-3": 136647742,
-        "hmk-4": 136647743,
-        "hmk-5": 136647744,
-        "hmk-6": 136647745,
-        "hmk-7": 136647746,
-        "hmk-8": 136647748,
-        "Slide 1": 136647750,
-        "Slide 10": 136647751,
-        "Slide 11": 136647752,
-        "Slide 12": 136647753,
-        "Slide 2": 136647754,
-        "Slide 3": 136647755,
-        "Slide 4": 136647756,
-        "Slide 5": 136647757,
-        "Slide 6": 136647758,
-        "Slide 7": 136647759,
-        "Slide 8": 136647760,
-        "Slide 9": 136647761,
-        "Syllabus": 136647762,
-        "hmk-1": 136649663
-      },
-      "Folders": {
-        "Hmk": 15161752,
-        "Slide": 15161753,
-        "Sylbs": null
-      }
+      "Groups": {},
+      "Assignments": {},
+      "Files": {},
+      "Folders": {}
+    },
+    "Class Schedule": {
+      "days": [
+        "Tue",
+        "Thu"
+      ],
+      "holy_days": [
+        "6/2/2022",
+        "6/16/2022"
+      ]
     },
     "Assignments": {
       "Quiz": {

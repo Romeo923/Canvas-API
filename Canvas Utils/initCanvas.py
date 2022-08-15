@@ -71,7 +71,7 @@ def initCourse():
     
     canvasAPI.enableGroupWeights(course_id)
     
-    my_tabs = settings[TABS]
+    my_tabs:list = settings[TABS]
     schedule = settings[CLASS_SCHEDULE]
     
     canvas_tabs = canvasAPI.getTabs(course_id)
@@ -82,14 +82,12 @@ def initCourse():
     exam_dates = [exam['start_date'] for exam in ASSIGNMENTS if 'exam' in exam]
     
     #* update each tab's visibility and position
-    position = 0
     for i, tab in enumerate(canvas_tabs):
         
         if tab['label'] not in my_tabs:
             tab['hidden'] = True
-            tab['position'] = position
+            tab['position'] = my_tabs.index(tab['label'])
             canvasAPI.updateTab(course_id, tab['id'], tab)
-            position += 1
         
         # update progress bar --------------------------------    
         progress = (i+1)/total_tabs

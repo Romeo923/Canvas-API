@@ -116,7 +116,7 @@ def initCourse():
             parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']
             IDs['Folders'][dir] = parent_folder_id
             holy_days = schedule['holy_days']
-            if 'exam' in dir: holy_days += exam_dates
+            if 'exam' not in dir: holy_days += exam_dates
             dates = formatDate(
                 dir_settings['start_date'], 
                 dir_settings['interval'], 

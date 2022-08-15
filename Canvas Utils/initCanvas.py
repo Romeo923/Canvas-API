@@ -71,7 +71,7 @@ def initCourse():
     
     canvasAPI.enableGroupWeights(course_id)
     
-    my_tabs:list = settings[TABS]
+    my_tabs = settings[TABS]
     schedule = settings[CLASS_SCHEDULE]
     
     canvas_tabs = canvasAPI.getTabs(course_id)

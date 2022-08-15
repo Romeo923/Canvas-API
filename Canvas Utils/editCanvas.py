@@ -10,7 +10,7 @@ Flags   | Info            | Type         | Inputs                     | Status
 -----   | ----            | ----         | ------                     | ------
 -u      | upload          | command      | None                       | Done
 -r      | replace/edit    | command      | None                       | Done
--D      | delete          | command      | None                       | (In progress)
+-D      | delete          | command      | None                       | Done
 -i      | index duplicate | modifier     | None                       | Done
         | upload          |              |                            | 
 -a      | assignment      | classifier   | Assignment Name            | Done
@@ -78,6 +78,8 @@ def applyCommand(commands, kwargs):
         case _:
             print('No flags given or Impropper format\nEnter -help for a list of flags')
                         
+#? potentially unnecessary
+#? may be simplified and integrated into applyCommand
 def generateAction(flags, name, ext):
     data = {}
     input_data = []

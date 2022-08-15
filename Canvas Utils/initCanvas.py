@@ -79,13 +79,17 @@ def initCourse():
     
     total_tasks = total_dirs + 1
     
+    exam_dates = [exam['start_date'] for exam in ASSIGNMENTS if 'exam' in exam]
+    
     #* update each tab's visibility and position
+    position = 0
     for i, tab in enumerate(canvas_tabs):
         
         if tab['label'] not in my_tabs:
             tab['hidden'] = True
-            tab['position'] = i
+            tab['position'] = position
             canvasAPI.updateTab(course_id, tab['id'], tab)
+            position += 1
         
         # update progress bar --------------------------------    
         progress = (i+1)/total_tabs
@@ -113,11 +117,12 @@ def initCourse():
             
             parent_folder_id = canvasAPI.createFolder(course_id,folder_data).json()['id']
             IDs['Folders'][dir] = parent_folder_id
-            
+            holy_days = schedule['holy_days']
+            if 'exam' in dir: holy_days += exam_dates
             dates = formatDate(
                 dir_settings['start_date'], 
                 dir_settings['interval'], 
-                schedule['days'], 
+                holy_days, 
                 schedule['holy_days'], 
                 total_files
             )
@@ -160,11 +165,12 @@ def initCourse():
         #* Assignment w/o File
         else:
             id = initGroup(dir, dir_settings)
-
+            holy_days = schedule['holy_days']
+            if 'exam' in dir: holy_days += exam_dates
             dates = formatDate(
                 dir_settings['start_date'], 
                 dir_settings['interval'], 
-                schedule['days'], 
+                holy_days, 
                 schedule['holy_days'], 
                 dir_settings['amount']
             )

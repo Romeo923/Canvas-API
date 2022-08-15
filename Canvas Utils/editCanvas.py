@@ -43,8 +43,9 @@ def applyCommand(commands, kwargs):
                 print('No input arguments given.\nEnter -help to see flag data and reqired inputs')
                 sys.exit()
             full_name, *rest = args
-            (name, ext) = full_name.split('.',1) if '.' in full_name else (full_name, None)
-            ext = '.' + ext
+            full_name = full_name.split('.',1)
+            name = full_name[0]
+            ext = '.' + full_name[-1]
             args = rest
 
             #* Handles Command Flags

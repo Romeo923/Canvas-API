@@ -94,12 +94,11 @@ def formatDate(date, interval, schedule, holy_days, amount):
     i = 0
     
     while i < amount:
-        date += timedelta
         weekday = date.weekday()
-        if interval == 'daily' and weekday not in sched: continue
-        if date not in exception_dates:
+        if date not in exception_dates and not (interval == 'daily' and weekday not in sched):
             dates.append(f'{date.date()}T{date.time()}')
             i += 1
+        date += timedelta
     return dates
 
 def progressBar(progress, task):

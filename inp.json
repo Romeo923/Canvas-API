@@ -1,5 +1,5 @@
 {
-  "login_token": "ENTER TOKEN HERE",
+  "login_token": "19~jYAYBnhsrEOXha5H8k71YZPJZ6w9U5GitGidNf9QtWuzwAop8zmpY9zWgrpqJXmp",
   "Default": {
     "Assignments": {
       "Hmk": {
@@ -23,11 +23,11 @@
       "Exam": {
         "rules": null,
         "file_upload": false,
-        "amount": 2,
+        "amount": 1,
         "group_weight": 25,
         "max_points": 50,
-        "start_date": "5/30/2022",
-        "interval": 21
+        "start_date": "5/24/2022",
+        "interval": 0
       }
     },
     "Files": {
@@ -42,6 +42,20 @@
       "pdf",
       "docx"
     ],
+    "Grading Scale": {
+      "A": 94,
+      "A-": 90,
+      "B+": 87,
+      "B": 84,
+      "B-": 80,
+      "C+": 77,
+      "C": 74,
+      "C-": 70,
+      "D+": 67,
+      "D": 64,
+      "D-": 61,
+      "F": 0
+    },
     "Tabs": [
       "Home",
       "Assignments",

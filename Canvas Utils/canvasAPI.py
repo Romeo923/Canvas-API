@@ -14,6 +14,8 @@ class CanvasAPI:
     Assignment_Data = {
         "assignment[name]" : "Assignment 1", # str
         "assignment[points_possible]" : 10, # int
+        "assignment[grading_type]": "letter_grade", # str : pass_fail, percent, letter_grade, gpa_scale, points, not_graded 
+        "assignment[grading_standard_id]": 456312, # int
         "assignment[due_at]" : "2022-07-01T23:59:00-06:00", # str : ISO 8601 formatted date and time
         "assignment[lock_at]" : "2022-07-01T23:59:00-06:00", # str : ISO 8601 formatted date and time
         "assignment[unlock_at]" : "2022-07-01T23:59:00-06:00", # str : ISO 8601 formatted date and time
@@ -318,3 +320,23 @@ class CanvasAPI:
     def updateTab(self, course_id, tab_id, tab_data):
         full_path = f"{self.ub_url}courses/{course_id}/tabs/{tab_id}"
         return requests.put(url=full_path,headers=self.headers,params=tab_data)
+    
+    # Grading Scale
+    
+    Scale_Data = {
+        'title' : 'String',
+        'grading_scheme_entry[][name]' : 'A-',
+        'grading_scheme_entry[][value]' : 90
+    }
+    
+    def createGradingScale(self, course_id, scale_data):
+        full_path = f"{self.ub_url}courses/{course_id}/grading_standards"
+        return requests.post(url=full_path,headers=self.headers, params=scale_data)
+    
+    def getGradingScales(self, course_id):
+        full_path = f"{self.ub_url}courses/{course_id}/grading_standards"
+        return requests.get(url=full_path,headers=self.headers).json()
+    
+    def deleteGradingScale(self, course_id, scale_id):
+        full_path = f'{self.ub_url}courses/{course_id}/grading_standards/{scale_id}'
+        return requests.delete(url=full_path,headers=self.headers)

@@ -338,5 +338,14 @@ class CanvasAPI:
         return requests.get(url=full_path,headers=self.headers).json()
     
     def deleteGradingScale(self, course_id, scale_id):
-        full_path = f'{self.ub_url}courses/{course_id}/grading_standards/{scale_id}'
-        return requests.delete(url=full_path,headers=self.headers)
+        full_path = f'https://bridgeport.instructure.com/courses/1865191/grading_standards/{scale_id}'
+        data = {'_method':'DELETE'}
+        return requests.post(url=full_path,headers= self.headers | data)
+    
+    Course_Data = {
+        'course[grading_standard_id]' : 134564
+    }
+    
+    def updateCourseSettings(self, course_id, course_data):
+        full_path = f"{self.ub_url}courses/{course_id}"
+        return requests.put(url=full_path,headers=self.headers,params=course_data)

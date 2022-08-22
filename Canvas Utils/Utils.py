@@ -78,27 +78,29 @@ def findRootDir(dirs):
     
     return findRootDir(dirs[:-1])
     
-def formatDate(date, interval, schedule, holy_days, amount):
-    if date == None or interval == None: return date
+def formatDate(start_date, end_date, interval, schedule, holy_days, amount):
+    if start_date == None or interval == None: return start_date
     
     week = {'Mon':0,'Tue':1,'Wed':2,'Thu':3,'Fri':4,'Sat':5,'Sun':6}
     sched = [week[day] for day in schedule]
     
     timedelta = datetime.timedelta(1) if interval == 'daily' else datetime.timedelta(7) if interval == 'weekly' else datetime.timedelta(interval)
-    month, day, year = date.split('/')
+    month, day, year = start_date.split('/')
+    eMonth, eDay, eYear = end_date.split('/')
     exceptions = [holy_day.split('/') for holy_day in holy_days]
-    date = datetime.datetime(int(year),int(month),int(day))
+    start_date = datetime.datetime(int(year),int(month),int(day))
+    end_date = datetime.datetime(int(eYear),int(eMonth),int(eDay))
     exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions]
     
     dates = []
     i = 0
     
-    while i < amount:
-        weekday = date.weekday()
-        if date not in exception_dates and not (interval == 'daily' and weekday not in sched):
-            dates.append(f'{date.date()}T{date.time()}')
+    while i < amount and start_date <= end_date:
+        weekday = start_date.weekday()
+        if start_date not in exception_dates and not (interval == 'daily' and weekday not in sched):
+            dates.append(f'{start_date.date()}T{start_date.time()}')
             i += 1
-        date += timedelta
+        start_date += timedelta
     return dates
 
 def progressBar(progress, task):

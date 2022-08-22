@@ -17,6 +17,7 @@ Flags   | Info            | Type         | Inputs                     | Status
 -f      | file            | classifier   | File Name (include .pdf)   | Done
 -d      | date            | data         | mm/dd/yyyy                 | Done
 -p      | points          | data         | int                        | Done
+-s      | shift dates     | data         | start date                 | in testing
 
 -help   | list all flags  | help         | None
 """
@@ -65,12 +66,20 @@ def applyCommand(commands, kwargs):
                         date, *rest = args
                         args = rest
                         days, hdays = settings['Class Schedule']
-                        data["assignment[due_at]"] = formatDate(date,0,settings['Class Schedule'][days],settings['Class Schedule'][hdays],1)[0]
+                        data["assignment[due_at]"] = formatDate(date,"12/30/3333",0,settings['Class Schedule'][days],settings['Class Schedule'][hdays],1)[0]
                     
                     case 'p':
                         points, *rest = args
                         args = rest
                         data["assignment[points_possible]"] = points
+                    
+                    case 's':
+                        date, *rest = args
+                        shifting = [IDs['Assignments'][assignment] for assignment in IDs['Assignments'] if assignment in ]
+                        days, hdays = settings['Class Schedule']
+                        data["assignment[due_at]"] = formatDate(date,"12/30/3333",0,settings['Class Schedule'][days],settings['Class Schedule'][hdays],1)[0]
+                        
+                        
             
             action(*input_data, secondary_data = data)
             save(all_settings,inp)

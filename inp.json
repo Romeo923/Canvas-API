@@ -2,37 +2,80 @@
   "login_token": "19~jYAYBnhsrEOXha5H8k71YZPJZ6w9U5GitGidNf9QtWuzwAop8zmpY9zWgrpqJXmp",
   "Default": {
     "Assignments": {
-      "Hmk": {
+      "hmk": {
         "rules": "drop_lowest:2\n",
         "file_upload": true,
-        "parent_folder": "Hmk",
-        "group_weight": 40,
-        "max_points": 15,
-        "start_date": "5/11/2022",
+        "parent_folder": "hmk",
+        "group_weight": 10,
+        "max_points": 100,
+        "start_date": "9/6/2022",
+        "end_date": "12/30/2022",
         "interval": "weekly"
       },
-      "Quiz": {
+      "quiz": {
         "rules": "drop_lowest:1\n",
         "file_upload": false,
-        "amount": 10,
-        "group_weight": 35,
-        "max_points": 30,
-        "start_date": "5/11/2022",
+        "amount": 3,
+        "group_weight": 20,
+        "max_points": 3,
+        "start_date": "9/6/2022",
+        "end_date": "12/30/2022",
         "interval": "daily"
       },
-      "Exam": {
+      "first exam": {
         "rules": null,
         "file_upload": false,
         "amount": 1,
-        "group_weight": 25,
-        "max_points": 50,
-        "start_date": "5/24/2022",
+        "group_weight": 10,
+        "max_points": 100,
+        "start_date": "9/7/2022",
+        "end_date": "12/30/2022",
+        "interval": 0
+      },
+      "second exam": {
+        "rules": null,
+        "file_upload": false,
+        "amount": 1,
+        "group_weight": 15,
+        "max_points": 100,
+        "start_date": "10/12/2022",
+        "end_date": "12/30/2022",
+        "interval": 0
+      },
+      "third exam": {
+        "rules": null,
+        "file_upload": false,
+        "amount": 1,
+        "group_weight": 15,
+        "max_points": 100,
+        "start_date": "11/2/2022",
+        "end_date": "12/30/2022",
+        "interval": 0
+      },
+      "final exam": {
+        "rules": null,
+        "file_upload": false,
+        "amount": 1,
+        "group_weight": 20,
+        "max_points": 100,
+        "start_date": "12/16/2022",
+        "end_date": "12/30/2022",
+        "interval": 0
+      },
+      "participation": {
+        "rules": null,
+        "file_upload": false,
+        "amount": 1,
+        "group_weight": 10,
+        "max_points": 10,
+        "start_date": "12/16/2022",
+        "end_date": "12/30/2022",
         "interval": 0
       }
     },
     "Files": {
-      "Slide": {
-        "parent_folder": "Slides"
+      "slide": {
+        "parent_folder": "slides"
       },
       "Sylbs": {
         "parent_folder": null
@@ -43,17 +86,17 @@
       "docx"
     ],
     "Grading Scale": {
-      "A": 94,
+      "A": 93,
       "A-": 90,
       "B+": 87,
-      "B": 84,
+      "B": 83,
       "B-": 80,
       "C+": 77,
-      "C": 74,
+      "C": 73,
       "C-": 70,
       "D+": 67,
-      "D": 64,
-      "D-": 61,
+      "D": 63,
+      "D-": 60,
       "F": 0
     },
     "Tabs": [
@@ -63,7 +106,9 @@
       "People",
       "Files",
       "Quizzes",
-      "Settings"
+      "Settings",
+      "Zoom",
+      "Smarthinking Online Tutoring"
     ],
     "Class Schedule": {
       "days": [
@@ -72,8 +117,7 @@
         "Fri"
       ],
       "holy_days": [
-        "6/2/2022",
-        "6/16/2022"
+        "10/10/2022"
       ]
     }
   },
@@ -86,18 +130,19 @@
     },
     "Class Schedule": {
       "days": [
+        "Mon",
         "Tue",
-        "Thu"
+        "Wed"
       ],
       "holy_days": [
-        "6/2/2022",
-        "6/16/2022"
+        "10/10/2022",
+        "11/23/2022"
       ]
     },
     "Assignments": {
-      "Quiz": {
-        "amount": 12,
-        "max_points": 25
+      "quiz": {
+        "amount": 10,
+        "max_points": 3
       },
       "Modules": {},
       "Quizzes": {}

@@ -132,6 +132,13 @@ def initCourse():
     
     #* inits assignments 
     for i, dir in enumerate(settings[ASSIGNMENTS]):
+        
+        # update progress bar --------------------------------
+        progress = (i+2)/total_tasks
+        progress *= 100
+        progressBar(progress, f'{dir}: Begining Uploads')
+        # ----------------------------------------------------
+        
         dir_settings = settings[ASSIGNMENTS][dir]
         
         #* Assignment w/File
@@ -199,6 +206,7 @@ def initCourse():
         
         #* Assignment w/o File
         else:
+            
             id = initGroup(dir, dir_settings)
             holy_days = schedule['holy_days']
             

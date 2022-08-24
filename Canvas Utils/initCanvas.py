@@ -105,7 +105,7 @@ def initCourse():
         if tab['label'] not in my_tabs:
             tab['hidden'] = True
         else:
-            tab['position'] = my_tabs.index(tab['label'])
+            tab['position'] = my_tabs.index(tab['label']) + 1
             tab['hidden'] = False
         canvasAPI.updateTab(course_id, tab['id'], tab)
         
@@ -158,7 +158,7 @@ def initCourse():
             IDs['Folders'][dir] = parent_folder_id
             holy_days = schedule['holy_days']
             
-            dates = formatDate(
+            dates = generateDates(
                 dir_settings['start_date'], 
                 dir_settings['end_date'], 
                 dir_settings['interval'], 
@@ -210,7 +210,7 @@ def initCourse():
             id = initGroup(dir, dir_settings)
             holy_days = schedule['holy_days']
             
-            dates = formatDate(
+            dates = generateDates(
                 dir_settings['start_date'], 
                 dir_settings['end_date'], 
                 dir_settings['interval'], 

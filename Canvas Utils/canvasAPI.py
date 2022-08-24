@@ -29,9 +29,9 @@ class CanvasAPI:
         "submission[excuse]" : True, # boolean
     }
     
-    def getAssignments(self, course_id,per_page=50):
+    def getAssignments(self, course_id,per_page=50,data=dict()):
         full_path = f'{self.ub_url}courses/{course_id}/assignments?per_page={per_page}'
-        return requests.get(url=full_path,headers=self.headers).json()
+        return requests.get(url=full_path,headers=self.headers,params=data).json()
     
     def createAssignment(self, course_id, assignment_data):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/'

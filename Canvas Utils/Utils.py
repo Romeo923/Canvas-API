@@ -78,7 +78,7 @@ def findRootDir(dirs):
     
     return findRootDir(dirs[:-1])
     
-def formatDate(start_date, end_date, interval, schedule, holy_days, amount):
+def generateDates(start_date, end_date, interval, schedule, holy_days, amount):
     if start_date == None or interval == None: return start_date
     
     week = {'Mon':0,'Tue':1,'Wed':2,'Thu':3,'Fri':4,'Sat':5,'Sun':6}

@@ -11,14 +11,13 @@ Flags   | Info            | Type         | Inputs                     | Status
 -u      | upload          | command      | None                       | Done
 -r      | replace/edit    | command      | None                       | Done
 -D      | delete          | command      | None                       | Done
+-s      | shift dates     | command      | start date                 | in testing
 -i      | index duplicate | modifier     | None                       | Done
         | upload          |              |                            | 
 -a      | assignment      | classifier   | Assignment Name            | Done
 -f      | file            | classifier   | File Name (include .pdf)   | Done
 -d      | date            | data         | mm/dd/yyyy                 | Done
 -p      | points          | data         | int                        | Done
--s      | shift dates     | data         | start date                 | in testing
-
 -help   | list all flags  | help         | None
 """
 
@@ -66,7 +65,7 @@ def applyCommand(commands, kwargs):
                         date, *rest = args
                         args = rest
                         days, hdays = settings['Class Schedule']
-                        data["assignment[due_at]"] = formatDate(date,"12/30/3333",0,settings['Class Schedule'][days],settings['Class Schedule'][hdays],1)[0]
+                        data["assignment[due_at]"] = generateDates(date,"12/30/3333",0,settings['Class Schedule'][days],settings['Class Schedule'][hdays],1)[0]
                     
                     case 'p':
                         points, *rest = args
@@ -75,12 +74,8 @@ def applyCommand(commands, kwargs):
                     
                     case 's':
                         date, *rest = args
-                        shifting = [IDs['Assignments'][assignment] for assignment in IDs['Assignments'] if assignment in ]
-                        days, hdays = settings['Class Schedule']
-                        data["assignment[due_at]"] = formatDate(date,"12/30/3333",0,settings['Class Schedule'][days],settings['Class Schedule'][hdays],1)[0]
-                        
-                        
-            
+                        data = date
+                            
             action(*input_data, secondary_data = data)
             save(all_settings,inp)
                     
@@ -93,10 +88,38 @@ def generateAction(flags, name, ext):
     data = {}
     input_data = []
 
-    cflags = {flag: True if flag in flags else False for flag in "urDiaf"}
+    cflags = {flag: True if flag in flags else False for flag in "urDiafs"}
             
     match cflags:
         
+        #* Shifts Assignments
+        case {'s':True, 'a': True}:
+            
+            def temp(*input_data, secondary_data):
+                interval = settings['Assignments'][curr_dir]['interval']
+                end_date = settings['Assignments'][curr_dir]['end_date']
+                days, holy_days = settings['Class Schedule']
+                
+                canvas_assignments = canvasAPI.getAssignments(course_id,data={'order_by':'due_at'})
+                shifting = [(assignment['name'], assignment['id'], assignment['due_at']) for assignment in canvas_assignments if assignment['assignment_group_id'] == IDs['Groups'][curr_dir]]         
+                
+                for i, assignment in enumerate(shifting):
+                    if assignment[0] == name:
+                        break
+                shifting = shifting[i:]
+                new_dates = generateDates(secondary_data,end_date,interval,settings['Class Schedule'][days],settings['Class Schedule'][holy_days],len(shifting))
+                if len(shifting) > len(new_dates):
+                    remove = shifting[len(new_dates):]
+                    shifting = shifting[:len(new_dates)]
+                    for assignment in remove:
+                        canvasAPI.deleteAssignment(course_id,assignment[1])   
+                        print(f'Removed Assignment: {assignment[0]}')
+                                            
+                for i, assignment in enumerate(shifting):
+                    canvasAPI.updateAssignment(course_id,assignment[1],{'assignment[due_at]':new_dates[i]})
+            
+            action = temp
+                        
         #* Uploads NEW Assignment w/ File
         case {'u':True, 'a': True, 'f': True}:
             input_data.append(course_id)
@@ -118,7 +141,6 @@ def generateAction(flags, name, ext):
             
             action = temp
                         
-        
         #* Uploads NEW Assignment
         case {'u':True, 'a': True}:
             
@@ -264,7 +286,7 @@ def main():
     kwargs = dict(arg.split('=') for arg in args if '=' in arg)
     commands = [arg for arg in args if '=' not in arg]
     
-    # commands = ['-uf', 'hmk-1.pdf','10']
+    # commands = ['-sa', 'quiz 3','12/20/2022']
     # commands = ['-help']
     
     applyCommand(commands, kwargs)

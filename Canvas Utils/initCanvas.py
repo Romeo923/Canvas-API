@@ -24,32 +24,48 @@ def resetCanvas():
     canvasAPI.disableGroupWeights(course_id)
     
     assignments = canvasAPI.getAssignments(course_id)
+    i=0
     while len(assignments) > 0:
-        print("deleting assignments")
+        print("deleting assignments",end='\r')
         for assignment in assignments:
             canvasAPI.deleteAssignment(course_id, assignment['id'])
+            print(f"deleting assignments{'.'*(i%4)}   ",end='\r')
+            i+=1
         assignments = canvasAPI.getAssignments(course_id)
+    print(f"assignments deleted {' '*10}")
     
     groups = canvasAPI.getCourseGroups(course_id)
     while len(groups) > 0:
-        print('deleting groups')
+        print('deleting groups',end='\r')
         for group in groups:
             canvasAPI.deleteGroup(course_id, group['id'])
+            print(f"deleting groups{'.'*(i%4)}   ",end='\r')
+            i+=1
         groups = canvasAPI.getCourseGroups(course_id)
+    print(f"groups deleted {' '*10}")
+        
 
     files = canvasAPI.getFiles(course_id)
     while len(files) > 0:
-        print("deleting files")
+        print("deleting files",end='\r')
         for file in files:
             canvasAPI.deleteFile(file['id'])
+            print(f"deleting files{'.'*(i%4)}   ",end='\r')
+            i+=1
         files = canvasAPI.getFiles(course_id)
+    print(f"files deleted {' '*10}")
+    
         
     folders = canvasAPI.getFolders(course_id)
     while len(folders) > 1:
-        print("deleting folders")
+        print("deleting folders",end='\r')
         for folder in folders:
             canvasAPI.deleteFolder(folder['id'])
+            print(f"deleting folders{'.'*(i%4)}   ",end='\r')
+            i+=1
         folders = canvasAPI.getFolders(course_id)
+    print(f"folders deleted {' '*10}")
+        
         
     # gradingScales = canvasAPI.getGradingScales(course_id)
     # while len(gradingScales) > 0:
@@ -90,7 +106,6 @@ def initCourse():
     
     total_tasks = total_dirs + 2
     
-    exam_dates = [settings[ASSIGNMENTS][exam]['start_date'] for exam in settings[ASSIGNMENTS] if 'exam' in exam.lower()]
     
     #* update each tab's visibility and position
     for i, tab in enumerate(canvas_tabs):
@@ -141,12 +156,15 @@ def initCourse():
         
         dir_settings = settings[ASSIGNMENTS][dir]
         
+        overlap_dates = [settings[ASSIGNMENTS][overlap]['start_date'] for overlap in dir_settings['no_overlap']]
+        
+        
         #* Assignment w/File
         if dir_settings['file_upload']:
             id = initGroup(dir, dir_settings)
             
             path = os.path.join(root_dir, dir)
-            files = sorted(os.listdir(path))
+            files = naturalSort(os.listdir(path))
             total_files = len(files)
             
             folder_data = {
@@ -163,12 +181,16 @@ def initCourse():
                 dir_settings['end_date'], 
                 dir_settings['interval'], 
                 schedule['days'],
-                holy_days if 'exam' in dir.lower() else holy_days + exam_dates, 
+                holy_days + overlap_dates, 
                 total_files
             )
             
             # create each assignment, upload file, attach file to assignment
-            for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in settings[FILE_EXTS] and dir.lower() in f[0].lower()] ): 
+            for j, (file_name, ext) in enumerate( uploading := [f for file in files if (f := file.split('.',1)) and f[-1] in settings[FILE_EXTS] and dir.lower() in f[0].lower()] ): 
+                 
+                if j+1 > len(dates):
+                    print(f'\nAssignments have exceed end date.\nCould not upload: {uploading[j+2:]}\n')
+                    break
                  
                 # update progress bar -------------------------------- 
                 progress = (j+1)/total_files
@@ -203,6 +225,8 @@ def initCourse():
                 IDs['Assignments'][file_name] = assignment_id
                 IDs['Files'][file_name] = file_id
                 
+                
+                
         
         #* Assignment w/o File
         else:
@@ -215,23 +239,27 @@ def initCourse():
                 dir_settings['end_date'], 
                 dir_settings['interval'], 
                 schedule['days'],
-                holy_days if 'exam' in dir.lower() else holy_days + exam_dates, 
+                holy_days + overlap_dates, 
                 dir_settings['amount']
             )
             
             # Creates the specified number of Assignments
             for j in range(dir_settings['amount']):
                 
+                if j+1 > len(dates):
+                    print(f"Assignments have exceed end date.{' '*50}\nCould not upload: {dir}'s {j+1}-{dir_settings['amount']}\n")
+                    break
+                
                 # update progress bar --------------------------------
                 progress = (j+1)/dir_settings['amount']
                 progress /= total_tasks
                 progress += (i+2)/total_tasks
                 progress *= 100
-                progressBar(progress, f'{dir}: Uploading {dir} {j+1}')
+                progressBar(progress, f'{dir}: Uploading {dir}-{j+1}')
                 # ----------------------------------------------------
                 
                 assignment_data = {
-                    "assignment[name]" : f'{dir} {j+1}',
+                    "assignment[name]" : f'{dir}-{j+1}',
                     "assignment[points_possible]" : dir_settings['max_points'],
                     "assignment[grading_type]": "letter_grade",
                     "assignment[grading_standard_id]": scale_id,
@@ -242,6 +270,8 @@ def initCourse():
                 assignment_id = canvasAPI.createAssignment(course_id, assignment_data).json()['id']
                 IDs['Assignments'][f'{dir} {j+1}'] = assignment_id
                 
+                
+                
         
         
     #* inits files
@@ -249,7 +279,7 @@ def initCourse():
         dir_settings = settings[FILES][dir]
         
         path = os.path.join(root_dir, dir)
-        files = sorted(os.listdir(path))
+        files = naturalSort(os.listdir(path))
         total_files = len(files)
         
         parent_folder_id = None

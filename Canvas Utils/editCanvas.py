@@ -96,6 +96,9 @@ def generateAction(flags, name, ext):
         case {'s':True, 'a': True}:
             
             def temp(*input_data, secondary_data):
+                if curr_dir not in settings['Assignments']:
+                    print(f'\nError: {curr_dir} is not the group directory for {name}\nPlease change working directory\n')
+                
                 interval = settings['Assignments'][curr_dir]['interval']
                 end_date = settings['Assignments'][curr_dir]['end_date']
                 days, holy_days = settings['Class Schedule']

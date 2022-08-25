@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import copy
+import re
 from canvasAPI import CanvasAPI
 
 separator = '/' if sys.platform == 'darwin' else '\\'
@@ -106,3 +107,10 @@ def generateDates(start_date, end_date, interval, schedule, holy_days, amount):
 def progressBar(progress, task):
     bar = '█' * int(progress/2) + '-' * (50 - int(progress/2))
     print(f'\r|{bar}| {progress:.2f}% {task}                              ', end = '\r')
+
+def naturalSort(items):
+    
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    natsort = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+    
+    return sorted(items, key=natsort)

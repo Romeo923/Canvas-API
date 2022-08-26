@@ -108,7 +108,14 @@ def initCourse():
     
     
     #* update each tab's visibility and position
-    for i, tab in enumerate(canvas_tabs):
+    
+    visible = [tab for tab in canvas_tabs and tab['label'] in my_tabs]
+    for tab in visible : tab['hidden'] = False
+    visible.sort(key=lambda tab : my_tabs.index(tab['label']))
+    hidden = [tab for tab in canvas_tabs if tab['label'] not in my_tabs]
+    for tab in hidden : tab['hidden'] = True
+    
+    for i, tab in enumerate(visible+hidden):
         
         # update progress bar --------------------------------    
         progress = (i+1)/total_tabs
@@ -116,12 +123,8 @@ def initCourse():
         progress *= 100
         progressBar(progress,"Adjusting Tabs")
         # -------------------------------------
-    
-        if tab['label'] not in my_tabs:
-            tab['hidden'] = True
-        else:
-            tab['position'] = my_tabs.index(tab['label']) + 1
-            tab['hidden'] = False
+
+        tab['position'] = i + 1
         canvasAPI.updateTab(course_id, tab['id'], tab)
         
 
@@ -156,8 +159,11 @@ def initCourse():
         
         dir_settings = settings[ASSIGNMENTS][dir]
         
-        overlap_dates = [settings[ASSIGNMENTS][overlap]['start_date'] for overlap in dir_settings['no_overlap']]
-        
+        no_overlap = [settings[ASSIGNMENTS][overlap]['start_date'] for overlap in dir_settings['no_overlap']]
+        overlap_dates = []
+        for overlap in no_overlap:
+            overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule'][days],settings['Class Schedule'][holy_days],settings['Assignments'][overlap]['interval'])
+                
         
         #* Assignment w/File
         if dir_settings['file_upload']:
@@ -181,8 +187,9 @@ def initCourse():
                 dir_settings['end_date'], 
                 dir_settings['interval'], 
                 schedule['days'],
-                holy_days + overlap_dates, 
-                total_files
+                holy_days, 
+                total_files,
+                overlap_dates
             )
             
             # create each assignment, upload file, attach file to assignment
@@ -203,7 +210,8 @@ def initCourse():
                 assignment_data = {
                     "assignment[name]" : file_name,
                     "assignment[points_possible]" : dir_settings['max_points'],
-                    "assignment[grading_type]": "letter_grade",
+                    "assignment[grading_type]": "points",
+                    "assignment[published]": dir_settings['published'],
                     "assignment[grading_standard_id]": scale_id,
                     "assignment[due_at]" : dates[j],
                     "assignment[assignment_group_id]" : id,
@@ -239,8 +247,9 @@ def initCourse():
                 dir_settings['end_date'], 
                 dir_settings['interval'], 
                 schedule['days'],
-                holy_days + overlap_dates, 
-                dir_settings['amount']
+                holy_days, 
+                dir_settings['amount'],
+                overlap_dates
             )
             
             # Creates the specified number of Assignments
@@ -261,7 +270,8 @@ def initCourse():
                 assignment_data = {
                     "assignment[name]" : f'{dir}-{j+1}',
                     "assignment[points_possible]" : dir_settings['max_points'],
-                    "assignment[grading_type]": "letter_grade",
+                    "assignment[grading_type]": "points",
+                    "assignment[published]": dir_settings['published'],
                     "assignment[grading_standard_id]": scale_id,
                     "assignment[due_at]" : dates[j],
                     "assignment[assignment_group_id]" : id,

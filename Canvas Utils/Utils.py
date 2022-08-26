@@ -79,7 +79,7 @@ def findRootDir(dirs):
     
     return findRootDir(dirs[:-1])
     
-def generateDates(start_date, end_date, interval, schedule, holy_days, amount):
+def generateDates(start_date, end_date, interval, schedule, holy_days, amount, overlap=list()):
     if start_date == None or interval == None: return start_date
     
     week = {'Mon':0,'Tue':1,'Wed':2,'Thu':3,'Fri':4,'Sat':5,'Sun':6}
@@ -91,7 +91,7 @@ def generateDates(start_date, end_date, interval, schedule, holy_days, amount):
     exceptions = [holy_day.split('/') for holy_day in holy_days]
     start_date = datetime.datetime(int(year),int(month),int(day))
     end_date = datetime.datetime(int(eYear),int(eMonth),int(eDay))
-    exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions]
+    exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions] + overlap
     
     dates = []
     i = 0

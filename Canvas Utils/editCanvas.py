@@ -18,6 +18,7 @@ Flags   | Info            | Type         | Inputs                     | Status
 -f      | file            | classifier   | File Name (include .pdf)   | Done
 -d      | date            | data         | mm/dd/yyyy                 | Done
 -p      | points          | data         | int                        | Done
+-P      | publish         | data         | boolean                    | Done
 -help   | list all flags  | help         | None
 """
 
@@ -72,6 +73,11 @@ def applyCommand(commands, kwargs):
                         args = rest
                         data["assignment[points_possible]"] = points
                     
+                    case 'P':
+                        publish, *rest = args
+                        args = rest
+                        data["assignment[published]"] = publish
+                    
                     case 's':
                         date, *rest = args
                         data = date
@@ -101,8 +107,11 @@ def generateAction(flags, name, ext):
                 
                 interval = settings['Assignments'][curr_dir]['interval']
                 end_date = settings['Assignments'][curr_dir]['end_date']
+                no_overlap = settings['Assignments'][curr_dir]['no_overlap']
                 days, holy_days = settings['Class Schedule']
-                
+                overlap_dates = []
+                for overlap in no_overlap:
+                    overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule'][days],settings['Class Schedule'][holy_days],settings['Assignments'][overlap]['interval'])
                 canvas_assignments = canvasAPI.getAssignments(course_id,data={'order_by':'due_at'})
                 shifting = [(assignment['name'], assignment['id'], assignment['due_at']) for assignment in canvas_assignments if assignment['assignment_group_id'] == IDs['Groups'][curr_dir]]         
                 
@@ -110,7 +119,7 @@ def generateAction(flags, name, ext):
                     if assignment[0] == name:
                         break
                 shifting = shifting[i:]
-                new_dates = generateDates(secondary_data,end_date,interval,settings['Class Schedule'][days],settings['Class Schedule'][holy_days],len(shifting))
+                new_dates = generateDates(secondary_data,end_date,interval,settings['Class Schedule'][days],settings['Class Schedule'][holy_days],len(shifting),overlap_dates)
                 if len(shifting) > len(new_dates):
                     remove = shifting[len(new_dates):]
                     shifting = shifting[:len(new_dates)]

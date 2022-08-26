@@ -162,7 +162,7 @@ def initCourse():
         no_overlap = [settings[ASSIGNMENTS][overlap]['start_date'] for overlap in dir_settings['no_overlap']]
         overlap_dates = []
         for overlap in no_overlap:
-            overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule'][days],settings['Class Schedule'][holy_days],settings['Assignments'][overlap]['interval'])
+            overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule']['days'],settings['Class Schedule']['holy_days'],settings['Assignments'][overlap]['interval'])
                 
         
         #* Assignment w/File

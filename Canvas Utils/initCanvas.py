@@ -109,7 +109,7 @@ def initCourse():
     
     #* update each tab's visibility and position
     
-    visible = [tab for tab in canvas_tabs and tab['label'] in my_tabs]
+    visible = [tab for tab in canvas_tabs if tab['label'] in my_tabs]
     for tab in visible : tab['hidden'] = False
     visible.sort(key=lambda tab : my_tabs.index(tab['label']))
     hidden = [tab for tab in canvas_tabs if tab['label'] not in my_tabs]
@@ -129,24 +129,28 @@ def initCourse():
         
 
     #* creates grading scales
-    scale_data = [ ('title', 'TEST Grading Scale') ]
+    scale_title = 'TEST Grading Scale'
+    scale_data = [ ('title', scale_title) ]
+    canvas_schemes = [scheme['title'] for scheme in canvasAPI.getGradingScales(course_id)]
     
-    for i, grade in enumerate(grading_scale):
-                
-        # update progress bar --------------------------------    
-        progress = (i+1)/total_grades
-        progress /= total_tasks
-        progress += 1/total_tasks
-        progress *= 100
-        progressBar(progress,"Creating Grade Scales")
-        # -------------------------------------
-        
-        scale_data.append(('grading_scheme_entry[][name]', grade))
-        scale_data.append(('grading_scheme_entry[][value]', grading_scale[grade]))
+    if scale_title not in canvas_schemes:
+    
+        for i, grade in enumerate(grading_scale):
+                    
+            # update progress bar --------------------------------    
+            progress = (i+1)/total_grades
+            progress /= total_tasks
+            progress += 1/total_tasks
+            progress *= 100
+            progressBar(progress,"Creating Grade Scales")
+            # -------------------------------------
+            
+            scale_data.append(('grading_scheme_entry[][name]', grade))
+            scale_data.append(('grading_scheme_entry[][value]', grading_scale[grade]))
 
-        
-    scale_id = canvasAPI.createGradingScale(course_id, scale_data).json()['id']
-    canvasAPI.updateCourseSettings(course_id,{'course[grading_standard_id]': scale_id})
+            
+        scale_id = canvasAPI.createGradingScale(course_id, scale_data).json()['id']
+        canvasAPI.updateCourseSettings(course_id,{'course[grading_standard_id]': scale_id})
     
     #* inits assignments 
     for i, dir in enumerate(settings[ASSIGNMENTS]):
@@ -159,10 +163,10 @@ def initCourse():
         
         dir_settings = settings[ASSIGNMENTS][dir]
         
-        no_overlap = [settings[ASSIGNMENTS][overlap]['start_date'] for overlap in dir_settings['no_overlap']]
+        no_overlap = dir_settings['no_overlap']
         overlap_dates = []
         for overlap in no_overlap:
-            overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule']['days'],settings['Class Schedule']['holy_days'],settings['Assignments'][overlap]['interval'])
+            overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule']['days'],settings['Class Schedule']['holy_days'],settings['Assignments'][overlap]['amount'])
                 
         
         #* Assignment w/File
@@ -212,7 +216,6 @@ def initCourse():
                     "assignment[points_possible]" : dir_settings['max_points'],
                     "assignment[grading_type]": "points",
                     "assignment[published]": dir_settings['published'],
-                    "assignment[grading_standard_id]": scale_id,
                     "assignment[due_at]" : dates[j],
                     "assignment[assignment_group_id]" : id,
                     "assignment[published]" : False
@@ -272,7 +275,6 @@ def initCourse():
                     "assignment[points_possible]" : dir_settings['max_points'],
                     "assignment[grading_type]": "points",
                     "assignment[published]": dir_settings['published'],
-                    "assignment[grading_standard_id]": scale_id,
                     "assignment[due_at]" : dates[j],
                     "assignment[assignment_group_id]" : id,
                     "assignment[published]" : False

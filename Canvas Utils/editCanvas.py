@@ -22,6 +22,8 @@ Flags   | Info            | Type         | Inputs                     | Status
 -help   | list all flags  | help         | None
 """
 
+os.chdir('./1865191/hmk')
+
 canvasAPI, course_id, settings, all_settings, root_dir = loadSettings()
 inp = os.path.join(root_dir,'inp.json')
 root_dir = os.path.join(root_dir,course_id)
@@ -111,7 +113,7 @@ def generateAction(flags, name, ext):
                 days, holy_days = settings['Class Schedule']
                 overlap_dates = []
                 for overlap in no_overlap:
-                    overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule'][days],settings['Class Schedule'][holy_days],settings['Assignments'][overlap]['interval'])
+                    overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule'][days],settings['Class Schedule'][holy_days],settings['Assignments'][overlap]['amount'])
                 canvas_assignments = canvasAPI.getAssignments(course_id,data={'order_by':'due_at'})
                 shifting = [(assignment['name'], assignment['id'], assignment['due_at']) for assignment in canvas_assignments if assignment['assignment_group_id'] == IDs['Groups'][curr_dir]]         
                 
@@ -298,7 +300,7 @@ def main():
     kwargs = dict(arg.split('=') for arg in args if '=' in arg)
     commands = [arg for arg in args if '=' not in arg]
     
-    # commands = ['-sa', 'quiz 3','12/20/2022']
+    commands = ['-sa', 'hmk-1','10/12/2022']
     # commands = ['-help']
     
     applyCommand(commands, kwargs)

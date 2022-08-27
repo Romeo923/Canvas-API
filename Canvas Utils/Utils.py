@@ -91,7 +91,7 @@ def generateDates(start_date, end_date, interval, schedule, holy_days, amount, o
     exceptions = [holy_day.split('/') for holy_day in holy_days]
     start_date = datetime.datetime(int(year),int(month),int(day))
     end_date = datetime.datetime(int(eYear),int(eMonth),int(eDay))
-    exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions] + overlap
+    exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions] + [datetime.datetime(int(overlap_date[0]),int(overlap_date[1]),int(overlap_date[2])) for date in overlap if (overlap_date := date.split('T')[0].split('-'))]
     
     dates = []
     i = 0

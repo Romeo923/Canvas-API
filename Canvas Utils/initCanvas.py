@@ -218,7 +218,6 @@ def initCourse():
                     "assignment[published]": dir_settings['published'],
                     "assignment[due_at]" : dates[j],
                     "assignment[assignment_group_id]" : id,
-                    "assignment[published]" : False
                 }
 
                 file_path = os.path.join(root_dir, dir, f'{file_name}.{ext}')
@@ -277,10 +276,9 @@ def initCourse():
                     "assignment[published]": dir_settings['published'],
                     "assignment[due_at]" : dates[j],
                     "assignment[assignment_group_id]" : id,
-                    "assignment[published]" : False
                 }
                 assignment_id = canvasAPI.createAssignment(course_id, assignment_data).json()['id']
-                IDs['Assignments'][f'{dir} {j+1}'] = assignment_id
+                IDs['Assignments'][f'{dir}-{j+1}'] = assignment_id
                 
                 
                 

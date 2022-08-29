@@ -78,7 +78,7 @@ def applyCommand(commands, kwargs):
                     case 'P':
                         publish, *rest = args
                         args = rest
-                        data["assignment[published]"] = publish
+                        data["assignment[published]"] = True if publish.lower() == 'true' else False
                     
                     case 's':
                         date, *rest = args

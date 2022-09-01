@@ -2,7 +2,6 @@ import os
 from canvasAPI import CanvasAPI
 from Utils import *
 
-os.chdir('./1865191')
 canvasAPI, course_id, settings, all_settings, root_dir = loadSettings()
 inp = os.path.join(root_dir,'inp.json')
 root_dir = os.path.join(root_dir,course_id)

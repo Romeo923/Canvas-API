@@ -7,7 +7,7 @@ canvasAPI, course_id, settings, all_settings, root_dir = loadSettings()
 inp = os.path.join(root_dir,'inp.json')
 root_dir = os.path.join(root_dir,course_id)
 
-def main(flags):
+def grade(flags):
 
     assignment_ids = all_settings[course_id]['IDs']['Assignments']
     
@@ -56,10 +56,13 @@ def main(flags):
         print(f'\rGrading Assignment [{assignment_id}] for Student [{student}]                              ', end = '\r')
     print('Grading: done...                \n')
 
+
+def main(*test_args):
+    
+    commands = test_args if test_args else sys.argv[1:]
+    grade(commands)
+
+
 if __name__ == "__main__":
+    main()
     
-    _, *commands = sys.argv
-    
-    # main(['-r'])
-    
-    main(commands)

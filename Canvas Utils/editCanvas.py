@@ -6,23 +6,21 @@ from canvasAPI import CanvasAPI
 help = """
 FLAGS:
 
-Flags   | Info            | Type         | Inputs                     | Status
------   | ----            | ----         | ------                     | ------
--u      | upload          | command      | None                       | Done
--r      | replace/edit    | command      | None                       | Done
--D      | delete          | command      | None                       | Done
--s      | shift dates     | command      | start date                 | in testing
--i      | index duplicate | modifier     | None                       | Done
+Flags   | Info            | Type         | Inputs                     |
+-----   | ----            | ----         | ------                     |
+-u      | upload          | command      | None                       |
+-r      | replace/edit    | command      | None                       |
+-D      | delete          | command      | None                       |
+-s      | shift dates     | command      | start date                 |
+-i      | index duplicate | modifier     | None                       |
         | upload          |              |                            | 
--a      | assignment      | classifier   | Assignment Name            | Done
--f      | file            | classifier   | File Name (include .pdf)   | Done
--d      | date            | data         | mm/dd/yyyy                 | Done
--p      | points          | data         | int                        | Done
--P      | publish         | data         | boolean                    | Done
+-a      | assignment      | classifier   | Assignment Name            |
+-f      | file            | classifier   | File Name (include .pdf)   |
+-d      | date            | data         | mm/dd/yyyy                 |
+-p      | points          | data         | int                        |
+-P      | publish         | data         | boolean                    |
 -help   | list all flags  | help         | None
 """
-
-os.chdir('./1865191/hmk')
 
 canvasAPI, course_id, settings, all_settings, root_dir = loadSettings()
 inp = os.path.join(root_dir,'inp.json')
@@ -114,7 +112,8 @@ def generateAction(flags, name, ext):
                 overlap_dates = []
                 for overlap in no_overlap:
                     overlap_dates += generateDates(settings['Assignments'][overlap]['start_date'],settings['Assignments'][overlap]['end_date'],settings['Assignments'][overlap]['interval'],settings['Class Schedule'][days],settings['Class Schedule'][holy_days],settings['Assignments'][overlap]['amount'])
-                canvas_assignments = canvasAPI.getAssignments(course_id,data={'order_by':'due_at'})
+                canvas_assignments = canvasAPI.getAssignments(course_id,data={'order_by':'due_at'},per_page=100)
+                if len(canvas_assignments) == 100: print('\nWarning! 100 assignments have been pulled from canvas.\nDue to pagination, not all assignments may have been pulled.\n\n')
                 shifting = [(assignment['name'], assignment['id'], assignment['due_at']) for assignment in canvas_assignments if assignment['assignment_group_id'] == IDs['Groups'][curr_dir]]         
                 
                 for i, assignment in enumerate(shifting):
@@ -126,7 +125,8 @@ def generateAction(flags, name, ext):
                     remove = shifting[len(new_dates):]
                     shifting = shifting[:len(new_dates)]
                     for assignment in remove:
-                        canvasAPI.deleteAssignment(course_id,assignment[1])   
+                        canvasAPI.deleteAssignment(course_id,assignment[1])
+                        del IDs['Assignments'][assignment[0]]
                         print(f'Removed Assignment: {assignment[0]}')
                                             
                 for i, assignment in enumerate(shifting):
@@ -293,15 +293,12 @@ def generateAction(flags, name, ext):
             
     return action, data, input_data
 
-def main():
+def main(*test_args):
     
-    _, *args = sys.argv
+    args = test_args if test_args else sys.argv[1:]
     
     kwargs = dict(arg.split('=') for arg in args if '=' in arg)
     commands = [arg for arg in args if '=' not in arg]
-    
-    commands = ['-sa', 'hmk-1','10/12/2022']
-    # commands = ['-help']
     
     applyCommand(commands, kwargs)
     print('done...')

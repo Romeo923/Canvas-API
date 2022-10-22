@@ -4,11 +4,11 @@ from Utils import *
 
 # change/modify strings here to change flags
 INIT = '--init' # initialized canvas
-INDEX = '-i' # upload duplicate file with name indexing
-REPLACE = '-r' # edit assignments / replace files
-SHIFT = '-s' # shift assignment due dates
-DELETE = '-d' # delete a file or assignment
-GRADE = '-g' #! not finished
+INDEX = '--index' # upload duplicate file with name indexing
+REPLACE = '--replace' # edit assignments / replace files
+SHIFT = '--shift' # shift assignment due dates
+DELETE = '--delete' # delete a file or assignment
+GRADE = '--grade' # grade assignments
 HELP = '--help'
 
 def init(course: Course, args: list[str], kwargs: dict):
@@ -189,9 +189,15 @@ def upload(course: Course, args: list[str], kwargs: dict):
 
     course.save()
 
-#TODO impliment --grade flag
 def grade(course: Course, args: list[str], kwargs: dict):
-    pass
+    if len(args) == 0 and len(kwargs) == 0:
+        course.grade()
+        return
+
+    arg, *_ = args
+    if arg.lower() == 'true' or arg.lower() == 'false':
+        course.grade(True if arg.lower() == 'true' else False)
+        return
 
 def help(*_):
     print_stderr(f"\n{'Flag': <10} | Usgae")

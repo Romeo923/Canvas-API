@@ -1,5 +1,6 @@
 from Utils import *
 import os
+import pandas as pd
 from inp import Inp
 from canvasAPI import CanvasAPI
 
@@ -66,6 +67,7 @@ class Course:
 
     def _initGradeScales(self, grading_scale):
         #* creates grading scales
+        self.progressBar(f'Updating Grading Scheme')
         scale_title = 'TEST Grading Scale'
         scale_data = [ ('title', scale_title) ]
         canvas_schemes = [scheme['title'] for scheme in self.api.getGradingScales(self.course_id)]
@@ -177,7 +179,7 @@ class Course:
 
                     if j+1 > len(dates):
                         print_stderr(f"Assignments have exceed end date.{' '*50}\nCould not upload: {dir}'s {j+1}-{dir_settings['amount']}\n")
-                        self.overrideProgress(dir_settings['amount'] - j + 1)
+                        self.overrideProgress(dir_settings['amount'] - j)
                         break
 
                     self.progressBar(f'{dir}: Uploading {dir}-{j+1}')
@@ -272,7 +274,6 @@ class Course:
         print_stderr('\nCanvas Reset...')
 
     def resetInp(self):
-
         self.inp.reset()
         print_stderr('\ninp.json reset...\n')
 
@@ -351,20 +352,15 @@ class Course:
         for i, assignment in enumerate(shifting):
             self.editAssignment(assignment[0],{'assignment[due_at]':new_dates[i]})
 
+    #TODO impliment
     def downloadAssignmentSubmissions(self):
         pass
 
+    #? potentially unnecessary
     def editFile(self, data):
         name = data['name']
         file_id = self.inp['IDs']['Files'][name]
         self.api.updateFile(file_id, data)
-
-    def replaceFile(self, path: str, data):
-        response = self.api.uploadFile(self.course_id, path)
-        file_id = response.json()['id']
-        name = data['name']
-        self.api.updateFile(file_id, data)
-        self.inp['IDs']['Files'][name] = file_id
 
     def deleteAssignment(self, name: str):
         aid = self.inp['IDs']['Assignments'][name]
@@ -412,6 +408,64 @@ class Course:
         self.save()
         return False
 
-    #TODO impliment
-    def grade():
-        pass
+    def gradeAssignment(self, student_id, assignment, grade):
+        grade_data = {
+            "submission[posted_grade]" : str(grade),
+        }
+        assignment_id = self.inp['IDs']['Assignments'][assignment]
+        self.api.gradeAssignment(self.course_id,assignment_id,student_id,grade_data)
+
+    #TODO optimize
+    #? move to canvas.py
+    def grade(self, override = False):
+        from canvas import GRADE
+        try:
+            grades = pd.read_csv('grades.csv',index_col=False)
+        except FileNotFoundError:
+            print_stderr('\nFailed to locate grades.csv\nPlease cd into the directory containing grades.csv\n')
+            return
+
+        id, *assignments = grades
+
+        student_ids = [int(student_id) for student_id in grades[id][1:]]
+        max_points = (int(grades[assignment][0]) for assignment in assignments)
+
+        submission_data = [] # data to be submitted after confirming no issues with grade changes
+        for assignment, points in zip(assignments,max_points):
+
+            try:
+                self.editAssignment(assignment, {"assignment[published]" : True})
+            except:
+                print_stderr(f'\nFailed to publish assignment: {assignment}.\nMake sure assignment exists before attempting to grade it.\n')
+                return
+
+            # format grade data and check for grading issues
+            for i, student in enumerate(student_ids):
+                new_grade = int(grades[assignment][i+1])
+                submission_data.append( (assignment, student, new_grade, points) )
+
+                try:
+                    current_grade = self.api.getSubmission(self.course_id, self.inp['IDs']['Assignments'][assignment], student)['grade']
+                except:
+                    print_stderr(f'\nFailed to retrieve data for student: {student}\nMake sure {student} is enrolled in course {self.course_id} on canvas.\n')
+                    return
+
+                if current_grade is not None:
+                    current_grade = int(current_grade)
+
+                    if not override:
+                        print_stderr(f'\nAssignment "{assignment}" has already been graded.\nTo replace grades, enter {GRADE} true\nAborting...\n')
+                        return
+                    if new_grade < current_grade:
+                        print_stderr(f'\nError: Grade for student {student} will be lowered from {current_grade} to {new_grade} for Assignment "{assignment}".\nEnter grades manually.\nAborting...\n')
+                        return
+
+        # post grades and update maximun points for each assignment
+        progress_bar, progress_override = progressBar(len(submission_data))
+        for assignment, student_id, grade, points in submission_data:
+            self.editAssignment(assignment,{"assignment[points_possible]" : points})
+            self.gradeAssignment(student_id, assignment, grade)
+            progress_bar(f'Grading Assignment: {assignment} for Student: {student_id: <30}')
+
+        progress_override(-1)
+        progress_bar(f"Grading Complete!{' '*50}\n")

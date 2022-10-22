@@ -41,7 +41,7 @@ class CanvasAPI:
         response = self.uploadFile(course_id,file_path).json()
         file_id = response['id']
         file_name = response['filename']
-        file_preview = f'<p><a class="instructure_file_link instructure_scribd_file auto_open" title="{file_name}" href="https://bridgeport.instructure.com/courses/{course_id}/files/{file_id}?wrap=1" target="_blank" rel="noopener" data-api-endpoint="{self.ub_url}courses/{course_id}/files/{file_id}" data-api-returntype="File">{file_name}</a></p>'
+        file_preview = f'<p><a class="instructure_file_link instructure_scribd_file auto_open" title="{file_name}" href="https://bridgeport.instructure.com/courses/{course_id}/files/{file_id}?wrap=1" target="_blank" rel="noopener" data-api-endpoint="https://bridgeport.instructure.com/api/v1/courses/{course_id}/files/{file_id}" data-api-returntype="File">{file_name}</a></p>'
         assignment_data['assignment[description]'] = file_preview
         return self.createAssignment(course_id,assignment_data), file_id
 
@@ -56,6 +56,10 @@ class CanvasAPI:
     def gradeAssignment(self, course_id, assignment_id, student_id, grade_data):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}'
         return requests.put(url=full_path,headers=self.headers,params=grade_data)
+
+    def getGrade(self, course_id, assignment_id, student_id):
+        full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}'
+        return requests.get(url=full_path,headers=self.headers).json()
 
     def getSubmissions(self, course_id, assignment_id):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}/submissions'

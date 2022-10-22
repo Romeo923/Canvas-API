@@ -4,14 +4,13 @@ import os
 import sys
 import copy
 import re
-from inp import Inp
 import requests
 from canvasAPI import CanvasAPI
 
 separator = '/' if sys.platform == 'darwin' else '\\'
 
 
-def loadSettings() -> tuple[CanvasAPI, str, Inp]:
+def loadSettings():
 
     #! Black Magic, edit with caution
 
@@ -20,7 +19,7 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
 
     cwd = os.getcwd().split(separator)
     cwd[0] += separator
-    root_dir = _findRootDir(cwd)
+    root_dir = findRootDir(cwd)
 
     with open(os.path.join(root_dir,'inp.json')) as f:
         all_settings = json.load(f)
@@ -29,7 +28,7 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
 
     course_id = [cid for cid in cids if cid in cwd]
     if len(course_id) == 0:
-        print_stderr('\nError: Could not find Course ID\nPlease run from a subdirectory of the course directory\n')
+        print('\nError: Could not find Course ID\nPlease run from a subdirectory of the course directory\n')
         sys.exit()
 
     course_id = course_id[0]
@@ -61,14 +60,17 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
 
     token = all_settings[login_token]
     canvasAPI = CanvasAPI(token)
-    inp = Inp(os.path.join(root_dir,'inp.json'), new_settings, all_settings, course_id)
 
-    return canvasAPI, course_id, os.path.join(root_dir, course_id), inp
+    return canvasAPI, course_id, new_settings, all_settings, root_dir
 
-def _findRootDir(dirs):
+def save(data, file):
+    with open(file, 'w') as f:
+        json.dump(data, f, indent= 2)
+
+def findRootDir(dirs):
 
     if len(dirs) == 0:
-        print_stderr('\n\nError, Could not fild root directory or inp.json\nPlease run file from root directory or any of its subdirectories\n\n')
+        print('\n\nError, Could not fild root directory or inp.json\nPlease run file from root directory or any of its subdirectories\n\n')
         sys.exit()
 
     full_path = os.path.join(*dirs)
@@ -76,10 +78,8 @@ def _findRootDir(dirs):
 
     if 'inp.json' in curr_dirs: return full_path
 
-    return _findRootDir(dirs[:-1])
+    return findRootDir(dirs[:-1])
 
-# TODO optimize
-#? reduce input parameters by passing Course object instead
 def generateDates(start_date, end_date, interval, schedule, holy_days, amount, overlap=list()):
     if start_date == None or interval == None: return start_date
 
@@ -105,27 +105,9 @@ def generateDates(start_date, end_date, interval, schedule, holy_days, amount, o
         start_date += timedelta
     return dates
 
-def validDate(date: str) -> bool:
-    try:
-        datetime.datetime.strptime(date, '%m/%d/%Y')
-        return True
-    except ValueError:
-        return False
-
-def progressBar(total_tasks: int):
-    completed_tasks = 0
-    def bar(task):
-        nonlocal completed_tasks
-        completed_tasks += 1
-        progress = 100*completed_tasks/total_tasks
-        bar = '█' * int(progress/2) + '-' * (50 - int(progress/2))
-        print_stderr(f'\r|{bar}| {progress:.2f}% {task: <50}', end = '\r')
-
-    def overrideProgress(update: int):
-        nonlocal completed_tasks
-        completed_tasks += update
-
-    return bar, overrideProgress
+def progressBar(progress, task):
+    bar = '█' * int(progress/2) + '-' * (50 - int(progress/2))
+    print(f'\r|{bar}| {progress:.2f}% {task}                              ', end = '\r')
 
 def naturalSort(items):
 
@@ -134,7 +116,7 @@ def naturalSort(items):
 
     return sorted(items, key=natsort)
 
-def download(url: str, download_path: str):
+def download(url, download_path):
     get_response = requests.get(url,stream=True)
     file_name  = url.split("/")[-1]
     if not os.path.exists(download_path):
@@ -143,6 +125,3 @@ def download(url: str, download_path: str):
         for chunk in get_response.iter_content(chunk_size=1024):
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
-
-def print_stderr(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)

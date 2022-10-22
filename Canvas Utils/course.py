@@ -147,6 +147,7 @@ class Course:
                         "assignment[published]": dir_settings['published'],
                         "assignment[due_at]" : dates[j],
                         "assignment[assignment_group_id]" : id,
+                        "assignment[submission_types][]": "online_upload"
                     }
 
                     file_data = {
@@ -228,7 +229,7 @@ class Course:
     def resetCourse(self):
         self.api.disableGroupWeights(self.course_id)
 
-        assignments = self.api.getAssignments(self.course_id)
+        assignments = self.api.getAllAssignments(self.course_id)
         i=0
         while len(assignments) > 0:
             print_stderr("deleting assignments",end='\r')
@@ -236,7 +237,7 @@ class Course:
                 self.api.deleteAssignment(self.course_id, assignment['id'])
                 print_stderr(f"deleting assignments{'.'*(i%4)}   ",end='\r')
                 i+=1
-            assignments = self.api.getAssignments(self.course_id)
+            assignments = self.api.getAllAssignments(self.course_id)
         print_stderr(f"assignments deleted {' '*10}")
 
         groups = self.api.getCourseGroups(self.course_id)
@@ -334,7 +335,7 @@ class Course:
         overlap_dates = []
         for overlap in no_overlap:
             overlap_dates += generateDates(self.inp['Assignments'][overlap]['start_date'],self.inp['Assignments'][overlap]['end_date'],self.inp['Assignments'][overlap]['interval'],self.inp['Class Schedule'][days],self.inp['Class Schedule'][holy_days],self.inp['Assignments'][overlap]['amount'])
-        canvas_assignments = self.api.getAssignments(self.course_id,data={'order_by':'due_at'},per_page=100)
+        canvas_assignments = self.api.getAllAssignments(self.course_id,data={'order_by':'due_at'},per_page=100)
         if len(canvas_assignments) == 100: print_stderr('\nWarning! 100 assignments have been pulled from canvas.\nDue to pagination, not all assignments may have been pulled.\n\n')
         shifting = [(assignment['name'], assignment['id'], assignment['due_at']) for assignment in canvas_assignments if assignment['assignment_group_id'] == self.inp['IDs']['Groups'][curr_dir]]
         for i, assignment in enumerate(shifting):
@@ -352,9 +353,19 @@ class Course:
         for i, assignment in enumerate(shifting):
             self.editAssignment(assignment[0],{'assignment[due_at]':new_dates[i]})
 
-    #TODO impliment
-    def downloadAssignmentSubmissions(self):
-        pass
+    def downloadAssignmentSubmissions(self, name: str):
+        assignment_id = self.inp['IDs']['Assignments'][name]
+        submissions = self.api.getAllSubmissions(self.course_id,assignment_id)
+        count = 0
+        for submission in submissions:
+            if 'attachments' not in submission: continue
+            student_id = submission['user_id']
+            for attachment in submission['attachments']:
+                submission_url = attachment['url']
+                download(submission_url,f'{student_id}.pdf',f'./submissions/{name}')
+                count += 1
+
+        print_stderr(f'\n{count} submissions have been download to ./submissions/{name}/\n')
 
     #? potentially unnecessary
     def editFile(self, data):
@@ -385,10 +396,10 @@ class Course:
             return True
 
         size = 50
-        assignments = self.api.getAssignments(self.course_id)
+        assignments = self.api.getAllAssignments(self.course_id)
         while len(assignments) == size:
             size += 50
-            assignments = self.api.getAssignments(self.course_id, size)
+            assignments = self.api.getAllAssignments(self.course_id, size)
 
         for assignment in assignments:
             if name == assignment['name']:

@@ -29,7 +29,7 @@ class CanvasAPI:
         "submission[excuse]" : True, # boolean
     }
 
-    def getAssignments(self, course_id,per_page=50,data=dict()):
+    def getAllAssignments(self, course_id,per_page=50,data=dict()):
         full_path = f'{self.ub_url}courses/{course_id}/assignments?per_page={per_page}'
         return requests.get(url=full_path,headers=self.headers,params=data).json()
 
@@ -63,6 +63,10 @@ class CanvasAPI:
 
     def getAllSubmissions(self, course_id, assignment_id):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}/submissions'
+        return requests.get(url=full_path,headers=self.headers).json()
+
+    def getAssignment(self, course_id, assignment_id):
+        full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}'
         return requests.get(url=full_path,headers=self.headers).json()
 
 

@@ -2,13 +2,14 @@ import os
 from course import Course
 from Utils import *
 
-# change/modify strings here to change flags
+#* change/modify strings here to change flags
 INIT = '--init' # initialized canvas
 INDEX = '--index' # upload duplicate file with name indexing
 REPLACE = '--replace' # edit assignments / replace files
 SHIFT = '--shift' # shift assignment due dates
 DELETE = '--delete' # delete a file or assignment
 GRADE = '--grade' # grade assignments
+DOWNLOAD = '--download' # download assignments submissions
 HELP = '--help'
 
 def init(course: Course, args: list[str], kwargs: dict):
@@ -179,6 +180,7 @@ def upload(course: Course, args: list[str], kwargs: dict):
                 'name': name,
                 'parent_folder_id': folder_id
             }
+            assignment_data["assignment[submission_types][]"] = "online_upload"
             path = os.path.join(os.getcwd(),assignment)
             course.uploadAssignmentFile(assignment_data, file_data, path)
             print_stderr(f'Uploaded asignment: {name} with file {assignment} attatched.\n')
@@ -188,6 +190,24 @@ def upload(course: Course, args: list[str], kwargs: dict):
 
 
     course.save()
+
+def download(course: Course, args: list[str], kwargs: dict):
+    if len(args) == 0:
+        print_stderr(f"\nNo arguments given. \n'{DOWNLOAD}' requires an assignment name as an argument.\n")
+        return
+
+    full_name, *args = args
+    name, ext = full_name.split('.',1) if '.' in full_name else (full_name, "")
+
+    if course.exists(name):
+        if ext in course.inp['File Extentions']:
+            print_stderr(f'\nFailed to gather submissions for {full_name}.\n')
+        else:
+            print_stderr("Downloading...")
+            course.downloadAssignmentSubmissions(full_name)
+    else:
+        print_stderr(f'\n{full_name} does not exist.\n')
+        return
 
 def grade(course: Course, args: list[str], kwargs: dict):
     if len(args) == 0 and len(kwargs) == 0:
@@ -215,6 +235,8 @@ def help(*_):
     print_stderr(f"{'(Delete)': <10} >  |Required: Assignment or File name")
     print_stderr(f"{GRADE: <10} | canvas.py {GRADE} <override>")
     print_stderr(f"{'(Grade)': <10} >  |Optional: boolean override value")
+    print_stderr(f"{DOWNLOAD: <10} | canvas.py {DOWNLOAD} <name>")
+    print_stderr(f"{'(Download)': <10} >  |Required: Assignment name")
     print_stderr(f"{HELP: <10} | canvas.py {HELP}")
     print_stderr(f"{'(Help)': <10} >  |takes no arguments")
     print_stderr(f"\nRemember to cd into the appropriate directory.\nUploading does not require any flags, just give the name and settings as arguments.\nIf the flag you want isnt listed, make Romeo impliment it\n")
@@ -270,6 +292,7 @@ def main(*test_args):
         SHIFT: shift,
         DELETE: delete,
         GRADE: grade,
+        DOWNLOAD: download,
         HELP: help
     }
 

@@ -4,8 +4,10 @@ import os
 import sys
 import copy
 import re
-from inp import Inp
 import requests
+import zipfile
+import io
+from inp import Inp
 from canvasAPI import CanvasAPI
 
 separator = '/' if sys.platform == 'darwin' else '\\'
@@ -134,15 +136,21 @@ def naturalSort(items):
 
     return sorted(items, key=natsort)
 
-def download(url: str, download_path: str):
+def download(url: str, file_name: str, download_path: str):
     get_response = requests.get(url,stream=True)
-    file_name  = url.split("/")[-1]
     if not os.path.exists(download_path):
-        os.mkdir(download_path)
+        os.makedirs(download_path)
     with open(f'{download_path}/{file_name}', 'wb+') as f:
         for chunk in get_response.iter_content(chunk_size=1024):
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
+
+def downloadZIP(url: str, file_name: str, download_path: str):
+    r = requests.get(url)
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    if not os.path.exists(download_path):
+        os.mkdir(download_path)
+    z.extractall(f'{download_path}/{file_name}')
 
 def print_stderr(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)

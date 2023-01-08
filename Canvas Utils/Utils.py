@@ -39,13 +39,6 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
     overrides = {override : course_settings[override] for override in course_settings if override != 'IDs'}
     new_settings = mergedeep.merge({},default_settings, overrides)
 
-    groups = [*new_settings['Assignments']] + [*new_settings['Files']]
-
-    missing = [group_dir for group_dir in groups if group_dir not in os.listdir(os.path.join(root_dir,course_id))]
-    if len(missing) > 0:
-        print(f"\nError! Group directory missing for group(s):\n{set(missing)}\n\n")
-        sys.exit(0)
-
     token = all_settings[login_token]
     canvasAPI = CanvasAPI(token)
     inp = Inp(os.path.join(root_dir,'inp.json'), new_settings, all_settings, course_id)

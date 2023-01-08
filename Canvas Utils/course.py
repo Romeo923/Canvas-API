@@ -30,6 +30,8 @@ class Course:
             if 'amount' in assignments[assignment]:
                 assignment_amount += assignments[assignment]['amount']
             else:
+                if assignment not in os.listdir(self.root_dir):
+                    print_stderr(f'\nError! No directory for group {assignment} found.\nCan not upload files.\nContinuing to next group.\n')
                 assignment_amount += len(os.listdir(os.path.join(self.root_dir, assignment)))
 
         file_amount = 0

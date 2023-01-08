@@ -17,7 +17,7 @@ REPLACE = '--replace' # edit assignments / replace files
 
 SHIFT = '--shift' # shift assignment due dates
 #* usage: canvas.py --shift hmk-7 02/06/2023
-# hmk-7 due date willl be moved to 02/06/2023
+# hmk-7 due date will be moved to 02/06/2023
 # all subsequent hmks will be shifted according to inp file "interval" setting
 
 DELETE = '--delete' # delete a file or assignment

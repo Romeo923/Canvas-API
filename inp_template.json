@@ -1,0 +1,125 @@
+{
+  "login_token": "Login Token",
+  "Default": {
+    "Assignments": {
+      "hmk": {
+        "rules": "drop_lowest:2\n",
+        "file_upload": true,
+        "parent_folder": "hmk",
+        "published": true,
+        "group_weight": 10,
+        "max_points": 100,
+        "start_date": "9/6/2022",
+        "end_date": "12/30/2022",
+        "interval": "weekly",
+        "no_overlap": [
+          "first exam",
+          "second exam",
+          "third exam",
+          "final exam"
+        ]
+      },
+      "quiz": {
+        "rules": "drop_lowest:1\n",
+        "file_upload": false,
+        "amount": 3,
+        "published": false,
+        "group_weight": 20,
+        "max_points": 3,
+        "start_date": "9/6/2022",
+        "end_date": "12/30/2022",
+        "interval": "daily",
+        "no_overlap": [
+          "first exam",
+          "second exam",
+          "third exam",
+          "final exam"
+        ]
+      }
+    },
+    "Files": {
+      "slide": {
+        "parent_folder": "slides"
+      },
+      "sylbs": {
+        "parent_folder": null
+      }
+    },
+    "File Extentions": [
+      "pdf",
+      "docx"
+    ],
+    "Grading Scale": {
+      "A": 93,
+      "A-": 90,
+      "B+": 87,
+      "B": 83,
+      "B-": 80,
+      "C+": 77,
+      "C": 73,
+      "C-": 70,
+      "D+": 67,
+      "D": 63,
+      "D-": 60,
+      "F": 0
+    },
+    "Tabs": [
+      "Home",
+      "Assignments",
+      "Grades",
+      "People",
+      "Files",
+      "Quizzes",
+      "Settings",
+      "Zoom",
+      "Smarthinking Online Tutoring"
+    ],
+    "Class Schedule": {
+      "days": [
+        "Mon",
+        "Wed",
+        "Fri"
+      ],
+      "holy_days": [
+        "10/10/2022"
+      ]
+    }
+  },
+  "1865191": {
+    "IDs": {
+      "Groups": {},
+      "Assignments": {},
+      "Files": {},
+      "Folders": {}
+    },
+    "Class Schedule": {
+      "days": [
+        "Mon",
+        "Tue",
+        "Wed"
+      ],
+      "holy_days": [
+        "10/10/2022",
+        "11/23/2022"
+      ]
+    },
+    "Assignments": {
+      "quiz": {
+        "amount": 100,
+        "max_points": 10
+      },
+      "participation": {
+        "rules": null,
+        "file_upload": false,
+        "amount": 1,
+        "published": false,
+        "group_weight": 10,
+        "max_points": 10,
+        "start_date": "12/16/2022",
+        "end_date": "12/30/2022",
+        "interval": 1,
+        "no_overlap": []
+      }
+    }
+  }
+}

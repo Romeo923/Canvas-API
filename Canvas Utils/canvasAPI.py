@@ -347,6 +347,8 @@ class CanvasAPI:
         full_path = f"{self.ub_url}courses/{course_id}/grading_standards"
         return requests.get(url=full_path,headers=self.headers).json()
 
+    #! does not work, canvas might not let you delete w/ api
+    # They do not provide any documentation on deleting grade scales
     def deleteGradingScale(self, course_id, scale_id):
         full_path = f'https://bridgeport.instructure.com/courses/1865191/grading_standards/{scale_id}'
         data = {'_method':'DELETE'}

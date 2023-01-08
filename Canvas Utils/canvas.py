@@ -2,14 +2,39 @@ import os
 from course import Course
 from Utils import *
 
-#* change/modify strings here to change flags
+#! change/modify strings here to change flags
+
 INIT = '--init' # initialized canvas
+#* usage: canvas.py --init
+
 INDEX = '--index' # upload duplicate file with name indexing
+#* usage: canvas.py --index filename.pdf
+# will upload filename-1.pdf, filename-2.pdf, etc.
+
 REPLACE = '--replace' # edit assignments / replace files
+#* usage: canvas.py --replace filename.pdf
+# will replace filename.pdf
+
 SHIFT = '--shift' # shift assignment due dates
+#* usage: canvas.py --shift hmk-7 02/06/2023
+# hmk-7 due date willl be moved to 02/06/2023
+# all subsequent hmks will be shifted according to inp file "interval" setting
+
 DELETE = '--delete' # delete a file or assignment
+# usage: canvas.py --delete quiz-3
+
 GRADE = '--grade' # grade assignments
+#* usage: canvas.py --grade
+# will grade assignments from grades.csv data
+# aborts if assignments has already been graded
+#* usage: canvas.py --grade true
+# will grade assignments from grades.csv data
+# will override existing grade
+# aborts if student grade gets lowered
+
 DOWNLOAD = '--download' # download assignments submissions
+# usage: canvas.py --download hmk-2
+
 HELP = '--help'
 
 def init(course: Course, args: list[str], kwargs: dict):
@@ -124,14 +149,14 @@ def delete(course: Course, args: list[str], kwargs: dict):
     full_name, *args = args
     name, ext = full_name.split('.',1) if '.' in full_name else (full_name, "")
 
-    if course.exists(name):
-        if ext in course.inp['File Extentions']:
-            course.deleteFile(name)
-        else:
-            course.deleteAssignment(full_name)
-    else:
+    if not course.exists(name):
         print_stderr(f'\n{full_name} does not exist.\n')
         return
+
+    if ext in course.inp['File Extentions']:
+        course.deleteFile(name)
+    else:
+        course.deleteAssignment(full_name)
 
     print_stderr(f'\n{full_name} has been deleted.\n')
     course.save()

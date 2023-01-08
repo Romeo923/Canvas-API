@@ -2,7 +2,7 @@ import datetime
 import json
 import os
 import sys
-import copy
+import mergedeep
 import re
 import requests
 import zipfile
@@ -14,8 +14,6 @@ separator = '/' if sys.platform == 'darwin' else '\\'
 
 
 def loadSettings() -> tuple[CanvasAPI, str, Inp]:
-
-    #! Black Magic, edit with caution
 
     # checks if computer is running macOS (darwin) or windows (win32)
     # dirs are separated by / in macOS and \ in windows
@@ -37,29 +35,16 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
     course_id = course_id[0]
     default_settings = all_settings['Default']
     course_settings = all_settings[course_id]
-    _, *overrides = course_settings
 
-    new_settings = copy.deepcopy(default_settings)
+    overrides = {override : course_settings[override] for override in course_settings if override != 'IDs'}
+    new_settings = mergedeep.merge({},default_settings, overrides)
 
-    for section in overrides:
+    groups = [*new_settings['Assignments']] + [*new_settings['Files']]
 
-        if section in default_settings:
-
-            match course_settings[section]:
-                case dict() as var:
-                    for key in var:
-
-                        match var[key]:
-                            case dict():
-                                for setting in var[key]:
-                                    new_settings[section][key][setting] = var[key][setting]
-                            case list():
-                                new_settings[section][key] = var[key]
-
-                case list() as var:
-                    new_settings[section] = var
-        else :
-            new_settings[section] = course_settings[section]
+    missing = [group_dir for group_dir in groups if group_dir not in os.listdir(os.path.join(root_dir,course_id))]
+    if len(missing) > 0:
+        print(f"\nError! Group directory missing for group(s):\n{set(missing)}\n\n")
+        sys.exit(0)
 
     token = all_settings[login_token]
     canvasAPI = CanvasAPI(token)

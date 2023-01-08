@@ -1,6 +1,7 @@
 from Utils import *
 import os
 import pandas as pd
+import threading
 from inp import Inp
 from canvasAPI import CanvasAPI
 
@@ -40,10 +41,28 @@ class Course:
         self.progressBar, self.overrideProgress = progressBar(total_tasks)
 
         self.api.enableGroupWeights(self.course_id)
-        self._initTabs(canvas_tabs, my_tabs)
-        self._initGradeScales(grading_scale)
-        self._initAssignments(assignments, schedule, file_exts)
-        self._initFiles(files, file_exts)
+
+        tasks = [
+            self._initTabs,
+            self._initGradeScales,
+            self._initAssignments,
+            self._initFiles
+        ]
+        task_args = [
+            (canvas_tabs, my_tabs),
+            (grading_scale,),
+            (assignments, schedule, file_exts),
+            (files, file_exts)
+        ]
+
+        threads = [threading.Thread(target=task,args=arg) for task, arg in zip(tasks, task_args)]
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
 
         self.save()
         self.overrideProgress(-1)
@@ -101,9 +120,10 @@ class Course:
 
             group_data = {
                 "name" : dir,
-                "group_weight" : dir_settings['group_weight'],
-                "rules" : dir_settings['rules']
+                "group_weight" : dir_settings['group_weight']
             }
+
+            group_rules = {"rules" : dir_settings['rules']}
 
             #* Assignment w/File
             if dir_settings['file_upload']:
@@ -196,6 +216,7 @@ class Course:
                     }
 
                     self.uploadAssignment(assignment_data)
+            self.editGroup(id, group_rules)
 
     def _initFiles(self, file_settings, file_exts):
 
@@ -229,48 +250,57 @@ class Course:
     def resetCourse(self):
         self.api.disableGroupWeights(self.course_id)
 
-        assignments = self.api.getAllAssignments(self.course_id)
-        i=0
-        while len(assignments) > 0:
-            print_stderr("deleting assignments",end='\r')
-            for assignment in assignments:
-                self.api.deleteAssignment(self.course_id, assignment['id'])
-                print_stderr(f"deleting assignments{'.'*(i%4)}   ",end='\r')
-                i+=1
+        def _del_assignments():
             assignments = self.api.getAllAssignments(self.course_id)
-        print_stderr(f"assignments deleted {' '*10}")
+            print_stderr("deleting assignments")
+            while len(assignments) > 0:
+                for assignment in assignments:
+                    self.api.deleteAssignment(self.course_id, assignment['id'])
+                assignments = self.api.getAllAssignments(self.course_id)
+            print_stderr(f"assignments deleted")
 
-        groups = self.api.getCourseGroups(self.course_id)
-        while len(groups) > 0:
-            print_stderr('deleting groups',end='\r')
-            for group in groups:
-                self.api.deleteGroup(self.course_id, group['id'])
-                print_stderr(f"deleting groups{'.'*(i%4)}   ",end='\r')
-                i+=1
+        def _del_groups():
             groups = self.api.getCourseGroups(self.course_id)
-        print_stderr(f"groups deleted {' '*10}")
+            print_stderr('deleting groups')
+            while len(groups) > 0:
+                for group in groups:
+                    self.api.deleteGroup(self.course_id, group['id'])
+                groups = self.api.getCourseGroups(self.course_id)
+            print_stderr(f"groups deleted")
 
 
-        files = self.api.getFiles(self.course_id)
-        while len(files) > 0:
-            print_stderr("deleting files",end='\r')
-            for file in files:
-                self.api.deleteFile(file['id'])
-                print_stderr(f"deleting files{'.'*(i%4)}   ",end='\r')
-                i+=1
+        def _del_files():
             files = self.api.getFiles(self.course_id)
-        print_stderr(f"files deleted {' '*10}")
+            print_stderr("deleting files")
+            while len(files) > 0:
+                for file in files:
+                    self.api.deleteFile(file['id'])
+                files = self.api.getFiles(self.course_id)
+            print_stderr(f"files deleted")
 
 
-        folders = self.api.getFolders(self.course_id)
-        while len(folders) > 1:
-            print_stderr("deleting folders",end='\r')
-            for folder in folders:
-                self.api.deleteFolder(folder['id'])
-                print_stderr(f"deleting folders{'.'*(i%4)}   ",end='\r')
-                i+=1
+        def _del_folders():
             folders = self.api.getFolders(self.course_id)
-        print_stderr(f"folders deleted {' '*10}")
+            print_stderr("deleting folders")
+            while len(folders) > 1:
+                for folder in folders:
+                    self.api.deleteFolder(folder['id'])
+                folders = self.api.getFolders(self.course_id)
+            print_stderr(f"folders deleted")
+
+        tasks = [
+            _del_assignments,
+            _del_groups,
+            _del_files,
+            _del_folders
+        ]
+
+        threads = [threading.Thread(target=task) for task in tasks]
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
 
         print_stderr('\nCanvas Reset...')
 
@@ -286,6 +316,9 @@ class Course:
         name = group_data['name']
         self.inp['IDs']['Groups'][name] = id
         return id
+
+    def editGroup(self, group_id: int | str, group_data:dict):
+        return self.api.updateGroup(self.course_id, group_id, group_data)
 
     def uploadAssignment(self, data: dict):
         response = self.api.createAssignment(self.course_id, data)

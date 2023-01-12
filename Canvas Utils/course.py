@@ -255,7 +255,7 @@ class Course:
 
             def syncTask():
 
-                print_stderr(f'Syncing {section}...\n')
+                print_stderr(f'Syncing {section}...')
                 task_response = task(self.course_id, response = True)
                 task_data = task_response.json()
                 task_links = task_response.links
@@ -275,7 +275,7 @@ class Course:
                         id = element['id']
                         self.inp['IDs'][section][name] = id
 
-                print_stderr(f'{section} has been synced!\n')
+                print_stderr(f'{section} has been synced!')
 
             return syncTask
 

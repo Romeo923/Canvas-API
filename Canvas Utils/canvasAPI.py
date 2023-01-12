@@ -9,6 +9,9 @@ class CanvasAPI:
         self.token = login_token
         self.headers = {"Authorization": f"Bearer {self.token}"}
 
+    def get(self, url):
+        return requests.get(url=url, headers=self.headers)
+
     # Assignments
 
     Assignment_Data = {
@@ -29,9 +32,11 @@ class CanvasAPI:
         "submission[excuse]" : True, # boolean
     }
 
-    def getAllAssignments(self, course_id,per_page=50,data=dict()):
+    def getAllAssignments(self, course_id,per_page=50,data=dict(), response = False):
         full_path = f'{self.ub_url}courses/{course_id}/assignments?per_page={per_page}'
-        return requests.get(url=full_path,headers=self.headers,params=data).json()
+        res = requests.get(url=full_path,headers=self.headers,params=data)
+
+        return res if response else res.json()
 
     def createAssignment(self, course_id, assignment_data):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/'
@@ -79,9 +84,10 @@ class CanvasAPI:
         "rules" : "drop_lowest:1\ndrop_highest:2\n" # str : rule1:value\nrule2:value\n...
     }
 
-    def getCourseGroups(self, course_id):
+    def getCourseGroups(self, course_id, response = False):
         full_path = f'{self.ub_url}courses/{course_id}/assignment_groups/'
-        return requests.get(url=full_path,headers=self.headers).json()
+        res = requests.get(url=full_path,headers=self.headers)
+        return res if response else res.json()
 
     def createGroup(self, course_id, group_data):
         full_path = f'{self.ub_url}courses/{course_id}/assignment_groups/'
@@ -256,17 +262,21 @@ class CanvasAPI:
         "parent_folder_id" : 6156165, # str or int
     }
 
-    def getFiles(self, course_id,per_page=50):
+    def getFiles(self, course_id,per_page=50, response = False):
         full_path = f'{self.ub_url}courses/{course_id}/files?per_page={per_page}'
-        return requests.get(url=full_path,headers=self.headers).json()
+        res =  requests.get(url=full_path,headers=self.headers)
+
+        return res if response else res.json()
 
     def getFile(self, file_id):
         full_path = f'{self.ub_url}files/{file_id}'
         return requests.get(url=full_path,headers=self.headers).json()
 
-    def getFolders(self, course_id):
+    def getFolders(self, course_id, response = False):
         full_path = f'{self.ub_url}courses/{course_id}/folders/'
-        return requests.get(url=full_path,headers=self.headers).json()
+        res =  requests.get(url=full_path,headers=self.headers)
+
+        return res if response else res.json()
 
     def uploadFile(self, course_id, path):
         full_path = f'{self.ub_url}courses/{course_id}/files'

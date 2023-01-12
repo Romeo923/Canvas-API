@@ -249,6 +249,53 @@ class Course:
                 file_path = os.path.join(self.root_dir, dir, f'{file_name}.{ext}')
                 self.uploadFile(file_path, file_data)
 
+    def syncCourse(self):
+
+        def _sync(task, section):
+
+            def syncTask():
+
+                print_stderr(f'Syncing {section}...\n')
+                task_response = task(self.course_id, response = True)
+                task_data = task_response.json()
+                task_links = task_response.links
+
+                for element in task_data:
+                    name = element['name'] if 'name' in element else element['display_name']
+                    id = element['id']
+                    self.inp['IDs'][section][name] = id
+
+                while 'next' in task_links:
+                    task_response = self.api.get(task_links['next']['url'])
+                    task_data = task_response.json()
+                    task_links = task_response.links
+
+                    for element in task_data:
+                        name = element['name'] if 'name' in element else element['display_name']
+                        id = element['id']
+                        self.inp['IDs'][section][name] = id
+
+                print_stderr(f'{section} has been synced!\n')
+
+            return syncTask
+
+        tasks = [
+            _sync(self.api.getCourseGroups, "Groups"),
+            _sync(self.api.getAllAssignments, "Assignments"),
+            _sync(self.api.getFiles, "Files"),
+            _sync(self.api.getFolders, "Folders")
+        ]
+
+        threads = [threading.Thread(target=task) for task in tasks]
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        self.inp['IDs']['Folders']['sylbs'] = None
+        self.save()
+
     def resetCourse(self):
         self.api.disableGroupWeights(self.course_id)
 

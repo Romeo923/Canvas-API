@@ -48,7 +48,7 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
 def _findRootDir(dirs):
 
     if len(dirs) == 0:
-        print_stderr('\n\nError, Could not fild root directory or inp.json\nPlease run file from root directory or any of its subdirectories\n\n')
+        print_stderr('\n\nError, Could not find root directory or inp.json\nPlease run file from root directory or any of its subdirectories\n\n')
         sys.exit()
 
     full_path = os.path.join(*dirs)
@@ -84,6 +84,9 @@ def generateDates(start_date, end_date, interval, schedule, holy_days, amount, o
             i += 1
         start_date += timedelta
     return dates
+
+def generateDatesV2(assignment_data):
+    pass
 
 def validDate(date: str) -> bool:
     try:

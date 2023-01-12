@@ -7,6 +7,8 @@ from Utils import *
 INIT = '--init' # initialized canvas
 #* usage: canvas.py --init
 
+UPLOAD = '--upload' # upload a new assignment or file
+
 INDEX = '--index' # upload duplicate file with name indexing
 #* usage: canvas.py --index filename.pdf
 # will upload filename-1.pdf, filename-2.pdf, etc.
@@ -34,6 +36,8 @@ GRADE = '--grade' # grade assignments
 
 DOWNLOAD = '--download' # download assignments submissions
 # usage: canvas.py --download hmk-2
+
+SYNC = '--sync' # sync/retrieve all group, assignment, and file ids from canvas
 
 HELP = '--help'
 
@@ -244,6 +248,12 @@ def grade(course: Course, args: list[str], kwargs: dict):
         course.grade(True if arg.lower() == 'true' else False)
         return
 
+def sync(course: Course, args: list[str], kwargs: dict):
+    if len(args) > 0 or len(kwargs) > 0:
+        print_stderr(f"\n'{INIT}' flag does not take any arguments, additional args and kwargs will not be used\n")
+
+    course.syncCourse()
+
 def help(*_):
     print_stderr(f"\n{'Flag': <10} | Usgae")
     print_stderr(f"{'-'*18}")
@@ -312,12 +322,14 @@ def main(*test_args):
 
     flags = {
         INIT: init,
+        UPLOAD: upload,
         INDEX: index,
         REPLACE: replace,
         SHIFT: shift,
         DELETE: delete,
         GRADE: grade,
         DOWNLOAD: download,
+        SYNC: sync,
         HELP: help
     }
 

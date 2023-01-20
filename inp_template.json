@@ -85,24 +85,10 @@
       ]
     }
   },
-  "1865191": {
-    "IDs": {
-      "Groups": {},
-      "Assignments": {},
-      "Files": {},
-      "Folders": {}
-    },
-    "Class Schedule": {
-      "days": [
-        "Mon",
-        "Tue",
-        "Wed"
-      ],
-      "holy_days": [
-        "10/10/2022",
-        "11/23/2022"
-      ]
-    },
+
+  "Course ID": {},
+
+  "Course ID 2": {
     "Assignments": {
       "quiz": {
         "amount": 100,
@@ -120,6 +106,14 @@
         "interval": 1,
         "no_overlap": []
       }
+    }
+  },
+
+  "Course ID 3": {
+    "Class Schedule": {
+      "days": [
+        "Thu"
+      ]
     }
   }
 }

@@ -32,12 +32,38 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
         print_stderr('\nError: Could not find Course ID\nPlease run from a subdirectory of the course directory\n')
         sys.exit()
 
+    IDS_template = {
+        'IDs' : {
+            "Groups":{},
+            "Assignments":{},
+            "Files":{},
+            "Folders":{}
+        }
+    }
+    assignment_settings_template = {
+
+        "rules": None,
+        "file_upload": False,
+        "published": False,
+        "group_weight": 0,
+        "max_points": 0,
+        "start_date": "1/1/2022",
+        "end_date": "12/30/2022",
+        "interval": 1,
+        "no_overlap": []
+    }
+
     course_id = course_id[0]
     default_settings = all_settings['Default']
     course_settings = all_settings[course_id]
 
+    all_settings[course_id] = mergedeep.merge(IDS_template, course_settings)
+
     overrides = {override : course_settings[override] for override in course_settings if override != 'IDs'}
     new_settings = mergedeep.merge({},default_settings, overrides)
+
+    for setting in new_settings['Assignments']:
+        new_settings['Assignments'][setting] = mergedeep.merge({},assignment_settings_template,new_settings['Assignments'][setting])
 
     token = all_settings[login_token]
     canvasAPI = CanvasAPI(token)

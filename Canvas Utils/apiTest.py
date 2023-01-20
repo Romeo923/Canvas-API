@@ -9,7 +9,7 @@ import canvas
 # canvas.main(canvas.HELP)
 
 #* reset and init canvas
-# canvas.main(canvas.INIT)
+canvas.main(canvas.INIT)
 
 # #* create a new assignment
 # os.chdir('./hmk/')
@@ -47,7 +47,7 @@ import canvas
 # canvas.main(*download_submissions)
 
 #* sync data
-sync = [canvas.SYNC]
-canvas.main(*sync)
+# sync = [canvas.SYNC]
+# canvas.main(*sync)
 
 print_stderr('\nTest Complete.\n')

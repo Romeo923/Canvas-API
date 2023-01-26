@@ -169,7 +169,7 @@ class Course:
                         "assignment[published]": dir_settings['published'],
                         "assignment[due_at]" : dates[j],
                         "assignment[assignment_group_id]" : id,
-                        "assignment[submission_types][]": "online_upload"
+                        "assignment[submission_types][]": ["on_paper","online_upload"]
                     }
 
                     file_data = {
@@ -215,6 +215,7 @@ class Course:
                         "assignment[published]": dir_settings['published'],
                         "assignment[due_at]" : dates[j],
                         "assignment[assignment_group_id]" : id,
+                        "assignment[submission_types][]": ["on_paper"]
                     }
 
                     self.uploadAssignment(assignment_data)

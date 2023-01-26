@@ -9,19 +9,19 @@ import canvas
 # canvas.main(canvas.HELP)
 
 #* reset and init canvas
-canvas.main(canvas.INIT)
+# canvas.main(canvas.INIT)
 
 # #* create a new assignment
-# os.chdir('./hmk/')
-# create_assignment = ['hmk-test', '55', 'true']
-# canvas.main(*create_assignment)
+os.chdir('./hmk/')
+create_assignment = ['hmk-1', '55', 'true']
+canvas.main(*create_assignment)
 
 # #* edit an assignment
 # edit_assignment = [canvas.REPLACE, 'hmk-1', '10/12/2025']
 # canvas.main(*edit_assignment)
 
 # #* delete an assignment
-# delete_assignment = [canvas.DELETE, 'quiz-3']
+# delete_assignment = [canvas.DELETE, 'hmk-1.pdf']
 # canvas.main(*delete_assignment)
 
 # #* upload a file with name indexing 3 times

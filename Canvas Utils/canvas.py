@@ -195,6 +195,7 @@ def upload(course: Course, args: list[str], kwargs: dict):
         assignment_data = generateData(course, args, kwargs)
         assignment_data["assignment[name]"] = name
         assignment_data["assignment[assignment_group_id]"] = course.inp['IDs']['Groups'][cwd]
+        assignment_data["assignment[submission_types][]"] = ["on_paper"]
 
         has_file = False
         for assignment in os.listdir(os.getcwd()):
@@ -209,7 +210,7 @@ def upload(course: Course, args: list[str], kwargs: dict):
                 'name': name,
                 'parent_folder_id': folder_id
             }
-            assignment_data["assignment[submission_types][]"] = "online_upload"
+            assignment_data["assignment[submission_types][]"] += ["online_upload"]
             path = os.path.join(os.getcwd(),assignment)
             course.uploadAssignmentFile(assignment_data, file_data, path)
             print_stderr(f'Uploaded asignment: {name} with file {assignment} attatched.\n')

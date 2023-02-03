@@ -223,21 +223,16 @@ def upload(course: Course, args: list[str], kwargs: dict):
 
 def download(course: Course, args: list[str], kwargs: dict):
     if len(args) == 0:
-        print_stderr(f"\nNo arguments given. \n'{DOWNLOAD}' requires an assignment name as an argument.\n")
+        print_stderr(f"\nNo arguments given. \n'{DOWNLOAD}' requires an assignment name and file extention as arguments.\n")
         return
 
-    full_name, *args = args
-    name, ext = full_name.split('.',1) if '.' in full_name else (full_name, "")
+    name, ext, *args = args
 
     if course.exists(name):
-        if ext in course.inp['File Extentions']:
-            print_stderr(f'\nFailed to gather submissions for {full_name}.\n')
-        else:
             print_stderr("Downloading...")
-            course.downloadAssignmentSubmissions(full_name)
+            course.downloadAssignmentSubmissions(name, ext)
     else:
-        print_stderr(f'\n{full_name} does not exist.\n')
-        return
+        print_stderr(f'\n{name} does not exist.\n')
 
 def grade(course: Course, args: list[str], kwargs: dict):
     if len(args) == 0 and len(kwargs) == 0:

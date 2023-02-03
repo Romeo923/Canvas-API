@@ -436,7 +436,7 @@ class Course:
         for i, assignment in enumerate(shifting):
             self.editAssignment(assignment[0],{'assignment[due_at]':new_dates[i]})
 
-    def downloadAssignmentSubmissions(self, name: str):
+    def downloadAssignmentSubmissions(self, name: str, ext: str):
         assignment_id = self.inp['IDs']['Assignments'][name]
         submissions = self.api.getAllSubmissions(self.course_id,assignment_id)
         count = 0
@@ -445,7 +445,7 @@ class Course:
             student_id = submission['user_id']
             for attachment in submission['attachments']:
                 submission_url = attachment['url']
-                download(submission_url,f'{student_id}.pdf',f'./submissions/{name}')
+                download(submission_url,f'{student_id}.{ext}',f'./submissions/{name}')
                 count += 1
 
         print_stderr(f'\n{count} submissions have been download to ./submissions/{name}/\n')

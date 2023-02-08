@@ -35,7 +35,8 @@ GRADE = '--grade' # grade assignments
 # aborts if student grade gets lowered
 
 DOWNLOAD = '--download' # download assignments submissions
-# usage: canvas.py --download hmk-2
+# usage: canvas.py --download hmk-2 pdf
+#        canvas.py --download hmk-2 htlm
 
 SYNC = '--sync' # sync/retrieve all group, assignment, and file ids from canvas
 
@@ -222,8 +223,8 @@ def upload(course: Course, args: list[str], kwargs: dict):
     course.save()
 
 def download(course: Course, args: list[str], kwargs: dict):
-    if len(args) == 0:
-        print_stderr(f"\nNo arguments given. \n'{DOWNLOAD}' requires an assignment name and file extention as arguments.\n")
+    if len(args) < 2:
+        print_stderr(f"\n'{DOWNLOAD}' requires an assignment name and file extention as arguments.\n")
         return
 
     name, ext, *args = args
@@ -267,7 +268,7 @@ def help(*_):
     print_stderr(f"{GRADE: <10} | canvas.py {GRADE} <override>")
     print_stderr(f"{'(Grade)': <10} >  |Optional: boolean override value")
     print_stderr(f"{DOWNLOAD: <10} | canvas.py {DOWNLOAD} <name>")
-    print_stderr(f"{'(Download)': <10} >  |Required: Assignment name")
+    print_stderr(f"{'(Download)': <10} >  |Required: Assignment name, expected file extention")
     print_stderr(f"{HELP: <10} | canvas.py {HELP}")
     print_stderr(f"{'(Help)': <10} >  |takes no arguments")
     print_stderr(f"\nRemember to cd into the appropriate directory.\nUploading does not require any flags, just give the name and settings as arguments.\nIf the flag you want isnt listed, make Romeo impliment it\n")

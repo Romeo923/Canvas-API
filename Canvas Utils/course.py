@@ -438,8 +438,11 @@ class Course:
 
     def downloadAssignmentSubmissions(self, name: str, ext: str):
         assignment_id = self.inp['IDs']['Assignments'][name]
-        submissions = self.api.getAllSubmissions(self.course_id,assignment_id)
+        submissions_response = self.api.getAllSubmissions(self.course_id,assignment_id)
+        submissions = submissions_response.json()
+        submissions_links = submissions_response.links
         count = 0
+
         for submission in submissions:
             if 'attachments' not in submission: continue
             student_id = submission['user_id']
@@ -447,6 +450,19 @@ class Course:
                 submission_url = attachment['url']
                 download(submission_url,f'{student_id}.{ext}',f'./submissions/{name}')
                 count += 1
+
+        while 'next' in submissions_links:
+            submissions_response = self.api.get(submissions_links['next']['url'])
+            submissions = submissions_response.json()
+            submissions_links = submissions_response.links
+
+            for submission in submissions:
+                if 'attachments' not in submission: continue
+                student_id = submission['user_id']
+                for attachment in submission['attachments']:
+                    submission_url = attachment['url']
+                    download(submission_url,f'{student_id}.{ext}',f'./submissions/{name}')
+                    count += 1
 
         print_stderr(f'\n{count} submissions have been download to ./submissions/{name}/\n')
 

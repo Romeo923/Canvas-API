@@ -68,7 +68,7 @@ class CanvasAPI:
 
     def getAllSubmissions(self, course_id, assignment_id):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}/submissions'
-        return requests.get(url=full_path,headers=self.headers).json()
+        return requests.get(url=full_path,headers=self.headers)
 
     def getAssignment(self, course_id, assignment_id):
         full_path = f'{self.ub_url}courses/{course_id}/assignments/{assignment_id}'

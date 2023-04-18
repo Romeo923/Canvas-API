@@ -519,9 +519,16 @@ class Course:
         return False
 
     def gradeAssignment(self, student_id, assignment, grade):
-        grade_data = {
-            "submission[posted_grade]" : str(grade),
-        }
+
+        if grade >= 0:
+            grade_data = {
+                "submission[posted_grade]" : str(grade),
+            }
+        else:
+            grade_data = {
+                "submission[excuse]" : True,
+            }
+
         assignment_id = self.inp['IDs']['Assignments'][assignment]
         self.api.gradeAssignment(self.course_id,assignment_id,student_id,grade_data)
 
@@ -566,7 +573,7 @@ class Course:
                     if not override:
                         print_stderr(f'\nAssignment "{assignment}" has already been graded.\nTo replace grades, enter {GRADE} true\nAborting...\n')
                         return
-                    if new_grade < current_grade:
+                    if 0 <= new_grade < current_grade:
                         print_stderr(f'\nError: Grade for student {student} will be lowered from {current_grade} to {new_grade} for Assignment "{assignment}".\nEnter grades manually.\nAborting...\n')
                         return
 

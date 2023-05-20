@@ -280,26 +280,12 @@ def generateData(course: Course,args: list[str], kwargs: dict):
             cwd = os.getcwd().split(separator)[-1]
 
             no_overlap = course.inp['Assignments'][cwd]['no_overlap']
-            overlap_dates = []
-            for overlap in no_overlap:
-                overlap_dates += generateDates(
-                    course.inp['Assignments'][overlap]['start_date'],
-                    course.inp['Assignments'][overlap]['end_date'],
-                    course.inp['Assignments'][overlap]['interval'],
-                    course.inp['Class Schedule']['days'],
-                    course.inp['Class Schedule']['holy_days'],
-                    course.inp['Assignments'][overlap]['amount']
-                )
+            dates = generateUploadDates(course.inp['Assignments'][cwd], course.inp['Class Schedule'], start_date=arg)
+            overlap_gen = (generateUploadDates(course.inp['Assignments'][overlap], course.inp['Class Schedule']) for overlap in no_overlap)
+            overlap_dates = [date for overlap in overlap_gen for date in overlap]
+            upload_dates = (formatDate(date) for date in dates if date not in overlap_dates)
 
-            kwargs["assignment[due_at]"] = generateDates(
-                arg,
-                "12/30/3333",
-                1,
-                course.inp['Class Schedule']['days'],
-                course.inp['Class Schedule']['holy_days'],
-                1,
-                overlap_dates
-            )[0]
+            kwargs["assignment[due_at]"] = next(upload_dates)
 
         elif arg.isdigit():
             kwargs["assignment[points_possible]"] = arg

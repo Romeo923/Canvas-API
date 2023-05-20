@@ -1,0 +1,208 @@
+Default_Answers: &default_answers
+  1:
+    answer_text: "Answer 1"
+    correct: true
+  2:
+    answer_text: "Answer 2"
+    correct: false
+  3:
+    answer_text: "Answer 3"
+    correct: false
+  4: &option4
+    answer_text: "1 and 2"
+    correct: false
+  5: &option5
+    answer_text: "1 and 3"
+    correct: false
+  6: &option6
+    answer_text: "2 and 3"
+    correct: false
+  7: &option7
+    answer_text: "All of the above"
+    correct: false
+  8: &option8
+    answer_text: "None of the above"
+    correct: false
+
+Quiz 1:
+  description: "quiz 1 description"
+  time_limit: 20 # minutes
+  Questions:
+    1:
+      question_name: "Question 1"
+      question_text: "Is the empty set unique?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: false
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+        5:
+          <<: *option5
+          correct: true
+
+    2:
+      question_name: "Question 2"
+      question_text: "What color is blue?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: false
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+        8:
+          <<: *option8
+          correct: true
+
+    3:
+      question_name: "Question 3"
+      question_text: "How many rain drops have fallen since the creation of the earth?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: true
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+
+Quiz 2:
+  description: "quiz 2 description"
+  time_limit: 20 # minutes
+  Questions:
+    1:
+      question_name: "Question 1"
+      question_text: "What is the definition of a limit point?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: false
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+        5:
+          <<: *option5
+          correct: true
+
+    2:
+      question_name: "Question 2"
+      question_text: "where is green?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: false
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+        8:
+          <<: *option8
+          correct: true
+
+    3:
+      question_name: "Question 3"
+      question_text: "How many waves have been produced across all oceans on earth since the creation its creation?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: true
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+
+Quiz 3:
+  description: "quiz 3 description"
+  time_limit: 20 # minutes
+  Questions:
+    1:
+      question_name: "Question 1"
+      question_text: "What is the answer to this question?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: false
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+        5:
+          <<: *option5
+          correct: true
+
+    2:
+      question_name: "Question 2"
+      question_text: "Which is the correct answer?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: false
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false
+        8:
+          <<: *option8
+          correct: true
+
+    3:
+      question_name: "Question 3"
+      question_text: "Is there a correct answer?"
+      question_type: "multiple_choice_question"
+      points_possible: 3
+      Answers:
+        <<: *default_answers
+        1:
+          answer_text: "Option 1"
+          correct: true
+        2:
+          answer_text: "Option 2"
+          correct: false
+        3:
+          answer_text: "Option 3"
+          correct: false

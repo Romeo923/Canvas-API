@@ -1,0 +1,171 @@
+login_token: Enter Login Token Here
+
+Assignment_Settings: &assignment_default_settings
+  rules: drop_lowest:2\n # must ALWASY end with \n
+  file_upload: false
+  amount: null
+  parent_folder: null
+  published: true
+  group_weight: 10
+  max_points: 100
+  start_date: 9/5/2022 # MUST be on a day (Mon, Tue, Wed, ...) listed in Class Schedule
+  end_date: 12/30/2022
+  interval: weekly # can be "daily", "weekly", or a positive integer value
+  no_overlap:
+    - first exam
+    - second exam
+    - third exam
+    - final exam
+
+Default: &default_config
+  Assignments: &default_assignments
+    hmk:
+      <<: *assignment_default_settings
+      file_upload: true
+      parent_folder: hmk
+
+    quiz:
+      <<: *assignment_default_settings
+      rules: drop_lowest:1\n
+      amount: 3
+      published: false
+      group_weight: 20
+      max_points: 3
+      interval: daily
+
+    first exam:
+      <<: *assignment_default_settings
+      rules: null
+      amount: 1
+      published: false
+      interval: 0
+      no_overlap: []
+      start_date: 9/7/2022
+
+    second exam:
+      <<: *assignment_default_settings
+      rules: null
+      amount: 1
+      published: false
+      group_weight: 15
+      interval: 0
+      no_overlap: []
+      start_date: 10/12/2022
+
+    third exam:
+      <<: *assignment_default_settings
+      rules: null
+      amount: 1
+      published: false
+      group_weight: 15
+      interval: 0
+      no_overlap: []
+      start_date: 11/2/2022
+
+    final exam:
+      <<: *assignment_default_settings
+      rules: null
+      amount: 1
+      published: false
+      group_weight: 20
+      interval: 0
+      no_overlap: []
+      start_date: 12/16/2022
+
+    participation:
+      <<: *assignment_default_settings
+      rules: null
+      amount: 1
+      published: false
+      max_points: 10
+      start_date: 12/16/2022
+      interval: 1
+
+  Quizzes: &default_quizzes
+    <<: *assignment_default_settings
+    rules: null
+    file_upload: false
+    group_weight: null
+    max_points: null
+    quiz_type: assignment
+    group: quiz # directory name for group
+    show_correct_answers: true
+    one_question_at_a_time: true
+
+  Files: &default_files
+    slide:
+      parent_folder: slides
+
+    sylbs:
+      parent_folder: null
+
+  File Extentions:
+    - pdf
+    - docx
+
+  Grading Scale: &default_grading_scale
+    A: 93
+    A-: 90
+    B+: 87
+    B: 83
+    B-: 80
+    C+: 77
+    C: 73
+    C-: 70
+    D+: 67
+    D: 63
+    D-: 60
+    F: 0
+
+  Tabs:
+    - Home
+    - Assignments
+    - Grades
+    - People
+    - Files
+    - Quizzes
+    - Settings
+    - Zoom
+    - Smarthinking Online Tutoring
+
+  Class Schedule: &default_class_schedule
+    days:
+    - Mon
+    - Wed
+    - Fri
+
+    holy_days:
+      - 10/10/2022
+
+"Course ID #1": # course only uses default settings
+  <<: *default_config
+
+"Course ID #2": # course uses defaults, but overrides class schedule and quiz settings
+  <<: *default_config
+  Class Schedule:
+    <<: *default_class_schedule
+    holy_days:
+      - 10/10/2022
+      - 11/23/2022
+
+  Assignments:
+    <<: *default_assignments
+    quiz:
+      <<: *assignment_default_settings
+      amount: 100
+      max_points: 10
+
+"Course ID #3": # uses defaults, but adds new assignment and adds more file extentions
+  <<: *default_config
+  Assignments:
+    <<: *default_assignments
+    new assignment:
+      <<: *assignment_default_settings
+      parent_folder: assignment name
+      group_weight: 25
+      interval: 2
+
+  File Extentions:
+    - pdf
+    - docx
+    - html

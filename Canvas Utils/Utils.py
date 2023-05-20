@@ -1,8 +1,7 @@
 import datetime
-import json
+import yaml
 import os
 import sys
-import mergedeep
 import re
 import requests
 import zipfile
@@ -22,52 +21,23 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
     cwd[0] += separator
     root_dir = _findRootDir(cwd)
 
-    with open(os.path.join(root_dir,'inp.json')) as f:
-        all_settings = json.load(f)
+    with open(os.path.join(root_dir, "inp.yaml"),"r") as f:
+        all_settings = yaml.safe_load(f)
 
-    login_token, *cids = all_settings
+    login_token, _, _, *cids = all_settings
 
     course_id = [cid for cid in cids if cid in cwd]
     if len(course_id) == 0:
         print_stderr('\nError: Could not find Course ID\nPlease run from a subdirectory of the course directory\n')
         sys.exit()
 
-    IDS_template = {
-        'IDs' : {
-            "Groups":{},
-            "Assignments":{},
-            "Files":{},
-            "Folders":{}
-        }
-    }
-    assignment_settings_template = {
-
-        "rules": None,
-        "file_upload": False,
-        "published": False,
-        "group_weight": 0,
-        "max_points": 0,
-        "start_date": "1/1/2022",
-        "end_date": "12/30/2022",
-        "interval": 1,
-        "no_overlap": []
-    }
-
     course_id = course_id[0]
-    default_settings = all_settings['Default']
-    course_settings = all_settings[course_id]
-
-    all_settings[course_id] = mergedeep.merge(IDS_template, course_settings)
-
-    overrides = {override : course_settings[override] for override in course_settings if override != 'IDs'}
-    new_settings = mergedeep.merge({},default_settings, overrides)
-
-    for setting in new_settings['Assignments']:
-        new_settings['Assignments'][setting] = mergedeep.merge({},assignment_settings_template,new_settings['Assignments'][setting])
 
     token = all_settings[login_token]
+    course_settings = all_settings[course_id]
+
     canvasAPI = CanvasAPI(token)
-    inp = Inp(os.path.join(root_dir,'inp.json'), new_settings, all_settings, course_id)
+    inp = Inp(root_dir, course_settings, course_id)
 
     return canvasAPI, course_id, os.path.join(root_dir, course_id), inp
 
@@ -80,39 +50,37 @@ def _findRootDir(dirs):
     full_path = os.path.join(*dirs)
     curr_dirs = os.listdir(full_path)
 
-    if 'inp.json' in curr_dirs: return full_path
+    if 'inp.yaml' in curr_dirs: return full_path
 
     return _findRootDir(dirs[:-1])
 
-# TODO optimize
-#? reduce input parameters by passing Course object instead
-def generateDates(start_date, end_date, interval, schedule, holy_days, amount, overlap=list()):
-    if start_date == None or interval == None: return start_date
+def dateGenerator(start_date, end_date, interval):
+    date = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+    end = datetime.datetime.strptime(end_date, '%m/%d/%Y')
+    timedelta = datetime.timedelta(1) if interval == 'daily' else datetime.timedelta(7) if interval == 'weekly' else datetime.timedelta(interval)
+    while date <= end:
+        yield date
+        date += timedelta
+        if (interval == 0): break
+
+def generateUploadDates(assignment, schedule, start_date = None):
+    start = start_date if start_date else assignment['start_date']
+    end = assignment['end_date']
+    interval = assignment['interval']
+
+    dates = dateGenerator(start, end, interval)
 
     week = {'Mon':0,'Tue':1,'Wed':2,'Thu':3,'Fri':4,'Sat':5,'Sun':6}
-    sched = [week[day] for day in schedule]
+    days = [week[day] for day in schedule['days']]
+    holy_days = [datetime.datetime.strptime(day, '%m/%d/%Y') for day in schedule['holy_days']]
 
-    timedelta = datetime.timedelta(1) if interval == 'daily' else datetime.timedelta(7) if interval == 'weekly' else datetime.timedelta(interval)
-    month, day, year = start_date.split('/')
-    eMonth, eDay, eYear = end_date.split('/')
-    exceptions = [holy_day.split('/') for holy_day in holy_days]
-    start_date = datetime.datetime(int(year),int(month),int(day))
-    end_date = datetime.datetime(int(eYear),int(eMonth),int(eDay))
-    exception_dates = [datetime.datetime(int(y),int(m),int(d)) for m, d, y in exceptions] + [datetime.datetime(int(overlap_date[0]),int(overlap_date[1]),int(overlap_date[2])) for date in overlap if (overlap_date := date.split('T')[0].split('-'))]
+    for date in dates:
+        if date in holy_days: continue
+        if date.weekday() in days:
+            yield date
 
-    dates = []
-    i = 0
-
-    while i < amount and start_date <= end_date:
-        weekday = start_date.weekday()
-        if start_date not in exception_dates and not (interval == 'daily' and weekday not in sched):
-            dates.append(f'{start_date.date()}T{start_date.time()}')
-            i += 1
-        start_date += timedelta
-    return dates
-
-def generateDatesV2(assignment_data):
-    pass
+def formatDate(date: datetime.datetime):
+    return f'{date.date()}T{date.time()}'
 
 def validDate(date: str) -> bool:
     try:

@@ -47,7 +47,7 @@ def init(course: Course, args: list[str], kwargs: dict):
         print_stderr(f"\n'{INIT}' flag does not take any arguments, additional args and kwargs will not be used\n")
 
     course.resetCourse()
-    course.resetInp()
+    course.resetIDs()
     course.initCourse()
 
 def index(course: Course, args: list[str], kwargs: dict):

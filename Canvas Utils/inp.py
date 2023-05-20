@@ -1,37 +1,42 @@
-import json
+import os
+import yaml
 
 class Inp:
 
-    #? give IDs property for easier id fetching -> self.IDs["Files"] vs self["IDs"]['Files]
-    def __init__(self, root_dir: str, settings: dict, all_settings: dict, course_id: str):
+    def __init__(self, root_dir: str, settings: dict, course_id: str):
         self.root_dir = root_dir
         self.settings = settings
-        self.all_settings = all_settings
         self.course_id = course_id
 
-    def __getitem__(self,setting: str):
-        return self.all_settings[self.course_id]['IDs'] if setting == 'IDs' else self.settings[setting]
+        with open(os.path.join(self.root_dir, 'ids.yaml'), 'r') as f:
+            self._allIDs = yaml.safe_load(f)
 
-    def __setitem__(self, setting: str, data: str | dict):
-        if setting == 'IDs':
-            self.all_settings[self.course_id][setting] = data
-        else:
-            self.settings[setting] = data
+        self.IDs:dict = self._allIDs[self.course_id]
+
+    def __getitem__(self,setting: str):
+        return self.IDs if setting == 'IDs' else self.settings[setting]
+
+    def __setitem__(self, setting: str, data: dict[str, dict]):
+        if setting != 'IDs':
+            raise KeyError(f"Cannot alter value of {setting}")
+        self.IDs = data
 
     def __iter__(self):
         return self.settings.__iter__()
 
     def exists(self, name):
-        return name in self['IDs']['Assignments'] or name in self['IDs']['Files']
+        return name in self.IDs['Assignments'] or name in self.IDs['Files']
 
     def save(self):
-        with open(self.root_dir, 'w') as f:
-            json.dump(self.all_settings, f, indent= 2)
+        self._allIDs[self.course_id] = self.IDs
+        with open(os.path.join(self.root_dir, 'ids.yaml'), 'w') as f:
+            yaml.safe_dump(self._allIDs, f, sort_keys=False)
 
     def reset(self):
-        self['IDs'] = {
+        self.IDs = {
             "Groups":{},
             "Assignments":{},
+            "Quizzes":{},
             "Files":{},
             "Folders":{}
         }

@@ -235,19 +235,19 @@ class CanvasAPI:
         "end" : 10, # int : range_answer, inclusive
     }
 
-    def createQuizQuestions(self, course_id, quiz_id, question_data):
+    def createQuizQuestion(self, course_id, quiz_id, question_data):
         full_path = f'{self.ub_url}courses/{course_id}/quizzes/{quiz_id}/questions'
-        return requests.post(url=full_path,headers=self.headers, params=question_data)
+        return requests.post(url=full_path,headers=self.headers, json=question_data)
 
     def getQuizQuestions(self, course_id, quiz_id):
         full_path = f'{self.ub_url}courses/{course_id}/quizzes/{quiz_id}/questions'
         return requests.get(url=full_path,headers=self.headers).json()
 
-    def updateQuizQuestions(self, course_id, quiz_id, question_id, question_data):
+    def updateQuizQuestion(self, course_id, quiz_id, question_id, question_data):
         full_path = f'{self.ub_url}courses/{course_id}/quizzes/{quiz_id}/questions/{question_id}'
         return requests.put(url=full_path,headers=self.headers,params=question_data)
 
-    def deleteQuizQuestions(self, course_id, quiz_id, question_id):
+    def deleteQuizQuestion(self, course_id, quiz_id, question_id):
         full_path = f'{self.ub_url}courses/{course_id}/quizzes/{quiz_id}/questions/{question_id}'
         return requests.delete(url=full_path,headers=self.headers)
 

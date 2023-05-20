@@ -8,13 +8,13 @@ import canvas
 #* display all flags
 # canvas.main(canvas.HELP)
 
-#* reset and init canvas
-# canvas.main(canvas.INIT)
+# #* reset and init canvas
+canvas.main(canvas.INIT)
 
 # #* create a new assignment
-os.chdir('./hmk/')
-create_assignment = ['hmk-1', '55', 'true']
-canvas.main(*create_assignment)
+# os.chdir('./hmk/')
+# create_assignment = ['hmk-1', '55', 'true']
+# canvas.main(*create_assignment)
 
 # #* edit an assignment
 # edit_assignment = [canvas.REPLACE, 'hmk-1', '10/12/2025']

@@ -40,6 +40,8 @@ DOWNLOAD = '--download' # download assignments submissions
 
 SYNC = '--sync' # sync/retrieve all group, assignment, and file ids from canvas
 
+DETAILS = '--details' # displays course details
+
 HELP = '--help'
 
 def init(course: Course, args: list[str], kwargs: dict):
@@ -251,6 +253,35 @@ def sync(course: Course, args: list[str], kwargs: dict):
 
     course.syncCourse()
 
+def details(course: Course, args: list[str], kwargs: dict):
+    if len(args) > 0 or len(kwargs) > 0:
+        print_stderr(f"\n'{INIT}' flag does not take any arguments, additional args and kwargs will not be used\n")
+
+    cid = course.course_id
+    ASSIGNMENTS, QUIZZES, FILES, FILE_EXTS, GRADING_SCALE, TABS, CLASS_SCHEDULE, *_ = course.inp
+    assignments = course.inp[ASSIGNMENTS]
+    quizzes = course.inp[QUIZZES]
+    files = course.inp[FILES]
+    file_exts = course.inp[FILE_EXTS]
+    grading_scales = course.inp[GRADING_SCALE]
+    class_days, holy_days = course.inp[CLASS_SCHEDULE]
+
+    print(f'\nCOURSE ID: {cid}')
+    print(f'\nCOURSE SCHEDULE:\n  Meeting Days: {class_days}\n  Holy Days: {holy_days}')
+    print(f'\nAccepted File Extentions: {file_exts}')
+    print(f'\nCOURSE QUIZZES:')
+    for setting in quizzes:
+        value = quizzes[setting]
+        print(f'  {setting}: {value}')
+    print(f'\nCOURSE ASSIGNMENTS:')
+    for assignment in assignments:
+        print(f'\n  {assignment}:')
+        for setting in assignments[assignment]:
+            value = assignments[assignment][setting]
+            print(f'    {setting}: {value}')
+
+
+
 def help(*_):
     print_stderr(f"\n{'Flag': <10} | Usgae")
     print_stderr(f"{'-'*18}")
@@ -313,6 +344,7 @@ def main(*test_args):
         GRADE: grade,
         DOWNLOAD: download,
         SYNC: sync,
+        DETAILS: details,
         HELP: help
     }
 

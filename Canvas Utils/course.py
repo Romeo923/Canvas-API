@@ -13,7 +13,7 @@ class Course:
         self.api = canvasAPI # canvasAPI object, handles all api calls
         self.course_id = course_id # course id for current course
         self.course_dir = course_dir # path to course directory
-        self.inp = inp # Inp object, handles all reading and writing to inp.json
+        self.inp = inp # Inp object, handles all reading and writing to inp.yaml
         self._errors = list()
 
     def initCourse(self):
@@ -122,7 +122,7 @@ class Course:
 
                 parent_folder_id = self.createFolder(dir, folder_data)
 
-                # create each assignment, upload file, attach file to assignment
+                #* create each assignment, upload file, attach file to assignment
                 uploading = (f for file in files if (f := file.split('.',1)) and f[-1] in file_exts and dir.lower() in f[0].lower())
                 for file in uploading:
                     file_name, ext = file
@@ -248,9 +248,10 @@ class Course:
 
             #* uploads each file
 
-            for j, (file_name, ext) in enumerate( [f for file in files if (f := file.split('.',1)) and f[-1] in file_exts and dir.lower() in f[0].lower()] ):
-
-                tasks.set_description(f'{dir}: Uploading {file_name}')
+            uploading = (f for file in files if (f := file.split('.',1)) and f[-1] in file_exts and dir.lower() in f[0].lower())
+            for file in uploading:
+                file_name, ext = file
+                # tasks.set_description(f'{dir}: Uploading {file_name}')
 
                 file_data = {
                     "name": file_name,

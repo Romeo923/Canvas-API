@@ -8,8 +8,14 @@ class Inp:
         self.settings = settings
         self.course_id = course_id
 
-        with open(os.path.join(self.root_dir, 'ids.yaml'), 'r') as f:
-            self._allIDs = yaml.safe_load(f)
+        path = os.path.join(self.root_dir, 'ids.yaml')
+
+        if not os.path.exists(path):
+            self._allIDs = {}
+            self.reset()
+        else:
+            with open(path, 'r') as f:
+                self._allIDs = yaml.safe_load(f)
 
         self.IDs:dict = self._allIDs[self.course_id]
 

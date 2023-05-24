@@ -17,6 +17,10 @@ REPLACE = '--replace' # edit assignments / replace files
 #* usage: canvas.py --replace filename.pdf
 # will replace filename.pdf
 
+QUIZ = '--quiz' # create or reupload quiz
+#* usage: canvas.py --quiz quiz-name
+# will create or reupload quiz-name with settings from quizzes.yaml
+
 SHIFT = '--shift' # shift assignment due dates
 #* usage: canvas.py --shift hmk-7 02/06/2023
 # hmk-7 due date will be moved to 02/06/2023
@@ -115,8 +119,85 @@ def replace(course: Course, args: list[str], kwargs: dict):
         print_stderr(f'\n{full_name} does not exist.\n')
         return
 
+def quiz(course: Course, args: list[str], kwargs: dict):
+    if len(args) == 0:
+        print_stderr(f"\nNo arguments given. \n'{QUIZ}' requires a quiz name as an argument.\n")
+        return
+
+    if not os.path.exists(os.path.join(course.inp.root_dir, 'quizzes.yaml')):
+        print_stderr(f"Could not locate quizzes.yaml\n")
+        return
+
+    with open(os.path.join(course.inp.root_dir, 'quizzes.yaml'), 'r') as f:
+            quiz_yaml = yaml.safe_load(f)
+
+    full_name, *args = args
+    name, ext = full_name.split('.',1) if '.' in full_name else (full_name, "")
+
+    if name not in course.inp.IDs['Quizzes']:
+        print_stderr(f'\n{full_name} does not exist.\n')
+        return
+
+    course.deleteQuiz(name)
+
+    quiz_settings = course.inp['Quizzes']
+    quiz = quiz_yaml[name]
+    gid = course.inp.IDs['Groups'][quiz_settings['group']]
+
+    schedule = course.inp['Class Schedule']
+    no_overlap = quiz_settings['no_overlap']
+    dates = generateUploadDates(quiz_settings, schedule)
+    overlap_gen = (generateUploadDates(course.inp['Assignments'][overlap], schedule) for overlap in no_overlap)
+    overlap_dates = [date for overlap in overlap_gen for date in overlap]
+    upload_dates = (formatDate(date) for date in dates if date not in overlap_dates)
+    date = next(upload_dates)
+
+    _, _, *quiz_names = quiz_yaml
+    for quiz_name in quiz_names:
+        if quiz_name == name:
+            break
+        date = next(upload_dates)
+
+    quiz_data = {
+        "quiz[title]" : name,
+        "quiz[description]" : quiz['description'],
+        "quiz[quiz_type]" : quiz_settings['quiz_type'],
+        "quiz[assignment_group_id]" : gid,
+        "quiz[time_limit]" : quiz['time_limit'],
+        "quiz[show_correct_answers]" : quiz_settings['show_correct_answers'],
+        "quiz[shuffle_answers]" : quiz_settings['shuffle_answers'],
+        "quiz[due_at]" : date,
+        "quiz[published]" : quiz_settings['published'],
+    }
+
+    course.uploadQuiz(quiz_data)
+    quiz_id = course.inp.IDs['Quizzes'][name]
+    questions = quiz_yaml[name]['Questions']
+    for question in questions:
+        question_answers = questions[question]['Answers']
+        answers = []
+        for answer in question_answers:
+            answer_data = {
+                "text" : question_answers[answer]["answer_text"],
+                "weight" : 100 if question_answers[answer]['correct'] else 0
+            }
+
+            answers.append(answer_data)
+        question_data = {
+            "question":{
+                "question_name" : questions[question]['question_name'],
+                "question_text" : questions[question]['question_text'],
+                "question_type" : questions[question]['question_type'],
+                # "position" : question,
+                "quiz_group_id" : None,
+                "points_possible" : questions[question]['points_possible'],
+                "answers" : answers
+            }
+
+        }
+        course.uploadQuizQuestion(quiz_id,question_data)
     course.save()
-    print_stderr(f'\n{upload_name} has been modified.\n')
+    print_stderr(f'\n{name} has been reuploaded.\n')
 
 def shift(course: Course, args: list[str], kwargs: dict):
     if len(args) == 0:
@@ -339,6 +420,7 @@ def main(*test_args):
         UPLOAD: upload,
         INDEX: index,
         REPLACE: replace,
+        QUIZ: quiz,
         SHIFT: shift,
         DELETE: delete,
         GRADE: grade,

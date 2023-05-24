@@ -174,7 +174,7 @@ class Course:
         with open(os.path.join(self.inp.root_dir, 'quizzes.yaml'), 'r') as f:
             quiz_yaml = yaml.safe_load(f)
 
-        _, *quizzes = quiz_yaml
+        _, _, *quizzes = quiz_yaml
 
         no_overlap = quiz_settings['no_overlap']
         dates = generateUploadDates(quiz_settings, schedule)
@@ -192,6 +192,7 @@ class Course:
                 "quiz[assignment_group_id]" : gid,
                 "quiz[time_limit]" : quiz_yaml[quiz]['time_limit'],
                 "quiz[show_correct_answers]" : quiz_settings['show_correct_answers'],
+                "quiz[shuffle_answers]" : quiz_settings['shuffle_answers'],
                 "quiz[due_at]" : date,
                 "quiz[published]" : quiz_settings['published'],
             }
@@ -502,7 +503,10 @@ class Course:
 
     # TODO: implement
     def deleteQuiz(self, name: str):
-        pass
+        quiz_id = self.inp.IDs['Quizzes'][name]
+        del self.inp.IDs['Quizzes'][name]
+        del self.inp.IDs['Quizzes'][quiz_id]
+        return self.api.deleteQuiz(self.course_id, quiz_id)
 
     #? potentially unnecessary
     def editFile(self, data):

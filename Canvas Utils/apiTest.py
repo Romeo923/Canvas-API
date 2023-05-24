@@ -8,8 +8,8 @@ import canvas
 #* display all flags
 # canvas.main(canvas.HELP)
 
-# * dispalys course details
-canvas.main(canvas.DETAILS)
+# # * dispalys course details
+# canvas.main(canvas.DETAILS)
 
 # #* reset and init canvas
 # canvas.main(canvas.INIT)
@@ -18,6 +18,10 @@ canvas.main(canvas.DETAILS)
 # os.chdir('./hmk/')
 # create_assignment = ['hmk-75', '55', 'true']
 # canvas.main(*create_assignment)
+
+#* reuploads a quiz
+quiz = [canvas.QUIZ, 'Quiz 1']
+canvas.main(*quiz)
 
 # #* edit an assignment
 # edit_assignment = [canvas.REPLACE, 'hmk-1', '22', '10/12/2022']

@@ -1,4 +1,15 @@
-Default_Answers: &default_answers
+Multiple_Answers: &multiple_answers
+  1:
+    answer_text: "Answer 1"
+    correct: true
+  2:
+    answer_text: "Answer 2"
+    correct: false
+  3:
+    answer_text: "Answer 3"
+    correct: True
+
+Multiple_Choice_Answers: &multiple_choice_answers
   1:
     answer_text: "Answer 1"
     correct: true
@@ -31,10 +42,10 @@ Quiz 1:
     1:
       question_name: "Question 1"
       question_text: "Is the empty set unique?"
-      question_type: "multiple_choice_question"
+      question_type: "multiple_answers_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_answers
         1:
           answer_text: "Option 1"
           correct: false
@@ -43,44 +54,38 @@ Quiz 1:
           correct: false
         3:
           answer_text: "Option 3"
-          correct: false
-        5:
-          <<: *option5
           correct: true
 
     2:
       question_name: "Question 2"
       question_text: "What color is blue?"
-      question_type: "multiple_choice_question"
+      question_type: "multiple_answers_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_answers
         1:
           answer_text: "Option 1"
-          correct: false
+          correct: true
         2:
           answer_text: "Option 2"
-          correct: false
+          correct: true
         3:
           answer_text: "Option 3"
-          correct: false
-        8:
-          <<: *option8
           correct: true
 
     3:
       question_name: "Question 3"
       question_text: "How many rain drops have fallen since the creation of the earth?"
-      question_type: "multiple_choice_question"
+      question_type: "multiple_answers_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_answers
         1:
           answer_text: "Option 1"
           correct: true
         2:
           answer_text: "Option 2"
-          correct: false
+          correct: true
         3:
           answer_text: "Option 3"
           correct: false
@@ -95,7 +100,7 @@ Quiz 2:
       question_type: "multiple_choice_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_choice_answers
         1:
           answer_text: "Option 1"
           correct: false
@@ -115,7 +120,7 @@ Quiz 2:
       question_type: "multiple_choice_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_choice_answers
         1:
           answer_text: "Option 1"
           correct: false
@@ -135,7 +140,7 @@ Quiz 2:
       question_type: "multiple_choice_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_choice_answers
         1:
           answer_text: "Option 1"
           correct: true
@@ -156,7 +161,7 @@ Quiz 3:
       question_type: "multiple_choice_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_choice_answers
         1:
           answer_text: "Option 1"
           correct: false
@@ -176,7 +181,7 @@ Quiz 3:
       question_type: "multiple_choice_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_choice_answers
         1:
           answer_text: "Option 1"
           correct: false
@@ -196,7 +201,7 @@ Quiz 3:
       question_type: "multiple_choice_question"
       points_possible: 3
       Answers:
-        <<: *default_answers
+        <<: *multiple_choice_answers
         1:
           answer_text: "Option 1"
           correct: true

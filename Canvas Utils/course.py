@@ -137,7 +137,7 @@ class Course:
                     assignment_data["assignment[due_at]"] = date
 
                     file_data = {
-                        "name":file_name,
+                        "name":f'{file_name}.{ext}',
                         "parent_folder_id": parent_folder_id
                     }
 
@@ -249,17 +249,16 @@ class Course:
 
             #* uploads each file
 
-            uploading = (f for file in files if (f := file.split('.',1)) and f[-1] in file_exts and dir.lower() in f[0].lower())
+            uploading = (file for file in files if (f := file.split('.',1)) and f[-1] in file_exts and dir.lower() in f[0].lower())
             for file in uploading:
-                file_name, ext = file
                 # tasks.set_description(f'{dir}: Uploading {file_name}')
 
                 file_data = {
-                    "name": file_name,
+                    "name": file,
                     "parent_folder_id" : parent_folder_id
                 }
 
-                file_path = os.path.join(self.course_dir, dir, f'{file_name}.{ext}')
+                file_path = os.path.join(self.course_dir, dir, file)
                 self.uploadFile(file_path, file_data)
             return dir
 

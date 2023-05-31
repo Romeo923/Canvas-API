@@ -1,5 +1,6 @@
 from Utils import *
 import os
+from glob import glob
 import pandas as pd
 from multiprocessing.pool import ThreadPool
 import threading
@@ -113,7 +114,9 @@ class Course:
             if dir_settings['file_upload']:
 
                 path = os.path.join(self.course_dir, dir)
-                files = naturalSort(os.listdir(path))
+                filter = f"{dir}[- ]*.*"
+                filter2 = f"{dir}.*"
+                files = naturalSort(glob(filter,root_dir=path) + glob(filter2,root_dir=path))
 
                 folder_data = {
                     "name" : dir_settings['parent_folder'],
@@ -239,7 +242,9 @@ class Course:
             dir_settings = file_settings[dir]
 
             path = os.path.join(self.course_dir, dir)
-            files = naturalSort(os.listdir(path))
+            filter = f"{dir}[- ]*.*"
+            filter2 = f"{dir}.*"
+            files = naturalSort(glob(filter,root_dir=path) + glob(filter2,root_dir=path))
 
             folder_data = {
                 "name" : dir_settings['parent_folder'],

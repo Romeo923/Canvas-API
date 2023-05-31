@@ -269,7 +269,7 @@ def upload(course: Course, args: list[str], kwargs: dict):
         path = os.path.join(os.getcwd(),full_name)
         folder_id = course.inp['IDs']["Folders"][cwd]
         file_data = {
-            'name': name,
+            'name': full_name,
             'parent_folder_id': folder_id
         }
 

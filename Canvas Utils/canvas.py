@@ -124,11 +124,11 @@ def quiz(course: Course, args: list[str], kwargs: dict):
         print_stderr(f"\nNo arguments given. \n'{QUIZ}' requires a quiz name as an argument.\n")
         return
 
-    if not os.path.exists(os.path.join(course.inp.root_dir, 'quizzes.yaml')):
+    if not os.path.exists(os.path.join(course.inp.root_dir, course.inp.course_id, 'quizzes.yaml')):
         print_stderr(f"Could not locate quizzes.yaml\n")
         return
 
-    with open(os.path.join(course.inp.root_dir, 'quizzes.yaml'), 'r') as f:
+    with open(os.path.join(course.inp.root_dir, course.inp.course_id, 'quizzes.yaml'), 'r') as f:
             quiz_yaml = yaml.safe_load(f)
 
     full_name, *args = args

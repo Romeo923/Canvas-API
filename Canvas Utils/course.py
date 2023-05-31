@@ -174,7 +174,7 @@ class Course:
         # [_uploadAssignment(assignment) for assignment in assignments]
 
     def _initQuizzes(self, quiz_settings, schedule):
-        with open(os.path.join(self.inp.root_dir, 'quizzes.yaml'), 'r') as f:
+        with open(os.path.join(self.inp.root_dir, self.inp.course_id, 'quizzes.yaml'), 'r') as f:
             quiz_yaml = yaml.safe_load(f)
 
         _, _, *quizzes = quiz_yaml

@@ -9,8 +9,7 @@ import io
 from inp import Inp
 from canvasAPI import CanvasAPI
 
-separator = '/' if sys.platform == 'darwin' else '\\'
-
+separator = '\\' if sys.platform == 'win32' else '/'
 
 def loadSettings() -> tuple[CanvasAPI, str, Inp]:
 
@@ -36,7 +35,7 @@ def loadSettings() -> tuple[CanvasAPI, str, Inp]:
     token = all_settings[login_token]
     course_settings = all_settings[course_id]
 
-    canvasAPI = CanvasAPI(token)
+    canvasAPI = CanvasAPI(token, course_id)
     inp = Inp(root_dir, course_settings, course_id)
 
     return canvasAPI, course_id, os.path.join(root_dir, course_id), inp

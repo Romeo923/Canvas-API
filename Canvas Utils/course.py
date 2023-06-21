@@ -19,6 +19,7 @@ class Course:
 
     def initCourse(self):
         ASSIGNMENTS, QUIZZES, FILES, FILE_EXTS, GRADING_SCALE, TABS, CLASS_SCHEDULE, *_ = self.inp
+        # ASSIGNMENTS, QUIZZES, FILES, FILE_EXTS, GRADING_SCALE, TABS, EXTERNAL_TOOLS, CLASS_SCHEDULE, *_ = self.inp
 
         assignments = self.inp[ASSIGNMENTS]
         quizzes = self.inp[QUIZZES]
@@ -26,11 +27,13 @@ class Course:
         file_exts = self.inp[FILE_EXTS]
         grading_scale = self.inp[GRADING_SCALE]
         my_tabs = self.inp[TABS]
+        # tools = self.inp[EXTERNAL_TOOLS]
         schedule = self.inp[CLASS_SCHEDULE]
 
-        canvas_tabs = self.api.getTabs(self.course_id)
-        self.api.enableGroupWeights(self.course_id)
+        canvas_tabs = self.api.getTabs()
+        self.api.groups.enableGroupWeights()
 
+        # self._initTools(tools)
         self._initTabs(canvas_tabs, my_tabs)
         self._initGradeScales(grading_scale)
         self._initAssignments(assignments, schedule, file_exts)
@@ -44,7 +47,7 @@ class Course:
             [print_stderr(error) for error in self._errors]
             print_stderr('\n')
 
-    def _initTabs(self, canvas_tabs, my_tabs):
+    def _initTabs(self, canvas_tabs, my_tabs: list):
         #* update each tab's visibility and position
 
         visible = [tab for tab in canvas_tabs if tab['label'] in my_tabs]
@@ -57,7 +60,7 @@ class Course:
         def _uplaodTab(args):
             i, tab = args
             tab['position'] = i + 1
-            self.api.updateTab(self.course_id, tab['id'], tab)
+            self.api.updateTab(tab['id'], tab)
             return tab['label']
 
         with ThreadPool() as pool:
@@ -65,11 +68,27 @@ class Course:
             for task in tasks:
                 tasks.set_description(f'Adjusted {task} Tab')
 
+    def _initTools(self, tools):
+        for tool in tools:
+
+            toolData = {
+                "client_id": "N/A",
+                "consumer_key": "N/A",
+                "shared_secret": "N/A",
+                "privacy_level": "public",
+                "name": tools[tool],
+                "custom_fields[name]": tool,
+                "custom_fields[url]": tool["url"],
+
+            }
+
+            self.api.external_tools.create(toolData)
+
     def _initGradeScales(self, grading_scale):
         #* creates grading scales
         scale_title = 'TEST Grading Scale'
         scale_data = [ ('title', scale_title) ]
-        canvas_schemes = [scheme['title'] for scheme in self.api.getGradingScales(self.course_id)]
+        canvas_schemes = [scheme['title'] for scheme in self.api.getGradingScales()]
 
         if scale_title not in canvas_schemes:
             print('\nUploading Grading Scales...')
@@ -79,8 +98,8 @@ class Course:
                 scale_data.append(('grading_scheme_entry[][value]', grading_scale[grade]))
 
 
-            scale_id = self.api.createGradingScale(self.course_id, scale_data).json()['id']
-            self.api.updateCourseSettings(self.course_id,{'course[grading_standard_id]': scale_id})
+            scale_id = self.api.createGradingScale(scale_data).json()['id']
+            self.api.updateCourseSettings({'course[grading_standard_id]': scale_id})
             print('Upload Complete!\n')
 
     def _initAssignments(self, assignments, schedule, file_exts):
@@ -114,8 +133,9 @@ class Course:
             if dir_settings['file_upload']:
 
                 path = os.path.join(self.course_dir, dir)
-                filter = f"{dir}[- ]*.*"
-                filter2 = f"{dir}.*"
+                dir_filter = ''.join([f"[{x.lower()}{x.upper()}]" for x in dir if x.isalpha()])
+                filter = f"{dir_filter}[- ]*.*"
+                filter2 = f"{dir_filter}.*"
                 files = naturalSort(glob(filter,root_dir=path) + glob(filter2,root_dir=path))
 
                 folder_data = {
@@ -126,7 +146,7 @@ class Course:
                 parent_folder_id = self.createFolder(dir, folder_data)
 
                 #* create each assignment, upload file, attach file to assignment
-                uploading = (f for file in files if (f := file.split('.',1)) and f[-1] in file_exts and dir.lower() in f[0].lower())
+                uploading = (f for file in files if (f := file.split('.',1)) and f[-1] in file_exts)
                 for file in uploading:
                     file_name, ext = file
                     try:
@@ -242,8 +262,9 @@ class Course:
             dir_settings = file_settings[dir]
 
             path = os.path.join(self.course_dir, dir)
-            filter = f"{dir}[- ]*.*"
-            filter2 = f"{dir}.*"
+            dir_filter = ''.join([f"[{x.lower()}{x.upper()}]" for x in dir if x.isalpha()])
+            filter = f"{dir_filter}[- ]*.*"
+            filter2 = f"{dir_filter}.*"
             files = naturalSort(glob(filter,root_dir=path) + glob(filter2,root_dir=path))
 
             folder_data = {
@@ -254,7 +275,7 @@ class Course:
 
             #* uploads each file
 
-            uploading = (file for file in files if (f := file.split('.',1)) and f[-1] in file_exts and dir.lower() in f[0].lower())
+            uploading = (file for file in files if (f := file.split('.',1)) and f[-1] in file_exts)
             for file in uploading:
                 # tasks.set_description(f'{dir}: Uploading {file_name}')
 
@@ -274,39 +295,26 @@ class Course:
 
     def syncCourse(self):
 
-        def _sync(task, section):
+        def _sync(items, section):
 
             def syncTask():
 
                 print_stderr(f'Syncing {section}...')
-                task_response = task(self.course_id, response = True)
-                task_data = task_response.json()
-                task_links = task_response.links
 
-                for element in task_data:
-                    name = element['name'] if 'name' in element else element['display_name']
-                    id = element['id']
+                for item in items:
+                    name = item['name'] if 'name' in item else item['display_name']
+                    id = item['id']
                     self.inp.IDs[section][name] = id
-
-                while 'next' in task_links:
-                    task_response = self.api.get(task_links['next']['url'])
-                    task_data = task_response.json()
-                    task_links = task_response.links
-
-                    for element in task_data:
-                        name = element['name'] if 'name' in element else element['display_name']
-                        id = element['id']
-                        self.inp.IDs[section][name] = id
 
                 print_stderr(f'{section} has been synced!')
 
             return syncTask
 
         tasks = [
-            _sync(self.api.getCourseGroups, "Groups"),
-            _sync(self.api.getAllAssignments, "Assignments"),
-            _sync(self.api.getFiles, "Files"),
-            _sync(self.api.getFolders, "Folders")
+            _sync(self.api.groups.listGenerator(), "Groups"),
+            _sync(self.api.assignments.listGenerator(), "Assignments"),
+            _sync(self.api.files.listGenerator(), "Files"),
+            _sync(self.api.folders.listGenerator(), "Folders")
         ]
 
         threads = [threading.Thread(target=task) for task in tasks]
@@ -320,53 +328,32 @@ class Course:
         self.save()
 
     def resetCourse(self):
-        self.api.disableGroupWeights(self.course_id)
+        self.api.groups.disableGroupWeights()
 
         def _del_assignments():
-            assignments = self.api.getAllAssignments(self.course_id)
             print_stderr("deleting assignments")
-            while len(assignments) > 0:
-                for assignment in assignments:
-                    self.api.deleteAssignment(self.course_id, assignment['id'])
-                assignments = self.api.getAllAssignments(self.course_id)
+            self.api.assignments.deleteAll()
             print_stderr(f"assignments deleted")
 
         def _del_quizzes():
-            quizzes = self.api.getQuizzes(self.course_id)
             print_stderr("deleting quizzes")
-            while len(quizzes) > 0:
-                for quiz in quizzes:
-                    self.api.deleteQuiz(self.course_id, quiz['id'])
-                quizzes = self.api.getQuizzes(self.course_id)
+            self.api.quizzes.deleteAll()
             print_stderr(f"quizzes deleted")
 
         def _del_groups():
-            groups = self.api.getCourseGroups(self.course_id)
             print_stderr('deleting groups')
-            while len(groups) > 0:
-                for group in groups:
-                    self.api.deleteGroup(self.course_id, group['id'])
-                groups = self.api.getCourseGroups(self.course_id)
+            self.api.groups.deleteAll()
             print_stderr(f"groups deleted")
 
 
         def _del_files():
-            files = self.api.getFiles(self.course_id)
             print_stderr("deleting files")
-            while len(files) > 0:
-                for file in files:
-                    self.api.deleteFile(file['id'])
-                files = self.api.getFiles(self.course_id)
+            self.api.files.deleteAll()
             print_stderr(f"files deleted")
 
-
         def _del_folders():
-            folders = self.api.getFolders(self.course_id)
             print_stderr("deleting folders")
-            while len(folders) > 1:
-                for folder in folders:
-                    self.api.deleteFolder(folder['id'])
-                folders = self.api.getFolders(self.course_id)
+            self.api.folders.deleteAll()
             print_stderr(f"folders deleted")
 
         tasks = [
@@ -394,24 +381,24 @@ class Course:
         self.inp.save()
 
     def initGroup(self, group_data: dict) -> int:
-        id = self.api.createGroup(self.course_id, group_data).json()['id']
+        id = self.api.groups.create(group_data).json()['id']
         name = group_data['name']
         self.inp.IDs['Groups'][name] = id
         return id
 
     def editGroup(self, group_id: int | str, group_data:dict):
-        return self.api.updateGroup(self.course_id, group_id, group_data)
+        return self.api.groups.edit(group_id, group_data)
 
     def uploadAssignment(self, data: dict):
-        response = self.api.createAssignment(self.course_id, data)
+        response = self.api.assignments.create(data)
         aid = response.json()['id']
         name = data["assignment[name]"]
         self.inp.IDs['Assignments'][name] = aid
 
     def uploadFile(self, path: str, data: dict):
-        response = self.api.uploadFile(self.course_id, path)
+        response = self.api.files.create(path)
         file_id = response.json()['id']
-        response = self.api.updateFile(file_id, data).json()
+        response = self.api.files.edit(file_id, data).json()
         name = response['display_name']
         self.inp.IDs['Files'][name] = file_id
         return response
@@ -419,13 +406,13 @@ class Course:
     def createFolder(self, dir, data: dict):
         folder_id = None
         if data['name'] is not None:
-            folder_id = self.api.createFolder(self.course_id,data).json()['id']
+            folder_id = self.api.folders.create(data).json()['id']
         self.inp.IDs['Folders'][dir] = folder_id
         return folder_id
 
     def uploadAssignmentFile(self, assignment_data: dict, file_data: dict, path: str):
-        response, file_id = self.api.createAssignmentWithFile(self.course_id, assignment_data, path)
-        self.api.updateFile(file_id, file_data)
+        response, file_id = self.api.assignments.createWithFile(assignment_data, path)
+        self.api.files.edit(file_id, file_data)
 
         assignment_name = assignment_data["assignment[name]"]
         assignment_id = response.json()['id']
@@ -435,7 +422,7 @@ class Course:
 
     def editAssignment(self, name: str, data: dict):
         aid = self.inp.IDs['Assignments'][name]
-        return self.api.updateAssignment(self.course_id, aid, data)
+        return self.api.assignments.edit(aid, data)
 
     def shiftAssignments(self, name, date):
         curr_dir = os.getcwd().split(separator)[-1]
@@ -448,7 +435,7 @@ class Course:
         overlap_dates = [date for overlap in overlap_gen for date in overlap]
         upload_dates = (formatDate(date) for date in new_dates if date not in overlap_dates)
 
-        canvas_assignments = self.api.getAllAssignments(self.course_id,data={'order_by':'due_at'},per_page=100)
+        canvas_assignments = self.api.assignments.list(data={'order_by':'due_at','per_page':100})
         if len(canvas_assignments) == 100: print_stderr('\nWarning! 100 assignments have been pulled from canvas.\nDue to pagination, not all assignments may have been pulled.\n\n')
         shifting = ((assignment['name'], assignment['id'], assignment['due_at']) for assignment in canvas_assignments if assignment['assignment_group_id'] == self.inp.IDs['Groups'][curr_dir])
         for assignment in shifting:
@@ -463,7 +450,7 @@ class Course:
 
     def downloadAssignmentSubmissions(self, name: str, ext: str):
         assignment_id = self.inp.IDs['Assignments'][name]
-        submissions_response = self.api.getAllSubmissions(self.course_id,assignment_id)
+        submissions_response = self.api.assignments.listSubmissions(assignment_id)
         submissions = submissions_response.json()
         submissions_links = submissions_response.links
         count = 0
@@ -492,14 +479,14 @@ class Course:
         print_stderr(f'\n{count} submissions have been download to ./submissions/{name}/\n')
 
     def uploadQuiz(self, data: dict):
-        quiz_response = self.api.createQuiz(self.course_id, data)
+        quiz_response = self.api.quizzes.create(data)
         quiz_id = quiz_response.json()['id']
         name = data["quiz[title]"]
         self.inp.IDs['Quizzes'][name] = quiz_id
         self.inp.IDs['Quizzes'][quiz_id] = {}
 
     def uploadQuizQuestion(self, quiz_id: int | str, data: dict):
-        question_response = self.api.createQuizQuestion(self.course_id, quiz_id, data)
+        question_response = self.api.quizzes.questions.create(quiz_id, data)
         question_id = question_response.json()
         question_id = question_id['id']
         name = data['question']["question_name"]
@@ -510,23 +497,23 @@ class Course:
         quiz_id = self.inp.IDs['Quizzes'][name]
         del self.inp.IDs['Quizzes'][name]
         del self.inp.IDs['Quizzes'][quiz_id]
-        return self.api.deleteQuiz(self.course_id, quiz_id)
+        return self.api.quizzes.delete(quiz_id)
 
     #? potentially unnecessary
     def editFile(self, data):
         name = data['name']
         file_id = self.inp.IDs['Files'][name]
-        self.api.updateFile(file_id, data)
+        self.api.files.edit(file_id, data)
 
     def deleteAssignment(self, name: str):
         aid = self.inp.IDs['Assignments'][name]
         del self.inp.IDs['Assignments'][name]
-        return self.api.deleteAssignment(self.course_id, aid)
+        return self.api.assignments.delete(aid)
 
     def deleteFile(self, file_name: str):
         fid = self.inp.IDs['Files'][file_name]
         del self.inp.IDs['Files'][file_name]
-        return self.api.deleteFile(fid)
+        return self.api.files.delete(fid)
 
     def deleteAssignmentFile(self, name: str):
         return self.deleteAssignment(name), self.deleteFile(name)
@@ -534,28 +521,21 @@ class Course:
     def deleteFolder(self, folder_name: str):
         fid = self.inp.IDs['Folders'][folder_name]
         del self.inp.IDs['Folders'][folder_name]
-        return self.api.deleteFile(fid)
+        return self.api.folders.delete(fid)
 
     # TODO: check quizzes
     def exists(self, name: str) -> bool:
         if self.inp.exists(name):
             return True
 
-        size = 50
-        assignments = self.api.getAllAssignments(self.course_id)
-        while len(assignments) == size:
-            size += 50
-            assignments = self.api.getAllAssignments(self.course_id, size)
+        assignments = self.api.assignments.listGenerator()
 
         for assignment in assignments:
             if name == assignment['name']:
                 self.inp.IDs['Assignments'][name] = assignment['id']
                 return True
 
-        files = self.api.getFiles(self.course_id)
-        while len(files) == size:
-            size += 50
-            files = self.api.getFiles(self.course_id, size)
+        files = self.api.files.listGenerator()
 
         for file in files:
             if name == file['display_name']:
@@ -577,7 +557,7 @@ class Course:
             }
 
         assignment_id = self.inp.IDs['Assignments'][assignment]
-        self.api.gradeAssignment(self.course_id,assignment_id,student_id,grade_data)
+        self.api.assignments.grade(assignment_id,student_id,grade_data)
 
     # TODO optimize
     #? move to canvas.py
@@ -606,10 +586,10 @@ class Course:
             # format grade data and check for grading issues
             for i, student in enumerate(student_ids):
                 new_grade = int(grades[assignment][i+1])
-                submission_data.append( (assignment, student, new_grade, points) )
+                submission_data.append((assignment, student, new_grade, points) )
 
                 try:
-                    current_grade = self.api.getSubmission(self.course_id, self.inp.IDs['Assignments'][assignment], student)['grade']
+                    current_grade = self.api.assignments.getSubmission(self.inp.IDs['Assignments'][assignment], student).json()['grade']
                 except:
                     print_stderr(f'\nFailed to retrieve data for student: {student}\nMake sure {student} is enrolled in course {self.course_id} on canvas.\n')
                     return

@@ -12,7 +12,23 @@ import canvas
 # canvas.main(canvas.DETAILS)
 
 #* reset and init canvas
-canvas.main(canvas.INIT)
+# canvas.main(canvas.INIT)
+
+#* reorders tabs
+tab_list = [
+    "Home",
+    "Assignments",
+    "TEST REDIRECT",
+    "Grades",
+    "People",
+    "Files",
+    "Quizzes",
+    "Zoom",
+    "Smarthinking Online Tutoring"
+    "Settings",
+]
+tabs = [canvas.REORDER, tab_list]
+canvas.main(*tabs)
 
 # #* create a new assignment
 # os.chdir('./hmk/')

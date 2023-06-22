@@ -1,6 +1,7 @@
 import os
 from course import Course
 from Utils import *
+import yaml
 
 #! change/modify strings here to change flags
 
@@ -25,6 +26,8 @@ SHIFT = '--shift' # shift assignment due dates
 #* usage: canvas.py --shift hmk-7 02/06/2023
 # hmk-7 due date will be moved to 02/06/2023
 # all subsequent hmks will be shifted according to inp file "interval" setting
+
+REORDER = '--reorder'
 
 DELETE = '--delete' # delete a file or assignment
 # usage: canvas.py --delete quiz-3
@@ -305,6 +308,12 @@ def upload(course: Course, args: list[str], kwargs: dict):
 
     course.save()
 
+#! Temp implementation, in testing
+def reorder(course: Course, args: list[str], kwargs: dict):
+
+    course.reorderTabs(args[0])
+
+
 def download(course: Course, args: list[str], kwargs: dict):
     if len(args) < 2:
         print_stderr(f"\n'{DOWNLOAD}' requires an assignment name and file extention as arguments.\n")
@@ -422,6 +431,7 @@ def main(*test_args):
         REPLACE: replace,
         QUIZ: quiz,
         SHIFT: shift,
+        REORDER: reorder,
         DELETE: delete,
         GRADE: grade,
         DOWNLOAD: download,

@@ -19,17 +19,10 @@ class CanvasAPI:
         self.assignments = Assignments(base_url = self.ub_url, course_id = self.course_id, endpoint = "assignments", headers = self.headers, file_handler = self.files)
         self.quizzes = Quizzes(base_url = self.ub_url, course_id = self.course_id, endpoint = "quizzes", headers = self.headers)
         self.external_tools = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "external_tools", headers = self.headers)
+        self.tabs = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "tabs", headers = self.headers)
 
     def get(self, url: str):
         return requests.get(url=url, headers=self.headers)
-
-    def getTabs(self):
-        full_path = f"{self.endpoint_url}/tabs"
-        return requests.get(url=full_path,headers=self.headers).json()
-
-    def updateTab(self, tab_id, tab_data):
-        full_path = f"{self.endpoint_url}/tabs/{tab_id}"
-        return requests.put(url=full_path,headers=self.headers,params=tab_data)
 
     def createGradingScale(self, scale_data):
         full_path = f"{self.endpoint_url}/grading_standards"

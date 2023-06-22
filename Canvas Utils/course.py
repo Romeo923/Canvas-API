@@ -30,11 +30,10 @@ class Course:
         # tools = self.inp[EXTERNAL_TOOLS]
         schedule = self.inp[CLASS_SCHEDULE]
 
-        canvas_tabs = self.api.getTabs()
         self.api.groups.enableGroupWeights()
 
         # self._initTools(tools)
-        self._initTabs(canvas_tabs, my_tabs)
+        self.reorderTabs(my_tabs)
         self._initGradeScales(grading_scale)
         self._initAssignments(assignments, schedule, file_exts)
         self._initQuizzes(quizzes, schedule)
@@ -46,27 +45,6 @@ class Course:
             print_stderr(f'{len(self._errors)} error(s) occurred during upload:')
             [print_stderr(error) for error in self._errors]
             print_stderr('\n')
-
-    def _initTabs(self, canvas_tabs, my_tabs: list):
-        #* update each tab's visibility and position
-
-        visible = [tab for tab in canvas_tabs if tab['label'] in my_tabs]
-        for tab in visible : tab['hidden'] = False
-        visible.sort(key=lambda tab : my_tabs.index(tab['label']))
-        hidden = [tab for tab in canvas_tabs if tab['label'] not in my_tabs]
-        for tab in hidden : tab['hidden'] = True
-
-        tablist = [(i, tab) for i, tab in enumerate(visible+hidden)]
-        def _uplaodTab(args):
-            i, tab = args
-            tab['position'] = i + 1
-            self.api.updateTab(tab['id'], tab)
-            return tab['label']
-
-        with ThreadPool() as pool:
-            tasks = tqdm(pool.imap_unordered(_uplaodTab, tablist), total=len(tablist))
-            for task in tasks:
-                tasks.set_description(f'Adjusted {task} Tab')
 
     def _initTools(self, tools):
         for tool in tools:
@@ -326,6 +304,19 @@ class Course:
 
         self.inp.IDs['Folders']['sylbs'] = None
         self.save()
+
+    def reorderTabs(self, tab_names: list[str]):
+        #* update each tab's visibility and position
+
+        canvas_tabs = list(self.api.tabs.listGenerator())
+        tasks = tqdm(canvas_tabs)
+        for tab in tasks:
+            hidden = tab['label'] not in tab_names
+            position = tab['position'] if hidden else tab_names.index(tab['label']) + 1
+            data = {'hidden': hidden, 'position': position, "label": tab["label"]}
+
+            self.api.tabs.edit(tab['id'],data)
+            tasks.set_description(f"Adjusted '{tab['label']}' Tab")
 
     def resetCourse(self):
         self.api.groups.disableGroupWeights()

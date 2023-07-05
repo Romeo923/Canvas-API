@@ -30,8 +30,14 @@ class Inp:
     def __iter__(self):
         return self.settings.__iter__()
 
+    def existsAssignments(self, name):
+            return name in self.IDs['Assignments']
+
+    def existsFiles(self, name):
+            return name in self.IDs['Files']
+
     def exists(self, name):
-        return name in self.IDs['Assignments'] or name in self.IDs['Files']
+        return self.existsAssignments(name) or self.existsFiles(name)
 
     def save(self):
         self._allIDs[self.course_id] = self.IDs

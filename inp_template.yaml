@@ -4,11 +4,10 @@ Assignment_Settings: &assignment_default_settings
   rules: drop_lowest:2\n # must ALWASY end with \n
   file_upload: false
   amount: null
-  parent_folder: null
   published: true
   group_weight: 10
   max_points: 100
-  start_date: 9/5/2022 # MUST be on a day (Mon, Tue, Wed, ...) listed in Class Schedule
+  start_date: 9/5/2022
   end_date: 12/30/2022
   interval: weekly # can be "daily", "weekly", or a positive integer value
   no_overlap:
@@ -22,7 +21,6 @@ Default: &default_config
     hmk:
       <<: *assignment_default_settings
       file_upload: true
-      parent_folder: hmk
 
     quiz:
       <<: *assignment_default_settings
@@ -93,6 +91,10 @@ Default: &default_config
     one_question_at_a_time: true
 
   Files: &default_files
+
+    hmk:
+      parent_folder: hmk
+
     slide:
       parent_folder: slides
 
@@ -120,9 +122,11 @@ Default: &default_config
   Tabs:
     - Home
     - Assignments
+    - TEST REDIRECT
     - Grades
     - People
     - Files
+    - Studio
     - Quizzes
     - Settings
     - Zoom
@@ -136,6 +140,8 @@ Default: &default_config
 
     holy_days:
       - 10/10/2022
+
+  Videos: null
 
 "Course ID #1": # course only uses default settings
   <<: *default_config

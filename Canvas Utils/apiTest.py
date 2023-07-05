@@ -11,8 +11,8 @@ import canvas
 # # * dispalys course details
 # canvas.main(canvas.DETAILS)
 
-#* reset and init canvas
-# canvas.main(canvas.INIT)
+# * reset and init canvas
+canvas.main(canvas.INIT)
 
 #* reorders tabs
 tab_list = [
@@ -27,8 +27,8 @@ tab_list = [
     "Smarthinking Online Tutoring"
     "Settings",
 ]
-tabs = [canvas.REORDER, tab_list]
-canvas.main(*tabs)
+# tabs = [canvas.REORDER, tab_list]
+# canvas.main(*tabs)
 
 # #* create a new assignment
 # os.chdir('./hmk/')

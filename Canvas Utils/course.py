@@ -3,6 +3,7 @@ import os
 from glob import glob
 import pandas as pd
 from multiprocessing.pool import ThreadPool
+from multiprocessing import Lock
 import threading
 from inp import Inp
 from canvasAPI import CanvasAPI
@@ -18,8 +19,7 @@ class Course:
         self._errors = list()
 
     def initCourse(self):
-        ASSIGNMENTS, QUIZZES, FILES, FILE_EXTS, GRADING_SCALE, TABS, CLASS_SCHEDULE, *_ = self.inp
-        # ASSIGNMENTS, QUIZZES, FILES, FILE_EXTS, GRADING_SCALE, TABS, EXTERNAL_TOOLS, CLASS_SCHEDULE, *_ = self.inp
+        ASSIGNMENTS, QUIZZES, FILES, FILE_EXTS, GRADING_SCALE, TABS, CLASS_SCHEDULE, VIDEOS, *_ = self.inp
 
         assignments = self.inp[ASSIGNMENTS]
         quizzes = self.inp[QUIZZES]
@@ -27,40 +27,25 @@ class Course:
         file_exts = self.inp[FILE_EXTS]
         grading_scale = self.inp[GRADING_SCALE]
         my_tabs = self.inp[TABS]
-        # tools = self.inp[EXTERNAL_TOOLS]
         schedule = self.inp[CLASS_SCHEDULE]
+        videos = self.inp[VIDEOS]
 
         self.api.groups.enableGroupWeights()
 
-        # self._initTools(tools)
         self.reorderTabs(my_tabs)
         self._initGradeScales(grading_scale)
         self._initAssignments(assignments, schedule, file_exts)
         self._initQuizzes(quizzes, schedule)
         self._initFiles(files, file_exts)
+        self._initVideos(videos)
 
         self.save()
         print_stderr('\n')
+
         if self._errors:
             print_stderr(f'{len(self._errors)} error(s) occurred during upload:')
             [print_stderr(error) for error in self._errors]
             print_stderr('\n')
-
-    def _initTools(self, tools):
-        for tool in tools:
-
-            toolData = {
-                "client_id": "N/A",
-                "consumer_key": "N/A",
-                "shared_secret": "N/A",
-                "privacy_level": "public",
-                "name": tools[tool],
-                "custom_fields[name]": tool,
-                "custom_fields[url]": tool["url"],
-
-            }
-
-            self.api.external_tools.create(toolData)
 
     def _initGradeScales(self, grading_scale):
         #* creates grading scales
@@ -107,6 +92,8 @@ class Course:
                 "assignment[assignment_group_id]" : id,
             }
 
+            names = [f'{dir}-{i+1}' for i in range(dir_settings['amount'] or 0)]
+
             #* Assignment w/File
             if dir_settings['file_upload']:
 
@@ -116,52 +103,20 @@ class Course:
                 filter2 = f"{dir_filter}.*"
                 files = naturalSort(glob(filter,root_dir=path) + glob(filter2,root_dir=path))
 
-                folder_data = {
-                    "name" : dir_settings['parent_folder'],
-                    "parent_folder_path" : ""
-                }
+                names = [f[0] for file in files if (f := file.split('.',1)) and f[-1] in file_exts]
 
-                parent_folder_id = self.createFolder(dir, folder_data)
+            for i, name in enumerate(names):
+                try:
+                    date = next(upload_dates)
+                except StopIteration:
+                    self._errors.append(f"Assignments have exceed end date.\nCould not upload: {dir}'s {i+1}-{dir_settings['amount']}")
+                    break
 
-                #* create each assignment, upload file, attach file to assignment
-                uploading = (f for file in files if (f := file.split('.',1)) and f[-1] in file_exts)
-                for file in uploading:
-                    file_name, ext = file
-                    try:
-                        date = next(upload_dates)
-                    except StopIteration:
-                        self._errors.append(f'Assignments have exceed end date.\nCould not upload: {[file, *uploading]}')
-                        break
+                assignment_data["assignment[name]"] = name
+                assignment_data["assignment[submission_types][]"] = ["on_paper","online_upload"] if dir_settings['file_upload'] else ["on_paper"]
+                assignment_data["assignment[due_at]"] = date
 
-                    assignment_data["assignment[name]"] = file_name
-                    assignment_data["assignment[submission_types][]"] = ["on_paper","online_upload"]
-                    assignment_data["assignment[due_at]"] = date
-
-                    file_data = {
-                        "name":f'{file_name}.{ext}',
-                        "parent_folder_id": parent_folder_id
-                    }
-
-                    file_path = os.path.join(self.course_dir, dir, f'{file_name}.{ext}')
-
-                    self.uploadAssignmentFile(assignment_data, file_data, file_path)
-
-            #* Assignment w/o File
-            else:
-
-                # Creates the specified number of Assignments
-                for i in range(dir_settings['amount']):
-                    try:
-                        date = next(upload_dates)
-                    except StopIteration:
-                        self._errors.append(f"Assignments have exceed end date.\nCould not upload: {dir}'s {i+1}-{dir_settings['amount']}")
-                        break
-
-                    assignment_data["assignment[name]"] = f'{dir}-{i+1}'
-                    assignment_data["assignment[submission_types][]"] = ["on_paper"]
-                    assignment_data["assignment[due_at]"] = date
-
-                    self.uploadAssignment(assignment_data)
+                self.uploadAssignment(assignment_data)
             self.editGroup(id, group_rules)
             return dir
 
@@ -263,13 +218,65 @@ class Course:
                 }
 
                 file_path = os.path.join(self.course_dir, dir, file)
-                self.uploadFile(file_path, file_data)
+                data = self.uploadFile(file_path, file_data)
+
+                name, _ = file.split('.',1)
+                if self.inp.existsAssignments(name):
+                    file_id = data['id']
+                    file_name = data['filename']
+                    file_preview = f'<p><a class="instructure_file_link instructure_scribd_file auto_open" title="{file_name}" href="https://bridgeport.instructure.com/courses/{self.course_id}/files/{file_id}?wrap=1" target="_blank" rel="noopener" data-api-endpoint="{self.api.ub_url}/courses/{self.course_id}/files/{file_id}" data-api-returntype="File">{file_name}</a></p>'
+                    self.editAssignment(name, {'assignment[description]': file_preview})
+
             return dir
 
         with ThreadPool() as pool:
             tasks = tqdm(pool.imap_unordered(_uploadFiles, file_settings), total=len(file_settings))
             for task in tasks:
                 tasks.set_description(f'Uploaded {task} Files')
+
+    def _initVideos(self, videos):
+        if not videos: return
+
+        lock = Lock()
+
+        def _attatchVideo(video):
+            media_id = videos[video]
+            display_media_tabs = 'false' # false = true for some reason
+            display_download = 'true'
+
+            embed = f'<p><iframe class="lti-embed" style="width: 800px; height: 880px;" title="{video}" src="/courses/{self.course_id}/external_tools/retrieve?display=borderless&amp;url=https%3A%2F%2Fbridgeport.instructuremedia.com%2Flti%2Flaunch%3Fcustom_arc_display_download%3D{display_download}%26custom_arc_launch_type%3Dembed%26custom_arc_media_id%3D{media_id}%26custom_arc_start_at%3D0" width="800" height="880" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" allow="geolocation *; microphone *; camera *; midi *; encrypted-media *; autoplay *; clipboard-write *; display-capture *" data-studio-resizable="{display_media_tabs}" data-studio-tray-enabled="{display_media_tabs}" data-studio-convertible-to-link="true"></iframe></p>'
+
+            if self.inp.existsAssignments(video):
+                self.editAssignment(video, {'assignment[description]': embed})
+
+            else:
+                lock.acquire()
+                if "Videos" not in self.inp.IDs['Groups']:
+                    group_data = {
+                        "name" : 'Videos',
+                        "group_weight" : 0
+                    }
+                    id = self.initGroup(group_data)
+                else:
+                    id = self.inp.IDs['Groups']['Videos']
+                lock.release()
+
+                data = {
+                    "assignment[name]": video,
+                    "assignment[points_possible]" : 0,
+                    "assignment[grading_type]": "not_graded",
+                    "assignment[published]": True,
+                    "assignment[assignment_group_id]" : id,
+                    'assignment[description]': embed
+                }
+                self.uploadAssignment(data)
+
+            return video
+
+        with ThreadPool() as pool:
+            tasks = tqdm(pool.imap_unordered(_attatchVideo, videos), total=len(videos))
+            for task in tasks:
+                tasks.set_description(f'Uploaded Video: {task}')
 
     def syncCourse(self):
 
@@ -400,16 +407,6 @@ class Course:
             folder_id = self.api.folders.create(data).json()['id']
         self.inp.IDs['Folders'][dir] = folder_id
         return folder_id
-
-    def uploadAssignmentFile(self, assignment_data: dict, file_data: dict, path: str):
-        response, file_id = self.api.assignments.createWithFile(assignment_data, path)
-        self.api.files.edit(file_id, file_data)
-
-        assignment_name = assignment_data["assignment[name]"]
-        assignment_id = response.json()['id']
-        file_name = file_data['name']
-        self.inp.IDs['Assignments'][assignment_name] = assignment_id
-        self.inp.IDs['Files'][file_name] = file_id
 
     def editAssignment(self, name: str, data: dict):
         aid = self.inp.IDs['Assignments'][name]

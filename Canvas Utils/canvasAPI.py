@@ -20,6 +20,7 @@ class CanvasAPI:
         self.quizzes = Quizzes(base_url = self.ub_url, course_id = self.course_id, endpoint = "quizzes", headers = self.headers)
         self.external_tools = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "external_tools", headers = self.headers)
         self.tabs = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "tabs", headers = self.headers)
+        self.media = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "media_objects", headers = self.headers)
 
     def get(self, url: str):
         return requests.get(url=url, headers=self.headers)
@@ -163,17 +164,6 @@ class Assignments(APISection):
         super().__init__(base_url, course_id, endpoint, headers)
         self.file_handler = file_handler
 
-    # TODO remove
-    # shift responsibility to course
-    # i.e. course should create both assignment and file and attach file to assignment
-    def createWithFile(self, data: dict, path: str):
-        response = self.file_handler.create(path).json()
-        file_id = response['id']
-        file_name = response['filename']
-        file_preview = f'<p><a class="instructure_file_link instructure_scribd_file auto_open" title="{file_name}" href="https://bridgeport.instructure.com/courses/{self.course_id}/files/{file_id}?wrap=1" target="_blank" rel="noopener" data-api-endpoint="{self.base_url}/courses/{self.course_id}/files/{file_id}" data-api-returntype="File">{file_name}</a></p>'
-        data['assignment[description]'] = file_preview
-        return self.create(data), file_id
-
     def grade(self, assignment_id, student_id, grade_data):
         full_path = f'{self.endpoint_url}/{assignment_id}/submissions/{student_id}'
         return requests.put(url=full_path,headers=self.headers,params=grade_data)
@@ -229,6 +219,8 @@ class QuizQuestions(APISection):
         super().__init__(base_url, course_id, endpoint, headers)
         self.endpoint_url = None
 
+    #* data and params give code 500
+    #* must use json
     def create(self, quiz_id, question_data):
         full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}'
         return requests.post(url=full_path,headers=self.headers, json=question_data)

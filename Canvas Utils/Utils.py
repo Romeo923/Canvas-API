@@ -4,6 +4,7 @@ import os
 import sys
 import re
 import requests
+import urllib.parse
 import zipfile
 import io
 from inp import Inp
@@ -128,3 +129,7 @@ def downloadZIP(url: str, file_name: str, download_path: str):
 
 def print_stderr(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+def url_encode(text: str):
+    safe ='<>=" /%?:\n;'
+    return urllib.parse.quote(text, safe=safe)

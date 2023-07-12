@@ -16,14 +16,15 @@ class CanvasAPI:
         self.files = Files(base_url = self.ub_url, course_id = self.course_id, endpoint = "files", headers = self.headers)
         self.folders = Folders(base_url = self.ub_url, course_id = self.course_id, endpoint = "folders", headers = self.headers)
         self.groups = Groups(base_url = self.ub_url, course_id = self.course_id, endpoint = "assignment_groups", headers = self.headers)
-        self.assignments = Assignments(base_url = self.ub_url, course_id = self.course_id, endpoint = "assignments", headers = self.headers, file_handler = self.files)
+        self.assignments = Assignments(base_url = self.ub_url, course_id = self.course_id, endpoint = "assignments", headers = self.headers)
         self.quizzes = Quizzes(base_url = self.ub_url, course_id = self.course_id, endpoint = "quizzes", headers = self.headers)
         self.external_tools = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "external_tools", headers = self.headers)
         self.tabs = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "tabs", headers = self.headers)
-        self.media = APISection(base_url = self.ub_url, course_id = self.course_id, endpoint = "media_objects", headers = self.headers)
 
-    def get(self, url: str):
-        return requests.get(url=url, headers=self.headers)
+    def get(self, url: str, data = None):
+        if data is None:
+            data = {}
+        return requests.get(url=url, headers=self.headers, params=data)
 
     def createGradingScale(self, scale_data):
         full_path = f"{self.endpoint_url}/grading_standards"
@@ -160,9 +161,8 @@ class Folders(APISection):
 
 class Assignments(APISection):
 
-    def __init__(self, base_url: str, course_id: int | str, endpoint: str, headers: dict, file_handler: Files) -> None:
+    def __init__(self, base_url: str, course_id: int | str, endpoint: str, headers: dict) -> None:
         super().__init__(base_url, course_id, endpoint, headers)
-        self.file_handler = file_handler
 
     def grade(self, assignment_id, student_id, grade_data):
         full_path = f'{self.endpoint_url}/{assignment_id}/submissions/{student_id}'
@@ -211,9 +211,10 @@ class Quizzes(APISection):
     def __init__(self, base_url: str, course_id: int | str, endpoint: str, headers: dict) -> None:
         super().__init__(base_url, course_id, endpoint, headers)
 
-        self.questions = QuizQuestions(base_url = self.endpoint_url, course_id = self.course_id, endpoint = "questions", headers = self.headers)
+        self.questions = QuizElement(base_url = self.endpoint_url, course_id = self.course_id, endpoint = "questions", headers = self.headers)
+        self.groups = QuizElement(base_url = self.endpoint_url, course_id = self.course_id, endpoint = "groups", headers = self.headers)
 
-class QuizQuestions(APISection):
+class QuizElement(APISection):
 
     def __init__(self, base_url: str, course_id: int | str, endpoint: str, headers: dict) -> None:
         super().__init__(base_url, course_id, endpoint, headers)
@@ -221,9 +222,9 @@ class QuizQuestions(APISection):
 
     #* data and params give code 500
     #* must use json
-    def create(self, quiz_id, question_data):
+    def create(self, quiz_id, element_data):
         full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}'
-        return requests.post(url=full_path,headers=self.headers, json=question_data)
+        return requests.post(url=full_path,headers=self.headers, json=element_data)
 
     def list(self, quiz_id):
         full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}'
@@ -246,14 +247,14 @@ class QuizQuestions(APISection):
             for item in items:
                 yield item
 
-    def get(self, quiz_id, question_id):
-        full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}/{question_id}'
+    def get(self, quiz_id, element_id):
+        full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}/{element_id}'
         return requests.get(url=full_path,headers=self.headers)
 
-    def edit(self, quiz_id, question_id, question_data):
-        full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}/{question_id}'
-        return requests.put(url=full_path,headers=self.headers,params=question_data)
+    def edit(self, quiz_id, element_id, element_data):
+        full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}/{element_id}'
+        return requests.put(url=full_path,headers=self.headers,params=element_data)
 
-    def delete(self, quiz_id, question_id):
-        full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}/{question_id}'
+    def delete(self, quiz_id, element_id):
+        full_path = f'{self.base_url}/{quiz_id}/{self.endpoint}/{element_id}'
         return requests.delete(url=full_path,headers=self.headers)

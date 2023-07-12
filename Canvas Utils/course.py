@@ -141,12 +141,14 @@ class Course:
         def _uploadQuizzes(args):
             quiz, date = args
             gid = self.inp.IDs['Groups'][quiz_settings['group']]
+            desc, time, *groups = quiz_yaml[quiz]
+
             quiz_data = {
                 "quiz[title]" : quiz,
-                "quiz[description]" : quiz_yaml[quiz]['description'],
+                "quiz[description]" : url_encode(quiz_yaml[quiz][desc]),
                 "quiz[quiz_type]" : quiz_settings['quiz_type'],
                 "quiz[assignment_group_id]" : gid,
-                "quiz[time_limit]" : quiz_yaml[quiz]['time_limit'],
+                "quiz[time_limit]" : quiz_yaml[quiz][time],
                 "quiz[show_correct_answers]" : quiz_settings['show_correct_answers'],
                 "quiz[shuffle_answers]" : quiz_settings['shuffle_answers'],
                 "quiz[due_at]" : date,
@@ -155,31 +157,46 @@ class Course:
 
             self.uploadQuiz(quiz_data)
             quiz_id = self.inp.IDs['Quizzes'][quiz]
-            questions = quiz_yaml[quiz]['Questions']
 
-            for question in questions:
-                question_answers = questions[question]['Answers']
-                answers = []
-                for answer in question_answers:
-                    answer_data = {
-                        "text" : question_answers[answer]["answer_text"],
-                        "weight" : 100 if question_answers[answer]['correct'] else 0
-                    }
+            for group in groups:
 
-                    answers.append(answer_data)
-                question_data = {
-                    "question":{
-                        "question_name" : questions[question]['question_name'],
-                        "question_text" : questions[question]['question_text'],
-                        "question_type" : questions[question]['question_type'],
-                        # "position" : question,
-                        "quiz_group_id" : None,
-                        "points_possible" : questions[question]['points_possible'],
-                        "answers" : answers
-                    }
-
+                group_data = {
+                    "quiz_groups":[{
+                        "name": group,
+                        "pick_count": quiz_yaml[quiz][group]["pick"],
+                        "question_points": quiz_yaml[quiz][group]["points_per_question"]
+                    }]
                 }
-                self.uploadQuizQuestion(quiz_id,question_data)
+
+                #TODO self.createQuizGroup()
+                res = self.api.quizzes.groups.create(quiz_id, group_data)
+                data = res.json()
+                group_id = data['quiz_groups'][0]['id']
+                questions = quiz_yaml[quiz][group]['questions']
+
+                for question in questions:
+                    question_answers = questions[question]['Answers']
+                    answers = []
+                    for answer in question_answers:
+                        answer_data = {
+                            "text" : url_encode(question_answers[answer]["answer_text"]),
+                            "weight" : 100 if question_answers[answer]['correct'] else 0
+                        }
+
+                        answers.append(answer_data)
+                    question_data = {
+                        "question":{
+                            "question_name" : questions[question]['question_name'],
+                            "question_text" : url_encode(questions[question]['question_text']),
+                            "question_type" : questions[question]['question_type'],
+                            # "position" : question,
+                            "quiz_group_id" : group_id,
+                            "points_possible" : questions[question]['points_possible'],
+                            "answers" : answers
+                        }
+
+                    }
+                    self.uploadQuizQuestion(quiz_id,question_data)
             return quiz
 
         with ThreadPool() as pool:
@@ -479,6 +496,10 @@ class Course:
         question_id = question_id['id']
         name = data['question']["question_name"]
         self.inp.IDs['Quizzes'][quiz_id][name] = question_id
+
+    #TODO Implement
+    def createQuizGroup(self, quiz_id: int | str, data: dict):
+        pass
 
     # TODO: implement
     def deleteQuiz(self, name: str):

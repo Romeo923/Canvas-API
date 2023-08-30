@@ -156,5 +156,5 @@ def print_stderr(*args, **kwargs):
 
 
 def url_encode(text: str):
-    safe = '<>=" /%?:\n;'
+    safe = '<>=" /%?:\n;$,\''
     return urllib.parse.quote(text, safe=safe)

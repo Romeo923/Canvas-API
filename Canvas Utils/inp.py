@@ -8,7 +8,7 @@ class Inp:
         self.settings = settings
         self.course_id = course_id
 
-        path = os.path.join(self.root_dir, self.course_id, 'ids.yaml')
+        path = os.path.join(self.root_dir, 'ids.yaml')
 
         if not os.path.exists(path):
             self._allIDs = {}
@@ -17,7 +17,7 @@ class Inp:
             with open(path, 'r') as f:
                 self._allIDs = yaml.safe_load(f)
 
-            self.IDs:dict = self._allIDs[self.course_id]
+        self.IDs:dict = self._allIDs[self.course_id]
 
     def __getitem__(self,setting: str):
         return self.IDs if setting == 'IDs' else self.settings[setting]

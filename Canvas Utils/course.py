@@ -704,7 +704,7 @@ class Course:
         for assignment, student_id, grade, points in tasks:
             if points == -1:
                 self.editAssignment(
-                    assignment, {"assignment[grading_type]": "not_graded"}
+                    assignment, {"assignment[omit_from_final_grade]": True}
                 )
             else:
                 self.editAssignment(assignment, {"assignment[points_possible]": points})

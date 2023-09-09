@@ -143,11 +143,8 @@ class Course:
                     break
 
                 assignment_data["assignment[name]"] = name
-                assignment_data["assignment[submission_types][]"] = (
-                    ["on_paper", "online_upload"]
-                    if dir_settings["file_upload"]
-                    else ["on_paper"]
-                )
+                assignment_data["assignment[submission_types][]"] = dir_settings['submit_type']
+                assignment_data["assignment[allowed_extensions]"] = dir_settings['submit_ext']
                 assignment_data["assignment[due_at]"] = date
 
                 self.uploadAssignment(assignment_data)

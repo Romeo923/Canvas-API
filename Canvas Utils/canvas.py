@@ -285,7 +285,7 @@ def upload(course: Course, args: list[str], kwargs: dict):
         assignment_data["assignment[submission_types][]"] = ["on_paper"]
 
         has_file = False
-        for assignment in os.listdir(os.getcwd()):
+        for assignment in os.listdir(os.getcwd()): #checks current directory
             name, ext = assignment.split('.',1) if '.' in assignment else (assignment, "")
             if name == full_name and ext in course.inp['File Extentions']:
                 has_file = True
@@ -298,9 +298,9 @@ def upload(course: Course, args: list[str], kwargs: dict):
                 'parent_folder_id': folder_id
             }
             assignment_data["assignment[submission_types][]"] += ["online_upload"]
-            path = os.path.join(os.getcwd(),assignment)
+            path = os.path.join(os.getcwd(), assignment)
             course.uploadAssignmentFile(assignment_data, file_data, path)
-            print_stderr(f'Uploaded asignment: {name} with file {assignment} attatched.\n')
+            print_stderr(f'Uploaded asignment: {name} with file {assignment} attached.\n')
         else:
             course.uploadAssignment(assignment_data)
             print_stderr(f'Uploaded assignment {name}.\n')

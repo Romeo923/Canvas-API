@@ -21,6 +21,8 @@ REPLACE = '--replace' # edit assignments / replace files
 QUIZ = '--quiz' # create or reupload quiz
 #* usage: canvas.py --quiz quiz-name
 # will create or reupload quiz-name with settings from quizzes.yaml
+#* usage: canvas.py --quiz quiz-id get
+# will get all information regarding quiz-name (same as settings from quizzes.yaml) 
 
 SHIFT = '--shift' # shift assignment due dates
 #* usage: canvas.py --shift hmk-7 02/06/2023
@@ -137,6 +139,63 @@ def quiz(course: Course, args: list[str], kwargs: dict):
     full_name, *args = args
     name, ext = full_name.split('.',1) if '.' in full_name else (full_name, "")
 
+    if('get' in args):
+        quizInfo: dict = course.api.quizzes.get(name).json()
+        quizElements = course.api.quizzes.questions.listGenerator(name)
+
+        filterData = {}
+        # Quiz Formatting
+        quizInfoData = {
+            'description':quizInfo['description'],
+            'time_limit':quizInfo['time_limit']
+        }
+        filterData[quizInfo['title']] = quizInfoData
+
+        # Dict that contains all used Group IDs in selected quiz
+        allGroupIDs = {}
+
+        # Iterate through all questions returned from API
+        for question in quizElements:
+            # Grab Group ID for that question (which group it belongs to)
+            groupID = question['quiz_group_id']
+
+            # If it is NOT an ID we've seen, add it to the allGroupIDs dict
+            if(groupID not in allGroupIDs):
+                # Call API to get all information about said Group
+                quizGroups = course.api.quizzes.groups.get(name,groupID).json()
+                # Save the name of that Group as the KEY in the dictionary
+                groupName = quizGroups['name']
+                allGroupIDs[groupID] = groupName
+                # Filter out the relevant information for that group 
+                quizInfoData[groupName] = {
+                    'pick_count':quizGroups['pick_count'],
+                    'points_per_question':quizGroups['question_points'],
+                    'questions':{}
+                }
+
+            # Go into the the questions dict (above), filter relevant information
+            quizInfoData[groupName]['questions'][question['id']] = {
+                'question_name':question['question_name'],
+                'question_text':question['question_text'],
+                'question_type':question['question_type'],
+                'points_possible':question['points_possible'],
+                'Answers':{}
+            }
+
+            # Same as prior, go to Answers dict (above), filter relevant information
+            for answers in question['answers']:
+                quizInfoData[groupName]['questions'][question['id']]['Answers'][answers['id']] = {
+                    'answer_text':answers['text'],
+                    'correct':bool(answers['weight']) # This will give a 0 or 100, turns it into true or false
+                }
+
+        # Saves all this information into a file called gotQuizzes.yaml
+        # If the file does not exist it will make it
+        with open(os.path.join(course.course_dir,f'{name}.yaml'),'w') as f:
+            yaml.safe_dump(filterData,f,sort_keys=False)
+        
+        return
+    
     if name not in course.inp.IDs['Quizzes']:
         print_stderr(f'\n{full_name} does not exist.\n')
         return

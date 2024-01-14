@@ -12,7 +12,7 @@ import canvas
 # canvas.main(canvas.DETAILS)
 
 # * reset and init canvas
-canvas.main(canvas.INIT)
+# canvas.main(canvas.INIT)
 
 #* reorders tabs
 tab_list = [
@@ -69,8 +69,12 @@ tab_list = [
 # download_submissions = [canvas.DOWNLOAD, 'hmk-1']
 # canvas.main(*download_submissions)
 
-#* sync data
+# * sync data
 # sync = [canvas.SYNC]
 # canvas.main(*sync)
+
+# * download quiz
+args = [canvas.QUIZ, "4301773", 'get']
+canvas.main(*args)
 
 print_stderr('\nTest Complete.\n')

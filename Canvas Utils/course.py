@@ -203,7 +203,7 @@ class Course:
                     "quiz_groups": [
                         {
                             "name": group,
-                            "pick_count": quiz_yaml[quiz][group]["pick"],
+                            "pick_count": quiz_yaml[quiz][group]["pick_count"],
                             "question_points": quiz_yaml[quiz][group][
                                 "points_per_question"
                             ],

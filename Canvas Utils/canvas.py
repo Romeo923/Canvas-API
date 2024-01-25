@@ -2,6 +2,7 @@ import os
 from course import Course
 from Utils import *
 import yaml
+import re
 
 #! change/modify strings here to change flags
 
@@ -21,8 +22,9 @@ REPLACE = '--replace' # edit assignments / replace files
 QUIZ = '--quiz' # create or reupload quiz
 #* usage: canvas.py --quiz quiz-name
 # will create or reupload quiz-name with settings from quizzes.yaml
-#* usage: canvas.py --quiz quiz-id get
-# will get all information regarding quiz-name (same as settings from quizzes.yaml) 
+#* usage: canvas.py --quiz get
+# will get information from every quiz in the course and place it in a quizzes.yaml file
+# make sure there is a quizzes.yaml file in the course directory prior to running  
 
 SHIFT = '--shift' # shift assignment due dates
 #* usage: canvas.py --shift hmk-7 02/06/2023
@@ -139,59 +141,77 @@ def quiz(course: Course, args: list[str], kwargs: dict):
     full_name, *args = args
     name, ext = full_name.split('.',1) if '.' in full_name else (full_name, "")
 
-    if('get' in args):
-        quizInfo: dict = course.api.quizzes.get(name).json()
-        quizElements = course.api.quizzes.questions.listGenerator(name)
-
-        filterData = {}
-        # Quiz Formatting
-        quizInfoData = {
-            'description':quizInfo['description'],
-            'time_limit':quizInfo['time_limit']
+    if('get' in name):
+        allQuizzes: dict = course.api.quizzes.list().json()
+        # Add two filler entries 
+        # Allows both fetched AND default quizzes.yaml files to work with the command
+        filterData = {
+            '_': None,
+            '__': None
         }
-        filterData[quizInfo['title']] = quizInfoData
 
-        # Dict that contains all used Group IDs in selected quiz
-        allGroupIDs = {}
-
-        # Iterate through all questions returned from API
-        for question in quizElements:
-            # Grab Group ID for that question (which group it belongs to)
-            groupID = question['quiz_group_id']
-
-            # If it is NOT an ID we've seen, add it to the allGroupIDs dict
-            if(groupID not in allGroupIDs):
-                # Call API to get all information about said Group
-                quizGroups = course.api.quizzes.groups.get(name,groupID).json()
-                # Save the name of that Group as the KEY in the dictionary
-                groupName = quizGroups['name']
-                allGroupIDs[groupID] = groupName
-                # Filter out the relevant information for that group 
-                quizInfoData[groupName] = {
-                    'pick_count':quizGroups['pick_count'],
-                    'points_per_question':quizGroups['question_points'],
-                    'questions':{}
-                }
-
-            # Go into the the questions dict (above), filter relevant information
-            quizInfoData[groupName]['questions'][question['id']] = {
-                'question_name':question['question_name'],
-                'question_text':question['question_text'],
-                'question_type':question['question_type'],
-                'points_possible':question['points_possible'],
-                'Answers':{}
+        for quiz in allQuizzes:
+            # Grab respective quiz via ID and its questions
+            quizInfo: dict = course.api.quizzes.get(quiz['id']).json()
+            quizElements = course.api.quizzes.questions.listGenerator(quiz['id'])
+            
+            # Quiz Formatting
+            # Use re.sub to remove all HTML elements from the API response
+            quizInfoData = {
+                'description':re.sub(re.compile('<.*?>'),'',quizInfo['description']),
+                'time_limit':quizInfo['time_limit']
             }
+            filterData[quizInfo['title']] = quizInfoData
 
-            # Same as prior, go to Answers dict (above), filter relevant information
-            for answers in question['answers']:
-                quizInfoData[groupName]['questions'][question['id']]['Answers'][answers['id']] = {
-                    'answer_text':answers['text'],
-                    'correct':bool(answers['weight']) # This will give a 0 or 100, turns it into true or false
+            # Dict that contains all used Group IDs in selected quiz
+            allGroupIDs = {}
+            
+            # Iterable to number the questions
+            questCount = 1
+            
+            # Iterate through all questions returned from API
+            for question in quizElements:
+                # Grab Group ID for that question (which group it belongs to)
+                groupID = question['quiz_group_id']
+
+                # If it is NOT an ID we've seen, add it to the allGroupIDs dict
+                if(groupID not in allGroupIDs):
+                    # Call API to get all information about said Group
+                    quizGroups = course.api.quizzes.groups.get(quiz['id'],groupID).json()
+                    # Save the name of that Group as the KEY in the dictionary
+                    groupName = quizGroups['name']
+                    allGroupIDs[groupID] = groupName
+                    # Filter out the relevant information for that group 
+                    quizInfoData[groupName] = {
+                        'pick_count':quizGroups['pick_count'],
+                        'points_per_question':quizGroups['question_points'],
+                        'questions':{}
+                    }
+
+                # Go into the the questions dict (above), filter relevant information
+                # Use re.sub to remove all HTML elements from the API response
+                quizInfoData[groupName]['questions'][questCount] = {
+                    'question_name':question['question_name'],
+                    'question_text':re.sub(re.compile('<.*?>'),'',question['question_text']),
+                    'question_type':question['question_type'],
+                    'points_possible':question['points_possible'],
+                    'Answers':{}
                 }
 
-        # Saves all this information into a file called gotQuizzes.yaml
+                # Same as prior, go to Answers dict (above), filter relevant information
+                countAns = 1
+                for answers in question['answers']:
+                    quizInfoData[groupName]['questions'][questCount]['Answers'][countAns] = {
+                        'answer_text':answers['text'],
+                        'correct':bool(answers['weight']) # This will give a 0 or 100, turns it into true or false
+                    }
+                    countAns+=1
+                
+                questCount+=1
+
+        # Saves all this information into a file called fetchQuizzes.yaml
         # If the file does not exist it will make it
-        with open(os.path.join(course.course_dir,f'{name}.yaml'),'w') as f:
+        with open(os.path.join(course.course_dir,'quizzes.yaml'),'w') as f:
             yaml.safe_dump(filterData,f,sort_keys=False)
         
         return
@@ -234,30 +254,44 @@ def quiz(course: Course, args: list[str], kwargs: dict):
 
     course.uploadQuiz(quiz_data)
     quiz_id = course.inp.IDs['Quizzes'][name]
-    questions = quiz_yaml[name]['Questions']
-    for question in questions:
-        question_answers = questions[question]['Answers']
-        answers = []
-        for answer in question_answers:
-            answer_data = {
-                "text" : question_answers[answer]["answer_text"],
-                "weight" : 100 if question_answers[answer]['correct'] else 0
-            }
-
-            answers.append(answer_data)
-        question_data = {
-            "question":{
-                "question_name" : questions[question]['question_name'],
-                "question_text" : questions[question]['question_text'],
-                "question_type" : questions[question]['question_type'],
-                # "position" : question,
-                "quiz_group_id" : None,
-                "points_possible" : questions[question]['points_possible'],
-                "answers" : answers
-            }
-
+    _,_,*groups = quiz_yaml[name]
+    for group in groups:
+        group_data = {
+            "quiz_groups": [
+                {
+                    "name": group,
+                    "pick_count": quiz_yaml[name][group]["pick_count"],
+                    "question_points": quiz_yaml[name][group]["points_per_question"] 
+                }
+            ]
         }
-        course.uploadQuizQuestion(quiz_id,question_data)
+        res = course.api.quizzes.groups.create(quiz_id,group_data)
+        data = res.json()
+        group_id = data["quiz_groups"][0]["id"]
+        questions = quiz_yaml[name][group]['questions']
+        for question in questions:
+            question_answers = questions[question]['Answers']
+            answers = []
+            for answer in question_answers:
+                answer_data = {
+                    "text" : question_answers[answer]["answer_text"],
+                    "weight" : 100 if question_answers[answer]['correct'] else 0
+                }
+
+                answers.append(answer_data)
+            question_data = {
+                "question":{
+                    "question_name" : questions[question]['question_name'],
+                    "question_text" : questions[question]['question_text'],
+                    "question_type" : questions[question]['question_type'],
+                    # "position" : question,
+                    "quiz_group_id" : group_id,
+                    "points_possible" : questions[question]['points_possible'],
+                    "answers" : answers
+                }
+
+            }
+            course.uploadQuizQuestion(quiz_id,question_data)
     course.save()
     print_stderr(f'\n{name} has been reuploaded.\n')
 

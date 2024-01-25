@@ -39,7 +39,7 @@ Quiz 1:
   description: "quiz 1 description"
   time_limit: 20 # minutes
   question_group_A:
-    pick: 2 # integer amount
+    pick_count: 2 # integer amount
     points_per_question: 3
     questions:
       1:
@@ -97,7 +97,7 @@ Quiz 2:
   description: "quiz 2 description"
   time_limit: 20 # minutes
   question_group_A:
-    pick: 1 # integer amount
+    pick_count: 1 # integer amount
     points_per_question: 3
     questions:
       1:
@@ -161,7 +161,7 @@ Quiz 3:
   description: "quiz 3 description"
   time_limit: 20 # minutes
   question_group_A:
-    pick: 3 # integer amount
+    pick_count: 3 # integer amount
     points_per_question: 3
     questions:
       1:

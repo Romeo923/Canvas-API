@@ -69,12 +69,13 @@ tab_list = [
 # download_submissions = [canvas.DOWNLOAD, 'hmk-1']
 # canvas.main(*download_submissions)
 
-# * sync data
+# # * sync data
 # sync = [canvas.SYNC]
 # canvas.main(*sync)
 
 # * download quiz
-args = [canvas.QUIZ, "4301773", 'get']
+# args = [canvas.QUIZ,'literally-anything', 'get']
+args = [canvas.QUIZ,'Quiz 1']
 canvas.main(*args)
 
 print_stderr('\nTest Complete.\n')
